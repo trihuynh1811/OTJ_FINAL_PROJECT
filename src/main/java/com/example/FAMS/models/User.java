@@ -64,6 +64,6 @@ public class User {
     private Set<ClassUser> classUsers = new HashSet<>();
 
     @ManyToOne
-    @JoinColumn(name = "UserPermission_id")
+    @JoinColumn(name = "permissionId")
     private UserPermission userPermission;
 }
