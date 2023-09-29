@@ -5,6 +5,8 @@ import lombok.*;
 import org.hibernate.annotations.Cache;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Builder
@@ -48,4 +50,8 @@ public class TrainingProgram {
 
     @Column(nullable = false, name = "midified_date")
     private Date modifiedDate;
+
+    @OneToMany(mappedBy = "trainingProgramCode")
+    private final Set<TrainingProgramSyllabus> TrainingProgramSyllabus = new HashSet<>();
+
 }

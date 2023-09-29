@@ -2,11 +2,9 @@ package com.example.FAMS.models;
 
 
 import com.example.FAMS.enums.Role;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
@@ -14,7 +12,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Data
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
@@ -22,7 +19,6 @@ import java.util.Set;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "user_id")
     private int id;
 
     @Column(name = "name", nullable = false)
@@ -59,9 +55,8 @@ public class User {
     @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
-    @OneToMany(mappedBy = "UserID", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private Set<ClassUser> classUsers = new HashSet<>();
+    @OneToMany(mappedBy = "userID")
+    private final Set<ClassUser> classUsers = new HashSet<>();
 
 //    @ManyToOne
 //    @JoinColumn(name = "UserPermission_id")

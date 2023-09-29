@@ -3,6 +3,9 @@ package com.example.FAMS.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Builder
 @Getter
@@ -13,8 +16,8 @@ import lombok.*;
 public class TrainingContent {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    @Column(nullable = false, name = "unit_code")
+    private String unitCode;
 
     @Column(nullable = false, name = "learning_object")
     private String learningObjective;
@@ -31,6 +34,8 @@ public class TrainingContent {
     @Column(nullable = false, name = "note")
     private String note;
 
-    @Column(nullable = false, name = "unit_code")
-    private String unitCode;
+
+
+    @OneToMany(mappedBy = "unitCode")
+    private final Set<TrainingUnit> tu = new HashSet<>();
 }

@@ -7,16 +7,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
+@Table(name = "Syllabus")
 public class Syllabus {
 
     @Id
-    @Column(name = "topic_code")
+    @Column(name = "topic_code", nullable = false)
     private String topicCode;
 
     @Column(name = "topic_name", nullable = false)
@@ -57,4 +60,11 @@ public class Syllabus {
 
     @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
+
+    @OneToMany(mappedBy = "topicCode")
+    private final Set<TrainingProgramSyllabus> tps = new HashSet<>();
+
+    @OneToMany(mappedBy = "topicCode")
+    private final Set<TrainingUnit> tu = new HashSet<>();
+
 }
