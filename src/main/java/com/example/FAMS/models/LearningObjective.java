@@ -1,12 +1,11 @@
 package com.example.FAMS.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -16,7 +15,8 @@ import lombok.NoArgsConstructor;
 public class LearningObjective {
 
     @Id
-    private String code;
+    @Column(name = "code")
+    private String learningObjectiveCode;
 
     @Column(nullable = false)
     private String name;
@@ -26,4 +26,11 @@ public class LearningObjective {
 
     @Column(nullable = false)
     private String description;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable( name = "syllabus_objective",
+            joinColumns = {@JoinColumn(name = "objective_code")},
+            inverseJoinColumns = {@JoinColumn(name = "syllabus_code")}
+    )
+    private Set<Syllabus> syllabi;
 }

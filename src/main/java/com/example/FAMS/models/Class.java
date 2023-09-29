@@ -21,7 +21,7 @@ public class Class {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
-    private Long id;
+    private int id;
 
     @Column(name = "training_program_code", nullable = false)
     private String trainingProgramCode;

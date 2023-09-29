@@ -1,12 +1,13 @@
 package com.example.FAMS.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Date;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -57,4 +58,15 @@ public class Syllabus {
 
     @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
+
+    @ManyToOne
+    @JoinColumn(nullable=false, name = "user_syllabus")
+    private User user;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable( name = "syllabus_objective",
+            joinColumns = {@JoinColumn(name = "syllabus_code")},
+            inverseJoinColumns = {@JoinColumn(name = "objective_code")}
+    )
+    private Set<LearningObjective> learningObjectives;
 }
