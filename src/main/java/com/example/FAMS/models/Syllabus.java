@@ -61,6 +61,10 @@ public class Syllabus {
     @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
+    @ManyToOne
+    @JoinColumn(name = "Users_id")
+    private User userID;
+
     @OneToMany(mappedBy = "topicCode")
     private final Set<TrainingProgramSyllabus> tps = new HashSet<>();
 

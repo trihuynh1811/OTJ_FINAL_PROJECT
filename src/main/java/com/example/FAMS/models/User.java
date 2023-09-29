@@ -66,4 +66,7 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "permissionId")
     private UserPermission userPermission;
+
+    @OneToMany(mappedBy = "userID")
+    private final Set<Syllabus> s = new HashSet<>();
 }
