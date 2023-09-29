@@ -11,15 +11,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Table(name = "UserPermission")
+@Table(name = "user_permission")
 public class UserPermission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private String permissionId;
 
     @Column(name = "role",nullable = false)
     @Enumerated(EnumType.STRING)
@@ -34,6 +35,6 @@ public class UserPermission {
     @Column(name = "learning_material",nullable = false)
     private String learningMaterial;
 
-    @OneToMany(mappedBy = "role")
-    private final Set<User> users = new HashSet<>();
+    @OneToMany(mappedBy = "userPermission")
+    private Set<User> users = new HashSet<>();
 }
