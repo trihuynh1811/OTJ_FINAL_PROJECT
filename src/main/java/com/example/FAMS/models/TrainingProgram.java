@@ -20,7 +20,8 @@ public class TrainingProgram {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String code;
+    @Column(name = "training_program_code")
+    private String trainingProgramCode;
 
     @Column(nullable = false, name = "name")
     private String name;

@@ -1,6 +1,7 @@
 package com.example.FAMS.models;
 
 
+import com.example.FAMS.models.composite_key.ClassUserCompositeKey;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,16 +15,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "ClassUser")
 public class ClassUser {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column
-    private Long id;
+
+    @EmbeddedId
+    ClassUserCompositeKey id;
 
     @ManyToOne
+    @MapsId("classId")
     @JoinColumn(name = "class_id")
     private Class classID;
 
     @ManyToOne
+    @MapsId("userId")
     @JoinColumn(name = "users_id")
     private User userID;
 
