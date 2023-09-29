@@ -3,6 +3,7 @@ package com.example.FAMS.models;
 import com.example.FAMS.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,12 +13,13 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "UserPermission")
 public class UserPermission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String permissionId;
+    private int id;
 
     @Column(name = "role",nullable = false)
     @Enumerated(EnumType.STRING)
@@ -26,12 +28,12 @@ public class UserPermission {
     @Column(name = "syllabus",nullable = false)
     private String syllabus;
 
-    @Column(name = "user",nullable = false)
+    @Column(name = "user_class",nullable = false)
     private String userClass;
 
     @Column(name = "learning_material",nullable = false)
     private String learningMaterial;
 
-//    @OneToMany(mappedBy = "id")
-//    private Set<User> users = new HashSet<>();
+    @OneToMany(mappedBy = "role")
+    private final Set<User> users = new HashSet<>();
 }

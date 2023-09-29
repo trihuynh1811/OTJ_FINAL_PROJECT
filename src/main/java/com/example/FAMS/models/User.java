@@ -37,8 +37,7 @@ public class User {
     private String gender;
 
     @Column(name = "role", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    private int role;
 
     @Column(name = "status", nullable = false)
     private String status;
@@ -58,7 +57,7 @@ public class User {
     @OneToMany(mappedBy = "userID")
     private final Set<ClassUser> classUsers = new HashSet<>();
 
-//    @ManyToOne
-//    @JoinColumn(name = "UserPermission_id")
-//    private UserPermission userPermission;
+    @ManyToOne
+    @JoinColumn(name = "permissionID")
+    private UserPermission permissionID;
 }
