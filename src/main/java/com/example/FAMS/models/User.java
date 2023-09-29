@@ -69,4 +69,7 @@ public class User {
 
     @OneToMany(mappedBy = "userID")
     private final Set<Syllabus> s = new HashSet<>();
+
+    @OneToMany(mappedBy = "userID")
+    private final Set<TrainingProgram> t = new HashSet<>();
 }

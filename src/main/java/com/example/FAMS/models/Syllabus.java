@@ -71,4 +71,11 @@ public class Syllabus {
     @OneToMany(mappedBy = "topicCode")
     private final Set<TrainingUnit> tu = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "SyllabusObjective",
+            joinColumns = {@JoinColumn(name = "topic_code")},
+            inverseJoinColumns = {@JoinColumn(name = "objective_code")}
+    )
+    private final Set<LearningObjective> l = new HashSet<>();
 }

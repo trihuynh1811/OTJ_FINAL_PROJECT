@@ -38,4 +38,7 @@ public class TrainingContent {
 
     @OneToMany(mappedBy = "unitCode")
     private final Set<TrainingUnit> tu = new HashSet<>();
+
+    @OneToMany(mappedBy = "learningObjective")
+    private final Set<LearningObjective> l = new HashSet<>();
 }

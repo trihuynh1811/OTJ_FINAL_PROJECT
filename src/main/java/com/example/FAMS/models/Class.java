@@ -22,8 +22,9 @@ public class Class {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column(name = "training_program_code", nullable = false)
-    private String trainingProgramCode;
+    @ManyToOne
+    @JoinColumn(name = "training_program_code")
+    private TrainingProgram trainingProgramCode;
 
     @Column(name = "class_name", nullable = false)
     private String className;

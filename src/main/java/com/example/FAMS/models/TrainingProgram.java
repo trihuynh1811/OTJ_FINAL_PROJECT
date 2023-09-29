@@ -24,8 +24,9 @@ public class TrainingProgram {
     @Column(nullable = false, name = "name")
     private String name;
 
-    @Column(nullable = false, name = "user_id")
-    private long userID;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User userID;
 
     @Column(nullable = false, name = "start_date")
     private Date startDate;
@@ -53,5 +54,8 @@ public class TrainingProgram {
 
     @OneToMany(mappedBy = "trainingProgramCode")
     private final Set<TrainingProgramSyllabus> TrainingProgramSyllabus = new HashSet<>();
+
+    @OneToMany(mappedBy = "trainingProgramCode")
+    private final Set<Class> c = new HashSet<>();
 
 }
