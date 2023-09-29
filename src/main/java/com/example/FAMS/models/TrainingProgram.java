@@ -1,10 +1,13 @@
 package com.example.FAMS.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Cache;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Builder
@@ -22,8 +25,9 @@ public class TrainingProgram {
     @Column(nullable = false, name = "name")
     private String name;
 
-    @Column(nullable = false, name = "user_id")
-    private long userID;
+    @ManyToOne
+    @JoinColumn(name = "userId", nullable = false)
+    private User userID;
 
     @Column(nullable = false, name = "start_date")
     private Date startDate;
@@ -46,6 +50,16 @@ public class TrainingProgram {
     @Column(nullable = false, name = "modified_by")
     private String modifiedBy;
 
-    @Column(nullable = false, name = "midified_date")
+    @Column(nullable = false, name = "modified_date")
     private Date modifiedDate;
+
+    @OneToMany(mappedBy = "trainingProgramCode")
+    @JsonManagedReference
+    private final Set<TrainingProgramSyllabus> trainingProgramSyllabus = new HashSet<>();
+
+    @OneToMany(mappedBy = "trainingProgram")
+    @JsonManagedReference
+    private final Set<Class> classes = new HashSet<>();
+
+
 }

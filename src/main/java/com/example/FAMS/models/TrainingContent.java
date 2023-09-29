@@ -1,7 +1,11 @@
 package com.example.FAMS.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Builder
@@ -13,8 +17,8 @@ import lombok.*;
 public class TrainingContent {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    @Column(nullable = false, name = "unit_code")
+    private String unitCode;
 
     @Column(nullable = false, name = "learning_object")
     private String learningObjective;
@@ -31,6 +35,11 @@ public class TrainingContent {
     @Column(nullable = false, name = "note")
     private String note;
 
-    @Column(nullable = false, name = "unit_code")
-    private String unitCode;
+    @OneToMany(mappedBy = "unitCode")
+    @JsonManagedReference
+    private final Set<TrainingUnit> tu = new HashSet<>();
+
+    @OneToMany(mappedBy = "trainingContent")
+    @JsonManagedReference
+    private final Set<LearningObjective> learningObjectives = new HashSet<>();
 }

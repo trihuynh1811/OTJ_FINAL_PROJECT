@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -32,5 +31,10 @@ public class LearningObjective {
             joinColumns = {@JoinColumn(name = "objective_code")},
             inverseJoinColumns = {@JoinColumn(name = "syllabus_code")}
     )
-    private Set<Syllabus> syllabi;
+    @JsonManagedReference
+    private Set<Syllabus> syllabus;
+
+    @ManyToOne
+    @JoinColumn(name = "training_content")
+    private TrainingContent trainingContent;
 }

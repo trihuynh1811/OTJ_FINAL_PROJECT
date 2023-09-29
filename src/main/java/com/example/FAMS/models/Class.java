@@ -1,6 +1,7 @@
 package com.example.FAMS.models;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,11 +21,11 @@ import java.util.Set;
 public class Class {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "user_id")
     private int id;
 
-    @Column(name = "training_program_code", nullable = false)
-    private String trainingProgramCode;
+    @ManyToOne
+    @JoinColumn(name = "training_program_code")
+    private TrainingProgram trainingProgram;
 
     @Column(name = "class_name", nullable = false)
     private String className;
@@ -62,6 +63,8 @@ public class Class {
     @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
-    @OneToMany(mappedBy = "ClassID", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "classID")
+    @JsonManagedReference
     private Set<ClassUser> classUsers = new HashSet<>();
+
 }

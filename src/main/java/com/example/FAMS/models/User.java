@@ -3,6 +3,7 @@ package com.example.FAMS.models;
 
 import com.example.FAMS.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +12,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -42,7 +42,8 @@ public class User {
     private String gender;
 
     @Column(name = "role", nullable = false)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Column(name = "status", nullable = false)
     private String status;
@@ -59,14 +60,20 @@ public class User {
     @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
-    @OneToMany(mappedBy = "UserID", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<ClassUser> classUsers = new HashSet<>();
 
-    @OneToMany(mappedBy = "topicCode")
-    private Set<Syllabus> syllabusList;
+    @ManyToOne
+    @JoinColumn(name = "permissionId")
+    private UserPermission userPermission;
 
-//    @ManyToOne
-//    @JoinColumn(name = "UserPermission_id")
-//    private UserPermission userPermission;
+    @OneToMany(mappedBy = "userID")
+    @JsonManagedReference
+    private final Set<TrainingProgram> trainingPrograms = new HashSet<>();
+
+    @OneToMany(mappedBy = "userID")
+    @JsonManagedReference
+    private final Set<Syllabus> syllabusList = new HashSet<>();
+
 }

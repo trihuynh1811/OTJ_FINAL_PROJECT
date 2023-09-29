@@ -1,8 +1,10 @@
 package com.example.FAMS.models;
 
 import com.example.FAMS.enums.Role;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,9 +13,10 @@ import java.util.Set;
 
 @Entity
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "UserPermission")
+@Table(name = "user_permission")
 public class UserPermission {
 
     @Id
@@ -27,12 +30,13 @@ public class UserPermission {
     @Column(name = "syllabus",nullable = false)
     private String syllabus;
 
-    @Column(name = "user",nullable = false)
+    @Column(name = "user_class",nullable = false)
     private String userClass;
 
     @Column(name = "learning_material",nullable = false)
     private String learningMaterial;
 
-//    @OneToMany(mappedBy = "id")
-//    private Set<User> users = new HashSet<>();
+    @OneToMany(mappedBy = "userPermission")
+    @JsonManagedReference
+    private Set<User> users = new HashSet<>();
 }

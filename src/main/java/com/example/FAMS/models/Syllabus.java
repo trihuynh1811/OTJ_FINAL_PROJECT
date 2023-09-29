@@ -1,12 +1,11 @@
 package com.example.FAMS.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Date;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -14,10 +13,11 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
+@Table(name = "Syllabus")
 public class Syllabus {
 
     @Id
-    @Column(name = "topic_code")
+    @Column(name = "topic_code", nullable = false)
     private String topicCode;
 
     @Column(name = "topic_name", nullable = false)
@@ -26,7 +26,7 @@ public class Syllabus {
     @Column(name = "technical_group", nullable = false)
     private String technicalGroup;
 
-    @Column(name = "version", nullable = false)
+    @Column(nullable = false)
     private String version;
 
     @Column(name = "training_audience", nullable = false)
@@ -41,7 +41,7 @@ public class Syllabus {
     @Column(name = "training_principles", nullable = false)
     private String trainingPrinciples;
 
-    @Column(name = "priority", nullable = false)
+    @Column(nullable = false)
     private String priority;
 
     @Column(name = "publish_status", nullable = false)
@@ -59,14 +59,24 @@ public class Syllabus {
     @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
+    @OneToMany(mappedBy = "topicCode")
+    @JsonManagedReference
+    private final Set<TrainingProgramSyllabus> tps = new HashSet<>();
+
+    @OneToMany(mappedBy = "topicCode")
+    @JsonManagedReference
+    private final Set<TrainingUnit> tu = new HashSet<>();
+
+
     @ManyToOne
     @JoinColumn(nullable=false, name = "user_syllabus")
-    private User user;
+    private User userID;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable( name = "syllabus_objective",
             joinColumns = {@JoinColumn(name = "syllabus_code")},
             inverseJoinColumns = {@JoinColumn(name = "objective_code")}
     )
+    @JsonManagedReference
     private Set<LearningObjective> learningObjectives;
 }
