@@ -20,11 +20,11 @@ public class ClassUser {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "Class_id")
+    @JoinColumn(name = "class_id")
     private Class classID;
 
     @ManyToOne
-    @JoinColumn(name = "Users_id")
+    @JoinColumn(name = "User_id")
     private User userID;
 
     @Column(nullable = false)

@@ -27,6 +27,6 @@ public class TrainingUnit {
     private int dayNumber;
 
     @ManyToOne
-    @JoinColumn(name = "Syllabus_topicCode")
+    @JoinColumn(name = "syllabus_topic_code")
     private Syllabus topicCode;
 }

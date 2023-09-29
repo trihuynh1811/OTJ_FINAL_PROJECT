@@ -29,7 +29,7 @@ public class UserPermission {
     @Column(name = "syllabus",nullable = false)
     private String syllabus;
 
-    @Column(name = "user_class",nullable = false)
+    @Column(name = "users_class",nullable = false)
     private String userClass;
 
     @Column(name = "learning_material",nullable = false)

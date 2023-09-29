@@ -16,12 +16,12 @@ public class TrainingProgramSyllabus {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "Syllabus_topicCode")
+    @JoinColumn(name = "syllabus_topic_code")
     private Syllabus topicCode;
 
 
     @ManyToOne
-    @JoinColumn(name = "TrainingPrograms_code")
+    @JoinColumn(name = "training_program_code")
     private TrainingProgram trainingProgramCode;
 
     @Column(name = "sequence", nullable = false)
