@@ -58,4 +58,5 @@ public class User {
 
     @OneToMany(mappedBy = "UserID", cascade = CascadeType.ALL)
     private Set<ClassUser> classUsers = new HashSet<>();
+
 }
