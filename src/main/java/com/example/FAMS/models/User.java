@@ -63,7 +63,7 @@ public class User {
     @JsonIgnore
     private Set<ClassUser> classUsers = new HashSet<>();
 
-//    @ManyToOne
-//    @JoinColumn(name = "UserPermission_id")
-//    private UserPermission userPermission;
+    @ManyToOne
+    @JoinColumn(name = "UserPermission_id")
+    private UserPermission userPermission;
 }

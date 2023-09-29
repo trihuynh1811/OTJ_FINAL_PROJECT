@@ -33,6 +33,6 @@ public class UserPermission {
     @Column(name = "learning_material",nullable = false)
     private String learningMaterial;
 
-//    @OneToMany(mappedBy = "id")
-//    private Set<User> users = new HashSet<>();
+    @OneToMany(mappedBy = "userPermission")
+    private Set<User> users = new HashSet<>();
 }
