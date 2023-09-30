@@ -1,5 +1,6 @@
 package com.example.FAMS.models;
 
+import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,17 +12,19 @@ import lombok.*;
 @AllArgsConstructor
 @Table(name = "TrainingProgramSyllabuses")
 public class TrainingProgramSyllabus {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+
+    @EmbeddedId
+    SyllabusTrainingProgramCompositeKey id;
 
     @ManyToOne
-    @JoinColumn(name = "syllabus_topic_code")
+    @MapsId("topicCode")
+    @JoinColumn(name = "topic_code")
     private Syllabus topicCode;
 
 
     @ManyToOne
-    @JoinColumn(name = "training_program_code")
+    @MapsId("trainingProgramCode")
+    @JoinColumn(name = "training_programs_code")
     private TrainingProgram trainingProgramCode;
 
     @Column(name = "sequence", nullable = false)
