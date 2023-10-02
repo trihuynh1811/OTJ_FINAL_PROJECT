@@ -24,6 +24,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Table(name = "Users")
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
@@ -83,6 +84,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "userID")
     @JsonManagedReference
     private final Set<Syllabus> syllabusList = new HashSet<>();
+
+    @OneToMany(mappedBy = "user")
+    private final Set<Token> tokens = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
