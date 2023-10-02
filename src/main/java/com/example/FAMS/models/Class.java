@@ -20,8 +20,9 @@ import java.util.Set;
 @Table(name = "Class")
 public class Class {
     @Id
+    @Column(name = "class_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private int classId;
 
     @ManyToOne
     @JoinColumn(name = "training_program_code")

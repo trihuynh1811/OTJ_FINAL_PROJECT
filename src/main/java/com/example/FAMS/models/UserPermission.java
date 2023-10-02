@@ -21,7 +21,7 @@ public class UserPermission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String permissionId;
+    private int permissionId;
 
     @Column(name = "role",nullable = false)
     @Enumerated(EnumType.STRING)
