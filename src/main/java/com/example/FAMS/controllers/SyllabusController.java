@@ -1,7 +1,7 @@
 package com.example.FAMS.controllers;
 
 import com.example.FAMS.models.Syllabus;
-import com.example.FAMS.service_implementors.SyllabusService;
+import com.example.FAMS.service_implementors.SyllabusServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ import java.util.List;
 public class SyllabusController {
 
     @Autowired
-    SyllabusService syllabusService;
+    SyllabusServiceImpl syllabusService;
 
     @GetMapping
     @PreAuthorize("hasAuthority('syllabus:read')")
