@@ -88,6 +88,7 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private final Set<Token> tokens = new HashSet<>();
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.getAuthorities();
@@ -122,4 +123,6 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 }
