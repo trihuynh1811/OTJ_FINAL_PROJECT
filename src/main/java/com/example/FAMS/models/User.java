@@ -49,9 +49,10 @@ public class User implements UserDetails {
     @Column(name = "gender", nullable = false)
     private String gender;
 
-    @Column(name = "role", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Role role;
+//    @Column(name = "role", nullable = false)
+//    @Enumerated(EnumType.STRING)
+//    @JsonIgnore
+//    private Role role;
 
     @Column(name = "status", nullable = false)
     private String status;
@@ -68,12 +69,12 @@ public class User implements UserDetails {
     @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
-    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<ClassUser> classUsers = new HashSet<>();
+    private final Set<ClassUser> classUsers = new HashSet<>();
 
     @ManyToOne
-    @JoinColumn(name = "permissionId")
+    @JoinColumn(name = "role", referencedColumnName = "role")
     @JsonIgnore
     private UserPermission userPermission;
 
@@ -90,7 +91,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role.getAuthorities();
+        return userPermission.getRole().getAuthorities();
     }
 
     @Override

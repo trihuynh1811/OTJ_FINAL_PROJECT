@@ -23,6 +23,7 @@ public class Syllabus {
     @Column(name = "topic_name", nullable = false)
     private String topicName;
 
+    @Lob
     @Column(name = "technical_group", nullable = false)
     private String technicalGroup;
 
@@ -30,7 +31,7 @@ public class Syllabus {
     private String version;
 
     @Column(name = "training_audience", nullable = false)
-    private String trainingAudience;
+    private int trainingAudience;
 
     @Column(name = "topic_outline", nullable = false)
     private String topicOutline;
