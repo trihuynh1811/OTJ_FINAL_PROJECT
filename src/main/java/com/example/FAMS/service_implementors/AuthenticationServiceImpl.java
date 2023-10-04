@@ -48,6 +48,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .status("Successful")
                 .build();
     }
+
     @Override
     public CreateResponse createUser(CreateRequest createRequest) {
         User user = User.builder()
@@ -64,15 +65,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .modifiedBy(createRequest.getModifiedBy())
                 .modifiedDate(new Date())
                 .build();
-        if (user.getRole().name() != Role.SUPER_ADMIN.name()) {
-            var existedUser = userDAO.findByEmail(user.getEmail()).orElse(null);
-            if (existedUser == null) {
-                var savedUser = userDAO.save(user);
-                return CreateResponse.builder()
-                        .status("Successful")
-                        .createdUser(savedUser)
-                        .build();
-            }
+        var existedUser = userDAO.findByEmail(user.getEmail()).orElse(null);
+        if (existedUser == null) {
+            var savedUser = userDAO.save(user);
+            return CreateResponse.builder()
+                    .status("Successful")
+                    .createdUser(savedUser)
+                    .build();
         }
         return CreateResponse.builder()
                 .status("Fail")

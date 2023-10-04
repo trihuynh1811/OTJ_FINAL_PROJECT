@@ -5,7 +5,9 @@ import com.example.FAMS.dto.responses.ListUserResponse;
 import com.example.FAMS.dto.responses.ResposeObject;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.User;
+import com.example.FAMS.models.UserPermission;
 import com.example.FAMS.repositories.UserDAO;
+import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -20,21 +22,29 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-  private final Logger logger = LoggerFactory.getLogger(UserController.class);
-  private final UserDAO userDAO;
-  private List<ListUserResponse> userList;
 
-  @Override
-  public ResponseEntity<ResposeObject> getAll() {
-      try {
-          userList = userDAO.findAllByRole(Role.USER);
-          return ResponseEntity.ok(new ResposeObject("Successful", "Found user", userList));
-      } catch (Exception e) {
-          userList = Collections.emptyList();
-          return ResponseEntity.ok(new ResposeObject("Failed", "Not found user", userList));
-      }
+    private final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final UserPermissionDAO userPermissionDAO;
+    private final UserDAO userDAO;
 
-  }
+    private List<ListUserResponse> userList;
+
+    @Override
+    public List<UserPermission> getUserPermission() {
+        return userPermissionDAO.findAll();
+    }
+
+    @Override
+    public ResponseEntity<ResposeObject> getAll() {
+        try {
+            userList = userDAO.findAllByRole(Role.USER);
+            return ResponseEntity.ok(new ResposeObject("Successful", "Found user", userList));
+        } catch (Exception e) {
+            userList = Collections.emptyList();
+            return ResponseEntity.ok(new ResposeObject("Failed", "Not found user", userList));
+        }
+
+    }
 
     @Override
     public User updateUser(int userId, Role role, String name, String phone, Date dob, String gender, String status) {

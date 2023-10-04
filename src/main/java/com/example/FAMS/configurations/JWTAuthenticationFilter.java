@@ -1,4 +1,4 @@
-package com.example.FAMS.config;
+package com.example.FAMS.configurations;
 
 import com.example.FAMS.repositories.TokenDAO;
 import com.example.FAMS.services.JWTService;
