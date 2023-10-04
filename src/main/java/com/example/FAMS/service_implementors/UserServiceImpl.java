@@ -24,15 +24,9 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
-    private final UserPermissionDAO userPermissionDAO;
     private final UserDAO userDAO;
 
     private List<ListUserResponse> userList;
-
-    @Override
-    public List<UserPermission> getUserPermission() {
-        return userPermissionDAO.findAll();
-    }
 
     @Override
     public ResponseEntity<ResposeObject> getAll() {

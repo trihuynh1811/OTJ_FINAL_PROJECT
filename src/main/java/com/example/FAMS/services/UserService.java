@@ -14,5 +14,4 @@ public interface UserService {
 
     User updateUser(int userId, Role role, String name, String phone, Date dob, String gender, String status);
 
-    List<UserPermission> getUserPermission();
 }

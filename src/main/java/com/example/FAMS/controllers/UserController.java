@@ -56,10 +56,4 @@ public class UserController {
         }
     }
 
-    @GetMapping("/permissions")
-//    @PreAuthorize("hasAuthority('user:read')")
-    public ResponseEntity<List<UserPermission>> GetAllPermission() {
-        List<UserPermission> list = userService.getUserPermission();
-        return new ResponseEntity<>(list, HttpStatus.OK);
-    }
 }
