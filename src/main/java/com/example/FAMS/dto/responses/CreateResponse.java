@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 public class CreateResponse {
     private String status;
     private String password;
-    @JsonProperty(namespace = "created_user")
+   @JsonProperty(namespace = "created_user")
     private User createdUser;
 }
