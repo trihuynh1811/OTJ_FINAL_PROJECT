@@ -9,6 +9,8 @@ public interface SyllabusService {
 
     public List<Syllabus> getSyllabuses();
 
+    List<Syllabus> getDetailSyllabus();
+
     public Syllabus createSyllabus(String topicName, String topicCode, String version, int numberOfAudience);
 
     Syllabus updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest);
@@ -16,4 +18,5 @@ public interface SyllabusService {
     Syllabus getSyllabusById(String topicCode);
 
 
+    List<Syllabus> loadSyllabusData();
 }
