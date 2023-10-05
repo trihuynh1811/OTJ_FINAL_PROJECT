@@ -9,11 +9,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 
 @SpringBootApplication
 @RequiredArgsConstructor
+@RestController
+@RequestMapping(path = "/")
 public class FamsApplication {
 
 	private final UserDAO userDAO;
@@ -48,4 +53,8 @@ public class FamsApplication {
         };
     }
 
+    @GetMapping("")
+    public String greeting() {
+        return "Hello from FAMS Application made from GROUP 1 WITH LOVE";
+    }
 }
