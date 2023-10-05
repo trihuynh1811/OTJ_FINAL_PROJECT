@@ -51,10 +51,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public CreateResponse createUser(CreateRequest createRequest) {
+        String initialPassword = passwordGenerator(createRequest.getEmail());
         User user = User.builder()
                 .name(createRequest.getName())
                 .email(createRequest.getEmail())
-                .password(passwordEncoder.encode(passwordGenerator(createRequest.getEmail())))
+                .password(passwordEncoder.encode(initialPassword))
                 .phone(createRequest.getPhone())
                 .dob(createRequest.getDob())
                 .gender(createRequest.getGender())
@@ -70,6 +71,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             var savedUser = userDAO.save(user);
             return CreateResponse.builder()
                     .status("Successful")
+                    .password(initialPassword)
                     .createdUser(savedUser)
                     .build();
         }

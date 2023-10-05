@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateResponse {
     private String status;
+    private String password;
     @JsonProperty(namespace = "created_user")
     private User createdUser;
 }

@@ -7,4 +7,6 @@ import java.util.List;
 public interface UserPermissionService {
 
     List<UserPermission> getUserPermission();
+
+//    List<UserPermission>
 }
