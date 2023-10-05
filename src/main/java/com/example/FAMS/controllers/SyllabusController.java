@@ -5,11 +5,13 @@ import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.service_implementors.SyllabusServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -30,6 +32,18 @@ public class SyllabusController {
     @PreAuthorize("hasAuthority('syllabus:read')")
     public ResponseEntity<List<Syllabus>> getDetail() {
         return ResponseEntity.status(418).body(syllabusService.getDetailSyllabus());
+    }
+
+    @GetMapping("/show")
+    public ResponseEntity<?> loadDataInDB() throws IOException {
+        List<Syllabus> customers = syllabusService.loadSyllabusData();
+        if (customers != null) {
+            // Nếu thông tin khách hàng được tìm thấy, trả về phản hồi thành công.
+            return ResponseEntity.ok(customers);
+        } else {
+            // Nếu không tìm thấy thông tin khách hàng, trả về phản hồi lỗi.
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer data not found.");
+        }
     }
 
     @PostMapping("/create/{type}")

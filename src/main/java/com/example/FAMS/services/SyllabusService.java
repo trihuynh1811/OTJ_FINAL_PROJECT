@@ -16,4 +16,5 @@ public interface SyllabusService {
     Syllabus updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest);
 
 
+    List<Syllabus> loadSyllabusData();
 }

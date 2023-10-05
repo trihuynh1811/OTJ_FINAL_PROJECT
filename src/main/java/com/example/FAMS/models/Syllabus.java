@@ -51,8 +51,8 @@ public class Syllabus {
     @Column(name = "created_by", nullable = false)
     private String createdBy;
 
-    @Column(name = "created_date", nullable = false)
-    private Date createdDate;
+        @Column(name = "created_date", nullable = false)
+        private Date createdDate;
 
     @Column(name = "modified_by", nullable = false)
     private String modifiedBy;
