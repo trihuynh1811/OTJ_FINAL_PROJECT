@@ -40,7 +40,5 @@ public class UserPermissionController {
         }
     }
 
-//    public static void main(String[] args){
-//    System.out.println(Role.SUPER_ADMIN.getAuthorities());
-//    }
+
 }
