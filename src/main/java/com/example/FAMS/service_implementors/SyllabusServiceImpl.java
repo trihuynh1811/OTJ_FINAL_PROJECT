@@ -26,7 +26,7 @@ public class SyllabusServiceImpl implements SyllabusService {
     String line = "";
 
     @Override
-    public List<Syllabus> getSyllabuses(){
+    public List<Syllabus> getSyllabuses() {
         return syllabusDAO.findTop1000ByOrderByCreatedDateDesc();
     }
 
@@ -37,7 +37,7 @@ public class SyllabusServiceImpl implements SyllabusService {
 
 
     @Override
-    public Syllabus createSyllabus(String topicName, String topicCode, String version, int numberOfAudience){
+    public Syllabus createSyllabus(String topicName, String topicCode, String version, int numberOfAudience) {
         Syllabus syllabus = Syllabus.builder()
                 .version(version)
                 .topicCode(topicCode)
@@ -53,7 +53,7 @@ public class SyllabusServiceImpl implements SyllabusService {
     public Syllabus updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest) {
         Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(updatesyllabusRequest.getTopicCode());
         Syllabus syllabusexits = optionalSyllabus.orElse(null);
-        if(syllabusexits!= null){
+        if (syllabusexits != null) {
             syllabusexits.setTopicName(updatesyllabusRequest.getTopicName());
             syllabusexits.setTechnicalGroup(updatesyllabusRequest.getTechnicalGroup());
             syllabusexits.setVersion(updatesyllabusRequest.getVersion());
@@ -70,14 +70,14 @@ public class SyllabusServiceImpl implements SyllabusService {
 
             Syllabus syllabusUpdate = syllabusDAO.save(syllabusexits);
 
-            if(syllabusUpdate != null){
+            if (syllabusUpdate != null) {
                 return UpdateSyllabusResponse.builder()
                         .status("Update Syllbus successful")
                         .updateSyllabus(syllabusUpdate)
                         .build().getUpdateSyllabus();
 
 
-            }else {
+            } else {
                 return UpdateSyllabusResponse.builder()
                         .status("Update Syllbus failed")
                         .updateSyllabus(null)
@@ -86,7 +86,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             }
 
 
-        }else{
+        } else {
             return UpdateSyllabusResponse.builder()
                     .status("Syllabus not found")
                     .updateSyllabus(null)
@@ -97,6 +97,12 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
+    public Syllabus getSyllabusById (String topicCode){
+        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
+        return optionalSyllabus.orElse(null);}
+
+    @Override
+
     public List<Syllabus> loadSyllabusData() {
         List<Syllabus> customerList = new ArrayList<>();
         try {
@@ -126,6 +132,11 @@ public class SyllabusServiceImpl implements SyllabusService {
             e.printStackTrace();
         }
         return customerList;
-    }
 
-}
+
+
+        }
+
+
+
+    }

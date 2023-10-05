@@ -82,4 +82,14 @@ public class SyllabusController {
         }
     }
 
+    @GetMapping("/search/{topicCode}")
+    public ResponseEntity<?> getSyllabusById(@PathVariable String topicCode) {
+        Syllabus syllabus = syllabusService.getSyllabusById(topicCode);
+        if (syllabus != null) {
+            return ResponseEntity.ok(syllabus);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

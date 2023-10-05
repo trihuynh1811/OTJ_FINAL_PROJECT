@@ -15,6 +15,8 @@ public interface SyllabusService {
 
     Syllabus updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest);
 
+    Syllabus getSyllabusById(String topicCode);
+
 
     List<Syllabus> loadSyllabusData();
 }
