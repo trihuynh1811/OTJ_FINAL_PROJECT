@@ -25,6 +25,12 @@ public class SyllabusController {
         return ResponseEntity.status(418).body(syllabusService.getSyllabuses());
     }
 
+    @GetMapping("/detail")
+    @PreAuthorize("hasAuthority('syllabus:read')")
+    public ResponseEntity<List<Syllabus>> getDetail() {
+        return ResponseEntity.status(418).body(syllabusService.getDetailSyllabus());
+    }
+
     @PostMapping("/create/{type}")
     @PreAuthorize("hasAuthority('syllabus:create')")
     public ResponseEntity<List<Syllabus>> create(@PathVariable("type") String type, @RequestBody JsonNode request, Authentication authentication) {

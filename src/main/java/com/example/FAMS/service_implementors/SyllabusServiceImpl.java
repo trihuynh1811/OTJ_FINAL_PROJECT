@@ -20,6 +20,12 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
+    public List<Syllabus> getDetailSyllabus() {
+        return syllabusDAO.findAll();
+    }
+
+
+    @Override
     public Syllabus createSyllabus(String topicName, String topicCode, String version, int numberOfAudience){
         Syllabus syllabus = Syllabus.builder()
                 .version(version)
