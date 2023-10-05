@@ -1,18 +1,23 @@
 package com.example.FAMS.service_implementors;
 
+import com.example.FAMS.controllers.UserController;
 import com.example.FAMS.dto.requests.CreateRequest;
 import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.LoginResponse;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.enums.TokenType;
+import com.example.FAMS.models.EmailDetails;
 import com.example.FAMS.models.Token;
 import com.example.FAMS.models.User;
 import com.example.FAMS.repositories.TokenDAO;
 import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.services.AuthenticationService;
+import com.example.FAMS.services.EmailService;
 import com.example.FAMS.services.JWTService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,21 +28,23 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
-
+    private final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserDAO userDAO;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
     private final TokenDAO tokenDAO;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        authenticationManager.authenticate(
+         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
                         loginRequest.getPassword()
                 )
         );
+
         var user = userDAO.findByEmail(loginRequest.getEmail())
                 .orElseThrow();
         var token = jwtService.generateToken(user);
@@ -46,6 +53,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return LoginResponse.builder()
 //                Need something here
                 .status("Successful")
+                .token(token)
+                .userInfo(userDAO.findUserByEmail(loginRequest.getEmail()).orElse(null))
                 .build();
     }
 
@@ -69,10 +78,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var existedUser = userDAO.findByEmail(user.getEmail()).orElse(null);
         if (existedUser == null) {
             var savedUser = userDAO.save(user);
+            emailService.sendMail(EmailDetails.builder()
+                            .subject("Account Password")
+                            .msgBody(initialPassword)
+                            .recipient(savedUser.getEmail())
+                    .build());
             return CreateResponse.builder()
                     .status("Successful")
-                    .password(initialPassword)
-                    .createdUser(savedUser)
+                    .createdUser(userDAO.findUserByEmail(savedUser.getEmail()).orElse(null))
                     .build();
         }
         return CreateResponse.builder()
@@ -85,7 +98,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return passwordEncoder.encode(email).substring(0, 9);
     }
 
-    private void saveUserToken(User user, String token) {
+    public void saveUserToken(User user, String token) {
         var userToken = Token.builder()
                 .token(token)
                 .user(user)
@@ -96,7 +109,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         tokenDAO.save(userToken);
     }
 
-    private void revokeAllUserToken(User user) {
+    public void revokeAllUserToken(User user) {
         var tokenList = tokenDAO.findAllUserTokenByUserId(user.getUserId());
         tokenList.forEach(token -> {
             token.setRevoked(true);
