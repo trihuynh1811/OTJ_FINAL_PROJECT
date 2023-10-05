@@ -46,6 +46,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return LoginResponse.builder()
 //                Need something here
                 .status("Successful")
+                .userInfo(user)
                 .build();
     }
 
