@@ -82,4 +82,10 @@ public class SyllabusServiceImpl implements SyllabusService {
 
     }
 
+    @Override
+    public Syllabus getSyllabusById(String topicCode) {
+        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
+        return optionalSyllabus.orElse(null);
+    }
+
 }
