@@ -1,5 +1,6 @@
 package com.example.FAMS.services;
 
+import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.models.Syllabus;
 
 import java.util.List;
@@ -11,4 +12,8 @@ public interface SyllabusService {
     List<Syllabus> getDetailSyllabus();
 
     public Syllabus createSyllabus(String topicName, String topicCode, String version, int numberOfAudience);
+
+    Syllabus updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest);
+
+
 }

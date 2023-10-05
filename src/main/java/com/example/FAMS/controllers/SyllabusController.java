@@ -1,5 +1,6 @@
 package com.example.FAMS.controllers;
 
+import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.service_implementors.SyllabusServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -55,6 +56,16 @@ public class SyllabusController {
     @PreAuthorize("hasAuthority('syllabus:create')")
     public ResponseEntity<List<Syllabus>> draftCreate(@PathVariable("type") String type) {
         return ResponseEntity.status(418).body(syllabusService.getSyllabuses());
+    }
+
+    @PutMapping("/update/{topicCode}")
+    public ResponseEntity<Syllabus> updateSyllabusRequest(@PathVariable String topicCode, @RequestBody UpdateSyllabusRequest updateSyllabusRequest) {
+        Syllabus updatedSyllabus = syllabusService.updateSyllabus(updateSyllabusRequest);
+        if (updatedSyllabus != null) {
+            return ResponseEntity.ok(updatedSyllabus);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }
