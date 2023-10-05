@@ -7,10 +7,7 @@ import com.example.FAMS.dto.responses.LoginResponse;
 import com.example.FAMS.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/authentication")
@@ -28,4 +25,5 @@ public class AuthenticationController {
     public ResponseEntity<CreateResponse> createUserRequest(@RequestBody CreateRequest createRequest) {
         return ResponseEntity.ok(authenticationService.createUser(createRequest));
     }
+
 }

@@ -1,8 +1,11 @@
 package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.controllers.UserController;
+import com.example.FAMS.dto.requests.CreateRequest;
+import com.example.FAMS.dto.requests.UpdateRequest;
 import com.example.FAMS.dto.responses.ListUserResponse;
 import com.example.FAMS.dto.responses.ResponseObject;
+import com.example.FAMS.dto.responses.UpdateResponse;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.User;
 import com.example.FAMS.repositories.UserDAO;
@@ -10,6 +13,8 @@ import com.example.FAMS.services.UserService;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,70 +46,40 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User updateUser(
-      int userId, Role role, String name, String phone, Date dob, String gender, String status) {
-    var user = userDAO.findById(userId).orElse(null);
+  public UpdateResponse updateUser(UpdateRequest updateRequest) {
+    Optional<User> optionalUser = userDAO.findById(updateRequest.getUserId());
 
-    if (user == null) {
-      // Handle user not found error or throw an exception
-      return null;
-    }
-    if (role != null) {
-      user.setRole(role);
-    }
-    if (name != null && !name.isEmpty()) {
-      user.setName(name);
-    }
-    if (isValidPhoneNumber(phone)) {
-      user.setPhone(phone);
+    User existingUser = optionalUser.orElse(null);
+    if (existingUser != null) {
+      existingUser.setRole(updateRequest.getRole());
+      existingUser.setName(updateRequest.getName());
+      existingUser.setPhone(updateRequest.getPhone());
+      existingUser.setDob(updateRequest.getDob());
+      existingUser.setGender(updateRequest.getGender());
+      existingUser.setStatus(updateRequest.getStatus());
+
+      // Save the updated user
+      User updatedUser = userDAO.save(existingUser);
+
+      if (updatedUser != null) {
+        return UpdateResponse.builder()
+                .status("Update successful")
+                .updatedUser(updatedUser)
+                .build();
+      } else {
+        return UpdateResponse.builder()
+                .status("Update failed")
+                .updatedUser(null)
+                .build();
+      }
     } else {
-      return null;
+      // Return an UpdateResponse indicating user not found
+      return UpdateResponse.builder()
+              .status("User not found")
+              .updatedUser(null)
+              .build();
     }
-    if (gender != null && isValidGender(gender)) {
-      user.setGender(gender);
-    } else {
-      return null;
-    }
-    if (isValidDateOfBirth(dob)) {
-      user.setDob(dob);
-    } else {
-      return null;
-    }
-
-    logger.info("Status");
-    if (status != null && isValidStatus(status)) {
-
-      user.setStatus(status);
-    } else {
-      return null;
-    }
-
-    logger.info("Modified date");
-    // Update the modified date
-    user.setModifiedDate(new Date());
-    // Save the updated user to the database
-    userDAO.save(user);
-
-    return user;
   }
 
-  private boolean isValidGender(String gender) {
-    return "Male".equalsIgnoreCase(gender) || "Female".equalsIgnoreCase(gender);
-  }
 
-  // Additional methods for validation
-
-  private boolean isValidPhoneNumber(String phone) {
-    // Implement phone number validation logic here based on your rules
-    return true; // Return true if it's valid, otherwise return false
-  }
-
-  private boolean isValidDateOfBirth(Date dob) {
-    // Implement date of birth validation logic here based on your rules
-    return true; // Return true if it's valid, otherwise return false
-  }
-
-  private boolean isValidStatus(String status) {
-    return true;
-  }
 }
