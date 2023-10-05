@@ -20,6 +20,4 @@ public class CreateRequest {
     private String gender;
     private Role role;
     private String status;
-    private String createdBy;
-    private String modifiedBy;
 }

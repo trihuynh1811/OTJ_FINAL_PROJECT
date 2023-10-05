@@ -1,5 +1,6 @@
 package com.example.FAMS.models;
 
+import com.example.FAMS.enums.Permission;
 import com.example.FAMS.enums.Role;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -7,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,18 +27,30 @@ public class UserPermission {
 
     @Column(name = "role",nullable = false)
     @Enumerated(EnumType.STRING)
+    @ColumnDefault("USER")
     private Role role;
 
     @Column(name = "syllabus",nullable = false)
+    @ColumnDefault("ACCESS_DENIED")
     private String syllabus;
 
-    @Column(name = "user_class",nullable = false)
+    @Column(name = "training_program", nullable = false)
+    @ColumnDefault("ACCESS_DENIED")
+    private String trainingProgram;
+
+    @Column(name = "class",nullable = false)
+    @ColumnDefault("ACCESS_DENIED")
     private String userClass;
 
     @Column(name = "learning_material",nullable = false)
+    @ColumnDefault("ACCESS_DENIED")
     private String learningMaterial;
 
-    @OneToMany(mappedBy = "userPermission")
+    @Column(name = "user_management",nullable = false)
+    @ColumnDefault("ACCESS_DENIED")
+    private String userManagement;
+
+    @OneToMany(mappedBy = "role")
     @JsonManagedReference
     private Set<User> users = new HashSet<>();
 }
