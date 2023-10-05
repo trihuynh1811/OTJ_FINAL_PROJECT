@@ -1,5 +1,6 @@
 package com.example.FAMS.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,11 +35,11 @@ public class TrainingContent {
     @Column(nullable = false, name = "note")
     private String note;
 
-
-
     @OneToMany(mappedBy = "unitCode")
+    @JsonManagedReference
     private final Set<TrainingUnit> tu = new HashSet<>();
 
-    @OneToMany(mappedBy = "learningObjective")
-    private final Set<LearningObjective> l = new HashSet<>();
+    @OneToMany(mappedBy = "trainingContent")
+    @JsonManagedReference
+    private final Set<LearningObjective> learningObjectives = new HashSet<>();
 }

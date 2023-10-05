@@ -1,12 +1,9 @@
 package com.example.FAMS.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -17,7 +14,8 @@ import java.util.Set;
 public class LearningObjective {
 
     @Id
-    private String code;
+    @Column(name = "code")
+    private String learningObjectiveCode;
 
     @Column(nullable = false)
     private String name;
@@ -28,15 +26,15 @@ public class LearningObjective {
     @Column(nullable = false)
     private String description;
 
-    @ManyToMany
-    @JoinTable(
-            name = "SyllabusObjective",
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable( name = "syllabus_objective",
             joinColumns = {@JoinColumn(name = "objective_code")},
-            inverseJoinColumns = {@JoinColumn(name = "topic_code")}
+            inverseJoinColumns = {@JoinColumn(name = "syllabus_code")}
     )
-    private final Set<Syllabus> s = new HashSet<>();
+    @JsonManagedReference
+    private Set<Syllabus> syllabus;
 
     @ManyToOne
-    @JoinColumn(name = "learning_objective")
-    private TrainingContent learningObjective;
+    @JoinColumn(name = "training_content")
+    private TrainingContent trainingContent;
 }
