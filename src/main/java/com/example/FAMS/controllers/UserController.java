@@ -1,6 +1,10 @@
 package com.example.FAMS.controllers;
 
+import com.example.FAMS.dto.requests.CreateRequest;
+import com.example.FAMS.dto.requests.UpdateRequest;
+import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.ResponseObject;
+import com.example.FAMS.dto.responses.UpdateResponse;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.User;
 import com.example.FAMS.services.UserService;
@@ -30,28 +34,10 @@ public class UserController {
     return userService.getAll();
   }
 
-  @PutMapping("/updateUser/{userId}")
-  //    @PreAuthorize("hasAuthority('user:update')")
-  public ResponseEntity<User> updateUser(
-      @PathVariable int userId,
-      @RequestParam(name = "role", required = false) Role role,
-      @RequestParam(name = "name", required = false) String name,
-      @RequestParam(name = "phone", required = false) String phone,
-      @RequestParam(name = "dob", required = false) String dob,
-      @RequestParam(name = "gender", required = false) String gender,
-      @RequestParam(name = "status", required = false) String status
-  )
-      throws ParseException {
-    Date converter = new SimpleDateFormat("dd/MM/yyyy").parse(dob);
+  @PostMapping("/update-user/{userId}")
+  public ResponseEntity<UpdateResponse> updateUserRequest(@PathVariable int userId,  @RequestBody UpdateRequest updateRequest) {
 
-    User updatedUser = userService.updateUser(userId, role, name, phone, converter, gender, status);
-
-    if (updatedUser != null) {
-      return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-    } else {
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND); // User not found or validation failed
-    }
+    return ResponseEntity.ok(userService.updateUser(updateRequest));
   }
-
 
 }

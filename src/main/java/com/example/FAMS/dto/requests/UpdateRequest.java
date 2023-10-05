@@ -1,10 +1,7 @@
 package com.example.FAMS.dto.requests;
 
 import com.example.FAMS.enums.Role;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 @Data
@@ -12,6 +9,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateRequest {
+    private int userId;
     private Role role;
     private String name;
     private String phone;
