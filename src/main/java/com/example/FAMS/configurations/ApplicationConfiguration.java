@@ -1,4 +1,4 @@
-package com.example.FAMS.config;
+package com.example.FAMS.configurations;
 
 import com.example.FAMS.repositories.UserDAO;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +40,6 @@ public class ApplicationConfiguration {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder();
     }
 }

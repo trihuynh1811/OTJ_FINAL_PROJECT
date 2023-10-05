@@ -1,7 +1,10 @@
 package com.example.FAMS.service_implementors;
 
+import com.example.FAMS.dto.requests.CreateRequest;
 import com.example.FAMS.dto.requests.LoginRequest;
+import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.LoginResponse;
+import com.example.FAMS.enums.Role;
 import com.example.FAMS.enums.TokenType;
 import com.example.FAMS.models.Token;
 import com.example.FAMS.models.User;
@@ -15,6 +18,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -23,6 +28,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
     private final TokenDAO tokenDAO;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
@@ -41,6 +47,42 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 //                Need something here
                 .status("Successful")
                 .build();
+    }
+
+    @Override
+    public CreateResponse createUser(CreateRequest createRequest) {
+        String initialPassword = passwordGenerator(createRequest.getEmail());
+        User user = User.builder()
+                .name(createRequest.getName())
+                .email(createRequest.getEmail())
+                .password(passwordEncoder.encode(initialPassword))
+                .phone(createRequest.getPhone())
+                .dob(createRequest.getDob())
+                .gender(createRequest.getGender())
+                .role(createRequest.getRole())
+                .status(createRequest.getStatus())
+                .createdBy(createRequest.getCreatedBy())
+                .createdDate(new Date())
+                .modifiedBy(createRequest.getModifiedBy())
+                .modifiedDate(new Date())
+                .build();
+        var existedUser = userDAO.findByEmail(user.getEmail()).orElse(null);
+        if (existedUser == null) {
+            var savedUser = userDAO.save(user);
+            return CreateResponse.builder()
+                    .status("Successful")
+                    .password(initialPassword)
+                    .createdUser(savedUser)
+                    .build();
+        }
+        return CreateResponse.builder()
+                .status("Fail")
+                .createdUser(null)
+                .build();
+    }
+
+    private String passwordGenerator(String email) {
+        return passwordEncoder.encode(email).substring(0, 9);
     }
 
     private void saveUserToken(User user, String token) {

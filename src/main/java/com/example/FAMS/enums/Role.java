@@ -23,7 +23,7 @@ public enum Role {
                     CLASS_READ
             )
     ),
-    CLASSS_ADMIN(
+    CLASS_ADMIN(
             Set.of(
                     SYLLABUS_CREATE, SYLLABUS_READ, SYLLABUS_UPDATE, SYLLABUS_DELETE, SYLLABUS_IMPORT,
                     TRAINING_CREATE, TRAINING_READ, TRAINING_UPDATE, TRAINING_DELETE, TRAINING_IMPORT,
@@ -47,6 +47,8 @@ public enum Role {
                 .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))
                 .collect(Collectors.toList());
         authList.add(new SimpleGrantedAuthority("ROLE_" + this.name()));
+
         return authList;
     }
+
 }

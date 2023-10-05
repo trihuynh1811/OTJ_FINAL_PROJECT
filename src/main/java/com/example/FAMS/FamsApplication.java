@@ -9,11 +9,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 
 @SpringBootApplication
 @RequiredArgsConstructor
+@RestController
+@RequestMapping(path = "/")
 public class FamsApplication {
 
 	private final UserDAO userDAO;
@@ -23,28 +28,33 @@ public class FamsApplication {
 		SpringApplication.run(FamsApplication.class, args);
 	}
 
-	@Bean
-	public CommandLineRunner initData() {
-		return new CommandLineRunner() {
-			@Override
-			public void run(String... args) throws Exception {
-				User admin = User.builder()
-						.email("admin@gmail.com")
-						.password(passwordEncoder.encode("1"))
-						.name("Admin")
-						.phone("0977545450")
-						.dob(new Date())
-						.gender("Male")
-						.role(Role.SUPER_ADMIN)
-						.status("Wonderful")
-						.createdBy("Hoang Anh")
-						.createdDate(new Date())
-						.modifiedBy("Hoang Anh")
-						.modifiedDate(new Date())
-						.build();
-				userDAO.save(admin);
-			}
-		};
-	}
 
+    @Bean
+    public CommandLineRunner initData() {
+        return new CommandLineRunner() {
+			@Override
+            public void run(String... args) throws Exception {
+                User admin = User.builder()
+                        .email("admin@gmail.com")
+                        .password(passwordEncoder.encode("1"))
+                        .name("Admin")
+                        .phone("0977545450")
+                        .dob(new Date())
+                        .gender("Male")
+                        .role(Role.SUPER_ADMIN)
+                        .status("Wonderful")
+                        .createdBy("Hoang Anh")
+                        .createdDate(new Date())
+                        .modifiedBy("Hoang Anh")
+                        .modifiedDate(new Date())
+                        .build();
+                userDAO.save(admin);
+            }
+        };
+    }
+
+    @GetMapping("")
+    public String greeting() {
+        return "Hello from FAMS Application made from GROUP 1 WITH LOVE";
+    }
 }
