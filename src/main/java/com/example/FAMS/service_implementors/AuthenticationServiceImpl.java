@@ -61,9 +61,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .gender(createRequest.getGender())
                 .role(createRequest.getRole())
                 .status(createRequest.getStatus())
-                .createdBy("None")
+                .createdBy(createRequest.getCreatedBy())
                 .createdDate(new Date())
-                .modifiedBy("None")
+                .modifiedBy(createRequest.getModifiedBy())
                 .modifiedDate(new Date())
                 .build();
         var existedUser = userDAO.findByEmail(user.getEmail()).orElse(null);
