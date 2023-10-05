@@ -1,5 +1,7 @@
 package com.example.FAMS.controllers;
 
+import com.example.FAMS.dto.responses.ResponseObject;
+import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.UserPermission;
 import com.example.FAMS.service_implementors.UserServiceImpl;
 import com.example.FAMS.services.UserPermissionService;
@@ -7,9 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,4 +27,20 @@ public class UserPermissionController {
         List<UserPermission> list = userPermissionService.getUserPermission();
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
+
+    @PutMapping("/grantPermission/{userId}")
+    public ResponseEntity<ResponseObject> grantPermission(
+            @PathVariable int userId, @RequestParam(name = "role", required = true) Role role) {
+        ResponseEntity<ResponseObject> grantUser = userPermissionService.grantPermission(userId, role);
+
+        if (grantUser != null) {
+            return grantUser;
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // User not found or validation failed
+        }
+    }
+
+//    public static void main(String[] args){
+//    System.out.println(Role.SUPER_ADMIN.getAuthorities());
+//    }
 }

@@ -1,17 +1,15 @@
 package com.example.FAMS.services;
 
-import com.example.FAMS.dto.responses.ResposeObject;
+import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.User;
-import com.example.FAMS.models.UserPermission;
+import java.util.Date;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Date;
-import java.util.List;
-
 public interface UserService {
-    ResponseEntity<ResposeObject> getAll();
+    ResponseEntity<ResponseObject> getAll();
 
     User updateUser(int userId, Role role, String name, String phone, Date dob, String gender, String status);
+
 
 }
