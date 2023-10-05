@@ -1,5 +1,6 @@
 package com.example.FAMS.service_implementors;
 
+import com.example.FAMS.controllers.UserController;
 import com.example.FAMS.dto.requests.CreateRequest;
 import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.dto.responses.CreateResponse;
@@ -13,6 +14,8 @@ import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.services.AuthenticationService;
 import com.example.FAMS.services.JWTService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +26,7 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
-
+    private final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserDAO userDAO;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
@@ -32,12 +35,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        authenticationManager.authenticate(
+        logger.info("authentication: " +  authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
                         loginRequest.getPassword()
                 )
-        );
+        ));
+
         var user = userDAO.findByEmail(loginRequest.getEmail())
                 .orElseThrow();
         var token = jwtService.generateToken(user);
