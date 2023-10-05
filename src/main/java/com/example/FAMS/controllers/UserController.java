@@ -39,7 +39,8 @@ public class UserController {
       @RequestParam(name = "phone", required = false) String phone,
       @RequestParam(name = "dob", required = false) String dob,
       @RequestParam(name = "gender", required = false) String gender,
-      @RequestParam(name = "status", required = false) String status)
+      @RequestParam(name = "status", required = false) String status
+  )
       throws ParseException {
     Date converter = new SimpleDateFormat("dd/MM/yyyy").parse(dob);
 
