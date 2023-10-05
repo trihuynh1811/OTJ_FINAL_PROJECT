@@ -27,30 +27,24 @@ public class UserPermission {
 
     @Column(name = "role",nullable = false)
     @Enumerated(EnumType.STRING)
-    @ColumnDefault("USER")
     private Role role;
 
     @Column(name = "syllabus",nullable = false)
-    @ColumnDefault("ACCESS_DENIED")
     private String syllabus;
 
     @Column(name = "training_program", nullable = false)
-    @ColumnDefault("ACCESS_DENIED")
     private String trainingProgram;
 
-    @Column(name = "class",nullable = false)
-    @ColumnDefault("ACCESS_DENIED")
+    @Column(name = "user_class",nullable = false)
     private String userClass;
 
     @Column(name = "learning_material",nullable = false)
-    @ColumnDefault("ACCESS_DENIED")
     private String learningMaterial;
 
     @Column(name = "user_management",nullable = false)
-    @ColumnDefault("ACCESS_DENIED")
     private String userManagement;
 
-    @OneToMany(mappedBy = "role")
+    @OneToMany(mappedBy = "userPermission")
     @JsonManagedReference
     private Set<User> users = new HashSet<>();
 }

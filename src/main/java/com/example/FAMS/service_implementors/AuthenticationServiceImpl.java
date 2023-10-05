@@ -4,7 +4,6 @@ import com.example.FAMS.dto.requests.CreateRequest;
 import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.LoginResponse;
-import com.example.FAMS.enums.Role;
 import com.example.FAMS.enums.TokenType;
 import com.example.FAMS.models.Token;
 import com.example.FAMS.models.User;
@@ -32,12 +31,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()
+                    )
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e.toString());
+        }
         var user = userDAO.findByEmail(loginRequest.getEmail())
                 .orElseThrow();
         var token = jwtService.generateToken(user);
@@ -46,7 +49,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return LoginResponse.builder()
 //                Need something here
                 .status("Successful")
-                .userInfo(user)
+                .userInfo(userDAO.findUserByEmail(loginRequest.getEmail()).orElse(null))
                 .build();
     }
 
