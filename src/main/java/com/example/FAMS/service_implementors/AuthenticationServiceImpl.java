@@ -5,11 +5,13 @@ import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.LoginResponse;
 import com.example.FAMS.enums.TokenType;
+import com.example.FAMS.models.EmailDetails;
 import com.example.FAMS.models.Token;
 import com.example.FAMS.models.User;
 import com.example.FAMS.repositories.TokenDAO;
 import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.services.AuthenticationService;
+import com.example.FAMS.services.EmailService;
 import com.example.FAMS.services.JWTService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +30,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JWTService jwtService;
     private final TokenDAO tokenDAO;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
@@ -73,10 +76,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var existedUser = userDAO.findByEmail(user.getEmail()).orElse(null);
         if (existedUser == null) {
             var savedUser = userDAO.save(user);
+            emailService.sendMail(EmailDetails.builder()
+                            .subject("Account Password")
+                            .msgBody(initialPassword)
+                            .recipient(savedUser.getEmail())
+                    .build());
             return CreateResponse.builder()
                     .status("Successful")
-                    .password(initialPassword)
-                    .createdUser(savedUser)
+                    .createdUser(userDAO.findUserByEmail(savedUser.getEmail()).orElse(null))
                     .build();
         }
         return CreateResponse.builder()
