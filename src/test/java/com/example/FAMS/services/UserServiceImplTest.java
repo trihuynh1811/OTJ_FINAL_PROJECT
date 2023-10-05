@@ -1,6 +1,8 @@
 package com.example.FAMS.services;
 
+import com.example.FAMS.dto.requests.UpdateRequest;
 import com.example.FAMS.dto.responses.ListUserResponse;
+import com.example.FAMS.dto.responses.UpdateResponse;
 import com.example.FAMS.dtos.response.ListUserResponseImpl;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.User;
@@ -14,11 +16,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+import java.util.Optional;
 import static org.mockito.Mockito.when;
+
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
@@ -44,5 +49,40 @@ public class UserServiceImplTest {
     Assertions.assertThat(list).isNotNull();
     Assertions.assertThat(list.size()).isGreaterThan(0);
     Assertions.assertThat(savedUser).isNotNull();
+  }
+
+  @Test
+  void UpdateUser() throws ParseException {
+     {
+      int userId = 1;
+      String dateStr = "2023/05/10";
+      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+      Date dob = dateFormat.parse(dateStr);
+
+      User user = User.builder()
+              .userId(1)
+              .role(Role.USER)
+              .name("Anh Quan")
+              .phone("0937534654")
+              .dob(dob)
+              .gender("Male")
+              .status("Active")
+              .build();
+      when(userDAO.findById(1)).thenReturn(Optional.of(user));
+      when(userDAO.save(user)).thenReturn(user);
+
+      UpdateRequest updateRequest = new UpdateRequest();
+      updateRequest.setUserId(userId);
+
+
+      UpdateResponse updateResponse = userService.updateUser(updateRequest);
+
+      // Sử dụng AssertJ để kiểm tra
+      Assertions.assertThat(updateResponse).isNotNull();
+      Assertions.assertThat(updateResponse.getStatus()).isEqualTo("Update successful");
+      Assertions.assertThat(updateResponse.getUpdatedUser()).isEqualTo(user);
+
+
+    }
   }
 }
