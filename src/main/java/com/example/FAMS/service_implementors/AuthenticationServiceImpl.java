@@ -52,6 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return LoginResponse.builder()
 //                Need something here
                 .status("Successful")
+                .token(token)
                 .userInfo(userDAO.findUserByEmail(loginRequest.getEmail()).orElse(null))
                 .build();
     }
