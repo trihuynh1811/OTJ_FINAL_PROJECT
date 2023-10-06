@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoginResponse {
     private String status;
+    private String role;
     private String token;
     private UserDTO userInfo;
 }
