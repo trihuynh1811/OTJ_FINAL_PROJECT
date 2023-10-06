@@ -76,7 +76,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .modifiedDate(new Date())
                 .build();
         var existedUser = userDAO.findByEmail(user.getEmail()).orElse(null);
+
         if (existedUser == null) {
+            logger.info("Did i go here");
             var savedUser = userDAO.save(user);
             emailService.sendMail(EmailDetails.builder()
                             .subject("Account Password")
@@ -88,13 +90,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     .createdUser(userDAO.findUserByEmail(savedUser.getEmail()).orElse(null))
                     .build();
         }
+        logger.info("Or i go outside of the if");
         return CreateResponse.builder()
                 .status("Fail")
                 .createdUser(null)
                 .build();
     }
 
-    private String passwordGenerator(String email) {
+    public String passwordGenerator(String email) {
         return passwordEncoder.encode(email).substring(0, 9);
     }
 
