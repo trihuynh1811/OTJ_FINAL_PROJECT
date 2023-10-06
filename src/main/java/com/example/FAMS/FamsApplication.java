@@ -130,6 +130,59 @@ public class FamsApplication {
                 .modifiedDate(new Date())
                 .build();
         userDAO.save(admin);
+
+        var classAdminRole = userPermissionDAO.findUserPermissionByRole(Role.CLASS_ADMIN).orElse(null);
+        User classAdmin =
+                User.builder()
+                        .email("classadmin@gmail.com")
+                        .password(passwordEncoder.encode("1"))
+                        .name("Class Admin")
+                        .phone("0977545451")
+                        .dob(new Date())
+                        .gender("Male")
+                        .role(classAdminRole)
+                        .status("Wonderful")
+                        .createdBy("Hoang Anh")
+                        .createdDate(new Date())
+                        .modifiedBy("Hoang Anh")
+                        .modifiedDate(new Date())
+                        .build();
+        userDAO.save(classAdmin);
+        var trainerRole = userPermissionDAO.findUserPermissionByRole(Role.TRAINER).orElse(null);
+        User trainer =
+                User.builder()
+                        .email("trainer@gmail.com")
+                        .password(passwordEncoder.encode("1"))
+                        .name("Trainer")
+                        .phone("0977545452")
+                        .dob(new Date())
+                        .gender("Male")
+                        .role(trainerRole)
+                        .status("Wonderful")
+                        .createdBy("Hoang Anh")
+                        .createdDate(new Date())
+                        .modifiedBy("Hoang Anh")
+                        .modifiedDate(new Date())
+                        .build();
+        userDAO.save(trainer);
+        var userRole = userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null);
+        User user =
+                User.builder()
+                        .email("user@gmail.com")
+                        .password(passwordEncoder.encode("1"))
+                        .name("User")
+                        .phone("0977545453")
+                        .dob(new Date())
+                        .gender("Male")
+                        .role(userRole)
+                        .status("Wonderful")
+                        .createdBy("Hoang Anh")
+                        .createdDate(new Date())
+                        .modifiedBy("Hoang Anh")
+                        .modifiedDate(new Date())
+                        .build();
+        userDAO.save(user);
+
       }
     };
   }
