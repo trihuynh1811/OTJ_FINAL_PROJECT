@@ -73,6 +73,8 @@ public class FamsApplication {
                 .syllabus(List.of(SYLLABUS_CREATE, SYLLABUS_READ, SYLLABUS_UPDATE, SYLLABUS_DELETE))
                 .trainingProgram(List.of(TRAINING_READ))
                 .userClass(List.of(CLASS_READ))
+                .userManagement(List.of())
+                .learningMaterial(List.of())
                 .build();
         try {
           userPermissionDAO.save(trainerPermission);
@@ -80,7 +82,14 @@ public class FamsApplication {
           System.out.println("ERROR: " + e.getMessage());
         }
         UserPermission userPermission =
-            UserPermission.builder().role(Role.USER).userManagement(List.of(USER_READ)).build();
+            UserPermission.builder()
+                .role(Role.USER)
+                .syllabus(List.of())
+                .trainingProgram(List.of())
+                .userClass(List.of())
+                .userManagement(List.of(USER_READ))
+                .learningMaterial(List.of())
+                .build();
         try {
           userPermissionDAO.save(userPermission);
         } catch (Exception e) {
@@ -107,6 +116,7 @@ public class FamsApplication {
                     List.of(CLASS_CREATE, CLASS_READ, CLASS_UPDATE, CLASS_DELETE, CLASS_IMPORT))
                 .userManagement(
                     List.of(USER_CREATE, USER_READ, USER_UPDATE, USER_DELETE, USER_IMPORT))
+                .learningMaterial(List.of())
                 .build();
         try {
           userPermissionDAO.save(classAdminPermission);
@@ -131,58 +141,58 @@ public class FamsApplication {
                 .build();
         userDAO.save(admin);
 
-        var classAdminRole = userPermissionDAO.findUserPermissionByRole(Role.CLASS_ADMIN).orElse(null);
+        var classAdminRole =
+            userPermissionDAO.findUserPermissionByRole(Role.CLASS_ADMIN).orElse(null);
         User classAdmin =
-                User.builder()
-                        .email("classadmin@gmail.com")
-                        .password(passwordEncoder.encode("1"))
-                        .name("Class Admin")
-                        .phone("0977545451")
-                        .dob(new Date())
-                        .gender("Male")
-                        .role(classAdminRole)
-                        .status("Wonderful")
-                        .createdBy("Hoang Anh")
-                        .createdDate(new Date())
-                        .modifiedBy("Hoang Anh")
-                        .modifiedDate(new Date())
-                        .build();
+            User.builder()
+                .email("classadmin@gmail.com")
+                .password(passwordEncoder.encode("1"))
+                .name("Class Admin")
+                .phone("0977545451")
+                .dob(new Date())
+                .gender("Male")
+                .role(classAdminRole)
+                .status("Wonderful")
+                .createdBy("Hoang Anh")
+                .createdDate(new Date())
+                .modifiedBy("Hoang Anh")
+                .modifiedDate(new Date())
+                .build();
         userDAO.save(classAdmin);
         var trainerRole = userPermissionDAO.findUserPermissionByRole(Role.TRAINER).orElse(null);
         User trainer =
-                User.builder()
-                        .email("trainer@gmail.com")
-                        .password(passwordEncoder.encode("1"))
-                        .name("Trainer")
-                        .phone("0977545452")
-                        .dob(new Date())
-                        .gender("Male")
-                        .role(trainerRole)
-                        .status("Wonderful")
-                        .createdBy("Hoang Anh")
-                        .createdDate(new Date())
-                        .modifiedBy("Hoang Anh")
-                        .modifiedDate(new Date())
-                        .build();
+            User.builder()
+                .email("trainer@gmail.com")
+                .password(passwordEncoder.encode("1"))
+                .name("Trainer")
+                .phone("0977545452")
+                .dob(new Date())
+                .gender("Male")
+                .role(trainerRole)
+                .status("Wonderful")
+                .createdBy("Hoang Anh")
+                .createdDate(new Date())
+                .modifiedBy("Hoang Anh")
+                .modifiedDate(new Date())
+                .build();
         userDAO.save(trainer);
         var userRole = userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null);
         User user =
-                User.builder()
-                        .email("user@gmail.com")
-                        .password(passwordEncoder.encode("1"))
-                        .name("User")
-                        .phone("0977545453")
-                        .dob(new Date())
-                        .gender("Male")
-                        .role(userRole)
-                        .status("Wonderful")
-                        .createdBy("Hoang Anh")
-                        .createdDate(new Date())
-                        .modifiedBy("Hoang Anh")
-                        .modifiedDate(new Date())
-                        .build();
+            User.builder()
+                .email("user@gmail.com")
+                .password(passwordEncoder.encode("1"))
+                .name("User")
+                .phone("0977545453")
+                .dob(new Date())
+                .gender("Male")
+                .role(userRole)
+                .status("Wonderful")
+                .createdBy("Hoang Anh")
+                .createdDate(new Date())
+                .modifiedBy("Hoang Anh")
+                .modifiedDate(new Date())
+                .build();
         userDAO.save(user);
-
       }
     };
   }
