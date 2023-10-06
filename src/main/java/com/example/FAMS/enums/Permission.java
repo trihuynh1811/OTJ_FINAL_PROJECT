@@ -28,7 +28,13 @@ public enum Permission {
     CLASS_READ("class:read"),
     CLASS_UPDATE("class:update"),
     CLASS_DELETE("class:delete"),
-    CLASS_IMPORT("class:import")
+    CLASS_IMPORT("class:import"),
+
+    MATERIAL_CREATE("material:create"),
+    MATERIAL_READ("material:read"),
+    MATERIAL_UPDATE("material:update"),
+    MATERIAL_DELETE("material:delete"),
+    MATERIAL_IMPORT("material:import")
     ;
 
     @Getter

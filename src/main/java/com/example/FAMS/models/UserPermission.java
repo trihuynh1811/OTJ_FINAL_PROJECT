@@ -44,7 +44,7 @@ public class UserPermission {
     @Enumerated(EnumType.STRING)
     private List<Permission> userClass;
 
-    @Column(name = "learning_material",nullable = false)
+    @Column(name = "learning_material")
     @Enumerated(EnumType.STRING)
     private List<Permission> learningMaterial;
 
@@ -54,7 +54,7 @@ public class UserPermission {
 
     @OneToMany(mappedBy = "role")
     @JsonManagedReference
-    private Set<User> user = new HashSet<>();
+    private Set<User> users = new HashSet<>();
 
     public List<SimpleGrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authList = new ArrayList<>();
