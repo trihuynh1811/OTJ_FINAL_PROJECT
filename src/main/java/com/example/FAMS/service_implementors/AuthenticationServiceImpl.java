@@ -4,12 +4,14 @@ import com.example.FAMS.dto.requests.CreateRequest;
 import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.LoginResponse;
+import com.example.FAMS.enums.Role;
 import com.example.FAMS.enums.TokenType;
 import com.example.FAMS.models.EmailDetails;
 import com.example.FAMS.models.Token;
 import com.example.FAMS.models.User;
 import com.example.FAMS.repositories.TokenDAO;
 import com.example.FAMS.repositories.UserDAO;
+import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.services.AuthenticationService;
 import com.example.FAMS.services.EmailService;
 import com.example.FAMS.services.JWTService;
@@ -31,6 +33,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final TokenDAO tokenDAO;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final UserPermissionDAO userPermissionDAO;
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
@@ -59,6 +62,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public CreateResponse createUser(CreateRequest createRequest) {
+        var permission = userPermissionDAO.findUserPermissionByRole(createRequest.getRole())
+                .orElse(null);
         String initialPassword = passwordGenerator(createRequest.getEmail());
         User user = User.builder()
                 .name(createRequest.getName())
@@ -67,7 +72,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .phone(createRequest.getPhone())
                 .dob(createRequest.getDob())
                 .gender(createRequest.getGender())
-                .role(createRequest.getRole())
+                .role(permission)
                 .status(createRequest.getStatus())
                 .createdBy(createRequest.getCreatedBy())
                 .createdDate(new Date())
@@ -94,7 +99,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private String passwordGenerator(String email) {
-        return passwordEncoder.encode(email).substring(0, 9);
+        return passwordEncoder.encode(email).substring(9, 20);
     }
 
     private void saveUserToken(User user, String token) {

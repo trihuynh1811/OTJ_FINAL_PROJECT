@@ -1,5 +1,6 @@
 package com.example.FAMS.services;
 
+import com.example.FAMS.dto.requests.UpdatePermissionRequest;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.enums.Permission;
 import com.example.FAMS.enums.Role;
@@ -14,4 +15,6 @@ import java.util.Set;
 public interface UserPermissionService {
     ResponseEntity<ResponseObject> grantPermission(int userID, Role role);
     List<UserPermission> getUserPermission();
+
+    ResponseObject updatePermission(List<UpdatePermissionRequest> updateRequest);
 }

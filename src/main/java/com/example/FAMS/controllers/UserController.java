@@ -23,14 +23,14 @@ import java.util.Date;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-//@PreAuthorize("hasAnyRole('USER', 'CLASS_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('USER', 'CLASS_ADMIN', 'SUPER_ADMIN')")
 public class UserController {
 
     private final UserService userService;
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping("/")
-//    @PreAuthorize("hasAuthority('user:read')")
+    @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<ResponseObject> getAllUser() {
         return userService.getAll();
     }

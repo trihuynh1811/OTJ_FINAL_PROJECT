@@ -1,6 +1,7 @@
 package com.example.FAMS.models;
 
 
+import com.example.FAMS.enums.Permission;
 import com.example.FAMS.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -49,9 +50,10 @@ public class User implements UserDetails {
     @Column(name = "gender", nullable = false)
     private String gender;
 
-    @Column(name = "role", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private UserPermission role;
 
     @Column(name = "status", nullable = false)
     private String status;
@@ -72,11 +74,6 @@ public class User implements UserDetails {
     @JsonIgnore
     private Set<ClassUser> classUsers = new HashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "permissionId")
-    @JsonIgnore
-    private UserPermission userPermission;
-
     @OneToMany(mappedBy = "userID")
     @JsonManagedReference
     private final Set<TrainingProgram> trainingPrograms = new HashSet<>();
@@ -87,7 +84,6 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user")
     private final Set<Token> tokens = new HashSet<>();
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -123,6 +119,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 
 }

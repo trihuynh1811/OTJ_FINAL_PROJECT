@@ -91,7 +91,7 @@ public class EmailServiceImpl implements EmailService {
                     "                                                                                </tr>\n" +
                     "                                                                                <tr>\n" +
                     "                                                                                    <td align=\"center\" class=\"esd-block-text es-m-txt-c es-p20t\">\n" +
-                    "                                                                                        <p style=\"color: #ffffff;\">Using your password to login</p>\n" +
+                    "                                                                                        <p style=\"color: #ffffff;\">Using your password to login to our FAMS Application</p>\n" +
                     "                                                                                    </td>\n" +
                     "                                                                                </tr>\n" +
                     "                                                                            </tbody>\n" +

@@ -16,7 +16,7 @@ public interface UserDTO {
 
     public String getGender();
 
-    public Role getRole() ;
+//    public Role getRole() ;
 
     public String getStatus() ;
 

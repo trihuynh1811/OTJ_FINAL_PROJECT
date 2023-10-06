@@ -1,5 +1,6 @@
 package com.example.FAMS.controllers;
 
+import com.example.FAMS.dto.requests.UpdatePermissionRequest;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.UserPermission;
@@ -14,21 +15,21 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/permission")
+@RequestMapping("/user-permission")
 @RequiredArgsConstructor
 //@PreAuthorize("hasAnyRole('USER', 'CLASS_ADMIN', 'SUPER_ADMIN')")
 public class UserPermissionController {
 
     private final UserPermissionService userPermissionService;
 
-    @GetMapping("/get-permissions")
+    @GetMapping("/get-all")
 //    @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<List<UserPermission>> GetAllPermission() {
         List<UserPermission> list = userPermissionService.getUserPermission();
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @PutMapping("/grantPermission/{userId}")
+    @PutMapping("/grant-permission/{userId}")
     public ResponseEntity<ResponseObject> grantPermission(
             @PathVariable int userId, @RequestParam(name = "role", required = true) Role role) {
         ResponseEntity<ResponseObject> grantUser = userPermissionService.grantPermission(userId, role);
@@ -40,7 +41,8 @@ public class UserPermissionController {
         }
     }
 
-//    public static void main(String[] args){
-//    System.out.println(Role.SUPER_ADMIN.getAuthorities());
-//    }
+    @PutMapping("/update")
+    public ResponseEntity<ResponseObject> updatePermission(@RequestBody List<UpdatePermissionRequest> updateRequest) {
+        return ResponseEntity.ok(userPermissionService.updatePermission(updateRequest));
+    }
 }
