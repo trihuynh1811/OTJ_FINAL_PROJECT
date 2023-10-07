@@ -1,5 +1,6 @@
 package com.example.FAMS.service_implementors;
 
+import com.example.FAMS.dto.requests.UpdatePermissionRequest;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.UserPermission;
@@ -28,12 +29,18 @@ public class UserPermissionServiceImpl implements UserPermissionService {
     }
 
     @Override
+    public ResponseObject updatePermission(List<UpdatePermissionRequest> updateRequest) {
+        return null;
+    }
+    @Override
     public ResponseEntity<ResponseObject> grantPermission(int userID, Role role) {
         var person = userDAO.findById(userID).orElse(null);
+        var permission = userPermissionDAO.findUserPermissionByRole(role)
+                .orElse(null);
         if (person == null) {
             return null;
         }
-        person.setRole(role);
+        person.setRole(permission);
 
         logger.info("Grant permission for a user");
         return ResponseEntity.ok(new ResponseObject("Successful", "Change user permission", userDAO.save(person)));

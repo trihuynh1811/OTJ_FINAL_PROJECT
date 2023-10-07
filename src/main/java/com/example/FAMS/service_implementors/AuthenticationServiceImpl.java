@@ -12,6 +12,7 @@ import com.example.FAMS.models.Token;
 import com.example.FAMS.models.User;
 import com.example.FAMS.repositories.TokenDAO;
 import com.example.FAMS.repositories.UserDAO;
+import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.services.AuthenticationService;
 import com.example.FAMS.services.EmailService;
 import com.example.FAMS.services.JWTService;
@@ -35,6 +36,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final TokenDAO tokenDAO;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final UserPermissionDAO userPermissionDAO;
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
@@ -53,6 +55,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return LoginResponse.builder()
 //                Need something here
                 .status("Successful")
+                .role(user.getRole().getRole().name())
                 .token(token)
                 .userInfo(userDAO.findUserByEmail(loginRequest.getEmail()).orElse(null))
                 .build();
@@ -60,6 +63,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public CreateResponse createUser(CreateRequest createRequest) {
+    var permission = userPermissionDAO.findUserPermissionByRole(createRequest.getRole().getRole()).orElse(null);
         String initialPassword = passwordGenerator(createRequest.getEmail());
         User user = User.builder()
                 .name(createRequest.getName())
@@ -76,9 +80,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .modifiedDate(new Date())
                 .build();
         var existedUser = userDAO.findByEmail(user.getEmail()).orElse(null);
-
         if (existedUser == null) {
-            logger.info("Did i go here");
             var savedUser = userDAO.save(user);
             emailService.sendMail(EmailDetails.builder()
                             .subject("Account Password")
@@ -90,15 +92,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     .createdUser(userDAO.findUserByEmail(savedUser.getEmail()).orElse(null))
                     .build();
         }
-        logger.info("Or i go outside of the if");
         return CreateResponse.builder()
                 .status("Fail")
                 .createdUser(null)
                 .build();
     }
 
-    public String passwordGenerator(String email) {
-        return passwordEncoder.encode(email).substring(0, 9);
+    private String passwordGenerator(String email) {
+        return passwordEncoder.encode(email).substring(9, 20);
     }
 
     public void saveUserToken(User user, String token) {

@@ -54,7 +54,7 @@ public class AuthenticationServiceImplTest {
     // Create a mock User object
     User mockUser = new User();
     mockUser.setUserId(userId);
-    mockUser.setRole(Role.USER);
+//    mockUser.setRole(Role.USER);
 
     LoginRequest loginRequest =
         LoginRequest.builder().email("admin@gmail.com").password("1").build();
@@ -87,13 +87,13 @@ public class AuthenticationServiceImplTest {
     // Create a mock User object
     User mockUser = new User();
     mockUser.setUserId(userId);
-    mockUser.setRole(Role.USER);
+//    mockUser.setRole(Role.USER);
 
     when(userDAO.findByEmail(Mockito.any())).thenReturn(Optional.empty());
     when(passwordEncoder.encode(any())).thenReturn("1fsdfadfqrwgtwerert234");
-    when(authenticationService.passwordGenerator(any())).thenReturn("123fwwretwertewrtefqwef4");
+//    when(authenticationService.passwordGenerator(any())).thenReturn("123fwwretwertewrtefqwef4");
 
-    String initialPassword = authenticationService.passwordGenerator("Hefqwewretwertwretfqwefqwello");
+//    String initialPassword = authenticationService.passwordGenerator("Hefqwewretwertwretfqwefqwello");
     CreateRequest request =
         CreateRequest.builder()
             .name("Albert Einstein")
@@ -101,7 +101,7 @@ public class AuthenticationServiceImplTest {
             .phone("0972156450")
             .dob(new Date())
             .gender("Male")
-            .role(Role.SUPER_ADMIN)
+//            .role(Role.SUPER_ADMIN)
             .status("Wonderful")
             .createdBy("RankillerDY")
             .modifiedBy("Hoang Anh")
@@ -109,7 +109,7 @@ public class AuthenticationServiceImplTest {
     User user =
         User.builder()
             .name(request.getName())
-            .password(passwordEncoder.encode(initialPassword))
+//            .password(passwordEncoder.encode(initialPassword))
             .email(request.getEmail())
             .phone(request.getPhone())
             .dob(request.getDob())

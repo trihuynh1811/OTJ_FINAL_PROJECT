@@ -6,6 +6,7 @@ import com.example.FAMS.models.User;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -16,5 +17,7 @@ public interface UserDAO extends JpaRepository<User, Integer> {
     Optional<UserDTO> findUserByEmail(String email);
 
     List<ListUserResponse> findAllByRole(Enum role);
+
+    <T> List<T> findBy(Class<T> classType);
 
 }

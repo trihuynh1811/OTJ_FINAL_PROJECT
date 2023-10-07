@@ -1,14 +1,12 @@
 package com.example.FAMS.models;
 
 
+import com.example.FAMS.enums.Permission;
 import com.example.FAMS.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -49,9 +47,10 @@ public class User implements UserDetails {
     @Column(name = "gender", nullable = false)
     private String gender;
 
-    @Column(name = "role", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private UserPermission role;
 
     @Column(name = "status", nullable = false)
     private String status;
@@ -71,11 +70,6 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<ClassUser> classUsers = new HashSet<>();
-
-    @ManyToOne
-    @JoinColumn(name = "permissionId")
-    @JsonIgnore
-    private UserPermission userPermission;
 
     @OneToMany(mappedBy = "userID")
     @JsonManagedReference
@@ -122,6 +116,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 
 }

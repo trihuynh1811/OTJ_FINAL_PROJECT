@@ -33,7 +33,7 @@ public class UserPermissionServiceImplTest {
     // Create a mock User object
     User mockUser = new User();
     mockUser.setUserId(userId);
-    mockUser.setRole(Role.USER);
+//    mockUser.setRole(Role.USER);
 
     when(userDAO.findById(Mockito.anyInt())).thenReturn(Optional.of(mockUser));
     when(userDAO.save(Mockito.any())).thenReturn(new User());

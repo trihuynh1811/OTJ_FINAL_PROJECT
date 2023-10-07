@@ -4,10 +4,10 @@ import java.util.Date;
 
 
 import com.example.FAMS.enums.Role;
+import com.example.FAMS.models.User;
 
 
-
-public interface ListUserResponse {
+public interface ListUserResponse{
     public int getUserId();
 
     public String getName();
@@ -20,7 +20,6 @@ public interface ListUserResponse {
 
     public String getGender();
 
-    public Role getRole();
 
 
 

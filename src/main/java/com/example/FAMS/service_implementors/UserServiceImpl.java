@@ -9,6 +9,7 @@ import com.example.FAMS.dto.responses.UpdateResponse;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.User;
 import com.example.FAMS.repositories.UserDAO;
+import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.services.UserService;
 import java.util.Collections;
 import java.util.Date;
@@ -29,13 +30,13 @@ public class UserServiceImpl implements UserService {
   private final UserDAO userDAO;
 
   private List<ListUserResponse> userList;
-
+  private final UserPermissionDAO userPermissionDAO;
 
 
   @Override
   public ResponseEntity<ResponseObject> getAll() {
     try {
-      userList = userDAO.findAllByRole(Role.USER);
+      userList = userDAO.findBy(ListUserResponse.class);
 
       logger.info("Return list of user");
       return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
@@ -48,10 +49,11 @@ public class UserServiceImpl implements UserService {
   @Override
   public UpdateResponse updateUser(UpdateRequest updateRequest) {
     Optional<User> optionalUser = userDAO.findById(updateRequest.getUserId());
-
+    var permission = userPermissionDAO.findUserPermissionByRole(updateRequest.getRole())
+            .orElse(null);
     User existingUser = optionalUser.orElse(null);
     if (existingUser != null) {
-      existingUser.setRole(updateRequest.getRole());
+      existingUser.setRole(permission);
       existingUser.setName(updateRequest.getName());
       existingUser.setPhone(updateRequest.getPhone());
       existingUser.setDob(updateRequest.getDob());

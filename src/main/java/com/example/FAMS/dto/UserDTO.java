@@ -1,6 +1,7 @@
 package com.example.FAMS.dto;
 
 import com.example.FAMS.enums.Role;
+import com.example.FAMS.models.UserPermission;
 
 import java.util.Date;
 
