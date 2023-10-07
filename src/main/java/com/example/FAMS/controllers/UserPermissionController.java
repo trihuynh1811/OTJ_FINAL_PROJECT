@@ -17,23 +17,23 @@ import java.util.List;
 @RestController
 @RequestMapping("/user-permission")
 @RequiredArgsConstructor
-//@PreAuthorize("hasAnyRole('USER', 'CLASS_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('USER', 'CLASS_ADMIN', 'SUPER_ADMIN')")
 public class UserPermissionController {
 
     private final UserPermissionService userPermissionService;
 
     @GetMapping("/get-all")
-//    @PreAuthorize("hasAuthority('user:read')")
+    @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<List<UserPermission>> GetAllPermission() {
         List<UserPermission> list = userPermissionService.getUserPermission();
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @PutMapping("/grant-permission/{userId}")
+    @PreAuthorize("hasAnyAuthority('user:update')")
     public ResponseEntity<ResponseObject> grantPermission(
             @PathVariable int userId, @RequestParam(name = "role", required = true) Role role) {
         ResponseEntity<ResponseObject> grantUser = userPermissionService.grantPermission(userId, role);
-
         if (grantUser != null) {
             return grantUser;
         } else {
@@ -42,7 +42,10 @@ public class UserPermissionController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<ResponseObject> updatePermission(@RequestBody List<UpdatePermissionRequest> updateRequest) {
+    @PreAuthorize("hasAnyAuthority('user:update')")
+    public ResponseEntity<ResponseObject> updatePermission(
+            @RequestBody List<UpdatePermissionRequest> updateRequest
+    ) {
         return ResponseEntity.ok(userPermissionService.updatePermission(updateRequest));
     }
 }

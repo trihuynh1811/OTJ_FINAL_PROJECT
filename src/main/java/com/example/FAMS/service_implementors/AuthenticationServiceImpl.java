@@ -3,9 +3,9 @@ package com.example.FAMS.service_implementors;
 import com.example.FAMS.controllers.UserController;
 import com.example.FAMS.dto.requests.CreateRequest;
 import com.example.FAMS.dto.requests.LoginRequest;
+import com.example.FAMS.dto.responses.AuthenticationResponse;
 import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.LoginResponse;
-import com.example.FAMS.enums.Role;
 import com.example.FAMS.enums.TokenType;
 import com.example.FAMS.models.EmailDetails;
 import com.example.FAMS.models.Token;
@@ -16,19 +16,25 @@ import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.services.AuthenticationService;
 import com.example.FAMS.services.EmailService;
 import com.example.FAMS.services.JWTService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
+
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserDAO userDAO;
     private final AuthenticationManager authenticationManager;
@@ -40,7 +46,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-         authenticationManager.authenticate(
+        authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
                         loginRequest.getPassword()
@@ -84,9 +90,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (existedUser == null) {
             var savedUser = userDAO.save(user);
             emailService.sendMail(EmailDetails.builder()
-                            .subject("Account Password")
-                            .msgBody(initialPassword)
-                            .recipient(savedUser.getEmail())
+                    .subject("Account Password")
+                    .msgBody(initialPassword)
+                    .recipient(savedUser.getEmail())
                     .build());
             return CreateResponse.builder()
                     .status("Successful")
@@ -98,6 +104,33 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .createdUser(null)
                 .build();
     }
+
+    @Override
+    public void refresh(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final String authenHeader = request.getHeader("Authorization");
+        final String refreshToken;
+        final String userEmail;
+        if (authenHeader != null && !authenHeader.startsWith("Bearer ")) {
+            return;
+        }
+        refreshToken = authenHeader.substring(7);
+        userEmail = jwtService.extractUserEmail(refreshToken);
+        if (userEmail != null) {
+            var existedUser = userDAO.findByEmail(userEmail).orElseThrow();
+            if (jwtService.isTokenValid(refreshToken, existedUser)) {
+                var newToken = jwtService.generateToken(existedUser);
+                revokeAllUserToken(existedUser);
+                saveUserToken(existedUser, newToken);
+                var authResponse = AuthenticationResponse.builder()
+                        .status("Successful")
+                        .token(newToken)
+                        .refreshToken(refreshToken)
+                        .build();
+                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
+            }
+        }
+    }
+
 
     private String passwordGenerator(String email) {
         return passwordEncoder.encode(email).substring(9, 20);

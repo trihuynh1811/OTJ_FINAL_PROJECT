@@ -1,11 +1,16 @@
 package com.example.FAMS;
 
+import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.User;
 import com.example.FAMS.models.UserPermission;
 import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.repositories.UserPermissionDAO;
+import com.example.FAMS.services.AuthenticationService;
+import com.example.FAMS.services.JWTService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,6 +35,7 @@ public class FamsApplication {
     private final UserDAO userDAO;
     private final UserPermissionDAO userPermissionDAO;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationService authenticationService;
 
     public static void main(String[] args) {
         SpringApplication.run(FamsApplication.class, args);
@@ -146,6 +152,26 @@ public class FamsApplication {
                         .modifiedDate(new Date())
                         .build());
                 userDAO.saveAll(userList);
+                System.out.println("SUPER_ADMIN Token: " + authenticationService.login(
+                        LoginRequest.builder()
+                                .email(userList.get(0).getEmail())
+                                .password("1")
+                        .build()).getToken());
+                System.out.println("CLASS_ADMIN Token: " + authenticationService.login(
+                        LoginRequest.builder()
+                                .email(userList.get(1).getEmail())
+                                .password("1")
+                                .build()).getToken());
+                System.out.println("TRAINER Token: " + authenticationService.login(
+                        LoginRequest.builder()
+                                .email(userList.get(2).getEmail())
+                                .password("1")
+                                .build()).getToken());
+                System.out.println("USER Token: " + authenticationService.login(
+                        LoginRequest.builder()
+                                .email(userList.get(3).getEmail())
+                                .password("1")
+                                .build()).getToken());
             }
         };
     }

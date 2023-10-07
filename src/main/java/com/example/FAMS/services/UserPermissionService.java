@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Set;
 
 public interface UserPermissionService {
+
     ResponseEntity<ResponseObject> grantPermission(int userID, Role role);
+
     List<UserPermission> getUserPermission();
 
     ResponseObject updatePermission(List<UpdatePermissionRequest> updateRequest);
