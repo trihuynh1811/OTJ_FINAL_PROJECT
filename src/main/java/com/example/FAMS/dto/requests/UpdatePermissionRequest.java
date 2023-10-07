@@ -15,7 +15,7 @@ public class UpdatePermissionRequest {
 
     private String roleName;
     private String syllabus;
-    private String trainingProgram;
+    private String training;
     private String userclass;
     private String learningMaterial;
     private String userManagement;
