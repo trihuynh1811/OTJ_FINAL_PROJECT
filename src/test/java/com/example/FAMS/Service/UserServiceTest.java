@@ -38,7 +38,7 @@ public class UserServiceTest {
 
         User user = User.builder()
                 .userId(1)
-                .role(Role.USER)
+//                .role()
                 .name("Anh Quan")
                 .phone("0937534654")
                 .dob(dob)

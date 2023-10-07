@@ -69,8 +69,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public CreateResponse createUser(CreateRequest createRequest) {
-        var permission = userPermissionDAO.findUserPermissionByRole(createRequest.getRole())
-                .orElse(null);
+    var permission = userPermissionDAO.findUserPermissionByRole(createRequest.getRole().getRole()).orElse(null);
         String initialPassword = passwordGenerator(createRequest.getEmail());
         User user = User.builder()
                 .name(createRequest.getName())
@@ -79,7 +78,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .phone(createRequest.getPhone())
                 .dob(createRequest.getDob())
                 .gender(createRequest.getGender())
-                .role(permission)
+                .role(createRequest.getRole())
                 .status(createRequest.getStatus())
                 .createdBy(createRequest.getCreatedBy())
                 .createdDate(new Date())

@@ -1,6 +1,7 @@
 package com.example.FAMS.dto.requests;
 
 import com.example.FAMS.enums.Role;
+import com.example.FAMS.models.UserPermission;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +19,7 @@ public class CreateRequest {
     private String phone;
     private Date dob;
     private String gender;
-    private Role role;
+    private UserPermission role;
     private String status;
     private String createdBy;
     private String modifiedBy;

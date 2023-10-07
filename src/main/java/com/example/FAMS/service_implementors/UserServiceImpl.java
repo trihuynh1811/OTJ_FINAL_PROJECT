@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public ResponseEntity<ResponseObject> getAll() {
     try {
-      userList = userDAO.findAllByRole(Role.USER);
+      userList = userDAO.findBy(ListUserResponse.class);
 
       logger.info("Return list of user");
       return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));

@@ -61,7 +61,7 @@ public class UserServiceImplTest {
 
       User user = User.builder()
               .userId(1)
-              .role(Role.USER)
+//              .role(Role.USER)
               .name("Anh Quan")
               .phone("0937534654")
               .dob(dob)
