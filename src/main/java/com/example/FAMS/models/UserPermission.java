@@ -2,19 +2,15 @@ package com.example.FAMS.models;
 
 import com.example.FAMS.enums.Permission;
 import com.example.FAMS.enums.Role;
-import com.example.FAMS.services.UserPermissionService;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Data

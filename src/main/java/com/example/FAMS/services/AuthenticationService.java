@@ -4,8 +4,10 @@ import com.example.FAMS.dto.requests.CreateRequest;
 import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.LoginResponse;
+import com.example.FAMS.dto.responses.ResponseObject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 
@@ -15,4 +17,6 @@ public interface AuthenticationService {
     CreateResponse createUser(CreateRequest createRequest);
 
     void refresh(HttpServletRequest request, HttpServletResponse response) throws IOException;
+
+    ResponseObject getLoggedInUser(HttpServletRequest request);
 }

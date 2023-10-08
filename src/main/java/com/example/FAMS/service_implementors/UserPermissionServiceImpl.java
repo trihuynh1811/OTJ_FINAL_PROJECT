@@ -1,5 +1,6 @@
 package com.example.FAMS.service_implementors;
 
+import com.example.FAMS.dto.UserPermissionDTO;
 import com.example.FAMS.dto.requests.UpdatePermissionRequest;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.enums.Permission;
@@ -12,15 +13,12 @@ import com.example.FAMS.services.UserPermissionService;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import static com.example.FAMS.enums.Permission.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +28,11 @@ public class UserPermissionServiceImpl implements UserPermissionService {
     private final UserDAO userDAO;
 
     @Override
-    public List<UserPermission> getUserPermission() {
-        return userPermissionDAO.findAll();
+    public List<UserPermissionDTO> getUserPermission() {
+        var listUserDTO = userPermissionDAO.findAllUserPermission();
+        for (UserPermissionDTO userPermission: listUserDTO) {
+
+        }
     }
 
     @Override

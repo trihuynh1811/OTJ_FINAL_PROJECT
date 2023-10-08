@@ -1,8 +1,6 @@
 package com.example.FAMS.models;
 
 
-import com.example.FAMS.enums.Permission;
-import com.example.FAMS.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;

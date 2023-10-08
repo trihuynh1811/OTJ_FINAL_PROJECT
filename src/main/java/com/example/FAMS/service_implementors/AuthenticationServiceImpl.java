@@ -1,11 +1,13 @@
 package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.controllers.UserController;
+import com.example.FAMS.dto.UserDTO;
 import com.example.FAMS.dto.requests.CreateRequest;
 import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.dto.responses.AuthenticationResponse;
 import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.LoginResponse;
+import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.enums.TokenType;
 import com.example.FAMS.models.EmailDetails;
 import com.example.FAMS.models.Token;
@@ -24,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -69,7 +70,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public CreateResponse createUser(CreateRequest createRequest) {
-    var permission = userPermissionDAO.findUserPermissionByRole(createRequest.getRole().getRole()).orElse(null);
+        var permission = userPermissionDAO.findUserPermissionByRole(createRequest.getRole()).orElse(null);
         String initialPassword = passwordGenerator(createRequest.getEmail());
         User user = User.builder()
                 .name(createRequest.getName())
@@ -78,7 +79,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .phone(createRequest.getPhone())
                 .dob(createRequest.getDob())
                 .gender(createRequest.getGender())
-                .role(createRequest.getRole())
+                .role(permission)
                 .status(createRequest.getStatus())
                 .createdBy(createRequest.getCreatedBy())
                 .createdDate(new Date())
@@ -109,7 +110,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         final String authenHeader = request.getHeader("Authorization");
         final String refreshToken;
         final String userEmail;
-        if (authenHeader != null && !authenHeader.startsWith("Bearer ")) {
+        if (authenHeader == null || !authenHeader.startsWith("Bearer ")) {
             return;
         }
         refreshToken = authenHeader.substring(7);
@@ -128,6 +129,33 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
         }
+    }
+
+    @Override
+    public ResponseObject getLoggedInUser(HttpServletRequest request) {
+        String authenHeader = request.getHeader("Authorization");
+        final String token;
+        final String userEmail;
+        if (authenHeader == null || !authenHeader.startsWith("Bearer ")) {
+            return null;
+        }
+        token = authenHeader.substring(7);
+        userEmail = jwtService.extractUserEmail(token);
+        if (userEmail != null) {
+            var loggedInUser = userDAO.findByEmail(userEmail).orElseThrow();
+            if (jwtService.isTokenValid(token, loggedInUser)) {
+                UserDTO userDTO = userDAO.findUserByEmail(userEmail).orElse(null);
+                return ResponseObject.builder()
+                        .status("Successful")
+                        .message("Successful get logged in User")
+                        .payload(userDTO)
+                        .build();
+            }
+        }
+        return ResponseObject.builder()
+                .status("Fail")
+                .message("Invalid request")
+                .build();
     }
 
 

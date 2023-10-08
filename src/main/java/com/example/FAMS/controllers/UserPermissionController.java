@@ -1,10 +1,9 @@
 package com.example.FAMS.controllers;
 
+import com.example.FAMS.dto.UserPermissionDTO;
 import com.example.FAMS.dto.requests.UpdatePermissionRequest;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.enums.Role;
-import com.example.FAMS.models.UserPermission;
-import com.example.FAMS.service_implementors.UserServiceImpl;
 import com.example.FAMS.services.UserPermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,8 +23,8 @@ public class UserPermissionController {
 
     @GetMapping("/get-all")
     @PreAuthorize("hasAuthority('user:read')")
-    public ResponseEntity<List<UserPermission>> GetAllPermission() {
-        List<UserPermission> list = userPermissionService.getUserPermission();
+    public ResponseEntity<List<UserPermissionDTO>> getAllPermission() {
+        List<UserPermissionDTO> list = userPermissionService.getUserPermission();
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 

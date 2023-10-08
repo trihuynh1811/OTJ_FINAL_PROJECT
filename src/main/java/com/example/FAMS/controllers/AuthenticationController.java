@@ -4,6 +4,7 @@ import com.example.FAMS.dto.requests.CreateRequest;
 import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.LoginResponse;
+import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.services.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,5 +36,8 @@ public class AuthenticationController {
         authenticationService.refresh(request, response);
     }
 
-
+    @GetMapping("/login/get-user")
+    public ResponseEntity<ResponseObject> getLoggedInUser(HttpServletRequest request) {
+        return ResponseEntity.ok(authenticationService.getLoggedInUser(request));
+    }
 }

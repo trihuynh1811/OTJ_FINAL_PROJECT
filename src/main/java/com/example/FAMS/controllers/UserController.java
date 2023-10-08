@@ -20,7 +20,7 @@ public class UserController {
     private final UserService userService;
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @GetMapping("/")
+    @GetMapping("/get-all")
     @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<ResponseObject> getAllUser() {
         return userService.getAll();
@@ -34,5 +34,4 @@ public class UserController {
     ) {
         return ResponseEntity.ok(userService.updateUser(updateRequest));
     }
-
 }
