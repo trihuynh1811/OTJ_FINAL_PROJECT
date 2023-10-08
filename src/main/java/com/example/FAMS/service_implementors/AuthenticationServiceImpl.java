@@ -98,7 +98,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
-    private String passwordGenerator(String email) {
+    public String passwordGenerator(String email) {
         return passwordEncoder.encode(email).substring(9, 20);
     }
 

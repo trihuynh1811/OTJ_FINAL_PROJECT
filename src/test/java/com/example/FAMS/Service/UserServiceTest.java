@@ -4,7 +4,9 @@ import com.example.FAMS.dto.requests.UpdateRequest;
 import com.example.FAMS.dto.responses.UpdateResponse;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.User;
+import com.example.FAMS.models.UserPermission;
 import com.example.FAMS.repositories.UserDAO;
+import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.service_implementors.UserServiceImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,7 +19,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+
+import static com.example.FAMS.enums.Permission.USER_READ;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -25,6 +30,9 @@ import static org.mockito.Mockito.*;
 public class UserServiceTest {
     @Mock
     private UserDAO userDAO;
+
+    @Mock
+    private UserPermissionDAO userPermissionDAO;
 
     @InjectMocks
     private  UserServiceImpl userService;
@@ -35,10 +43,20 @@ public class UserServiceTest {
         String dateStr = "2023/05/10";
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Date dob = dateFormat.parse(dateStr);
+        UserPermission userPermission = UserPermission.builder()
+                .role(Role.USER)
+                .syllabus(List.of())
+                .trainingProgram(List.of())
+                .userClass(List.of())
+                .userManagement(List.of(USER_READ))
+                .learningMaterial(List.of())
+                .build();
+
+        when(userPermissionDAO.findUserPermissionByRole(any())).thenReturn(Optional.of(userPermission));
 
         User user = User.builder()
                 .userId(1)
-//                .role()
+                .role(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null))
                 .name("Anh Quan")
                 .phone("0937534654")
                 .dob(dob)
