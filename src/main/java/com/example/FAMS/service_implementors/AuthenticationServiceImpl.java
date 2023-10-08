@@ -147,7 +147,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 UserDTO userDTO = userDAO.findUserByEmail(userEmail).orElse(null);
                 return ResponseObject.builder()
                         .status("Successful")
-                        .message("Successful get logged in User")
+                        .message(loggedInUser.getRole().getRole().name())
                         .payload(userDTO)
                         .build();
             }
