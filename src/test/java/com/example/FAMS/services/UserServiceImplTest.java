@@ -6,7 +6,9 @@ import com.example.FAMS.dto.responses.UpdateResponse;
 import com.example.FAMS.dtos.response.ListUserResponseImpl;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.User;
+import com.example.FAMS.models.UserPermission;
 import com.example.FAMS.repositories.UserDAO;
+import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.service_implementors.UserServiceImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -22,13 +24,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import static org.mockito.Mockito.when;
 
+import static com.example.FAMS.enums.Permission.USER_READ;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
   @Mock private UserDAO userDAO;
   @InjectMocks private UserServiceImpl userService;
+  @Mock private UserPermissionDAO userPermissionDAO;
 
   @Test
   void User_getAllUser_returnResponseObject() {
@@ -53,15 +58,28 @@ public class UserServiceImplTest {
 
   @Test
   void UpdateUser() throws ParseException {
-     {
+    {
       int userId = 1;
       String dateStr = "2023/05/10";
       SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
       Date dob = dateFormat.parse(dateStr);
+      UserPermission userPermission =
+          UserPermission.builder()
+              .role(Role.USER)
+              .syllabus(List.of())
+              .trainingProgram(List.of())
+              .userClass(List.of())
+              .userManagement(List.of(USER_READ))
+              .learningMaterial(List.of())
+              .build();
 
-      User user = User.builder()
+      when(userPermissionDAO.findUserPermissionByRole(any()))
+          .thenReturn(Optional.of(userPermission));
+
+      User user =
+          User.builder()
               .userId(1)
-//              .role(Role.USER)
+              .role(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null))
               .name("Anh Quan")
               .phone("0937534654")
               .dob(dob)
@@ -74,15 +92,12 @@ public class UserServiceImplTest {
       UpdateRequest updateRequest = new UpdateRequest();
       updateRequest.setUserId(userId);
 
-
       UpdateResponse updateResponse = userService.updateUser(updateRequest);
 
       // Sử dụng AssertJ để kiểm tra
       Assertions.assertThat(updateResponse).isNotNull();
       Assertions.assertThat(updateResponse.getStatus()).isEqualTo("Update successful");
       Assertions.assertThat(updateResponse.getUpdatedUser()).isEqualTo(user);
-
-
     }
   }
 }

@@ -1,7 +1,7 @@
 package com.example.FAMS.controllers;
 
-import com.example.FAMS.dto.UserPermissionDTO;
 import com.example.FAMS.dto.requests.UpdatePermissionRequest;
+import com.example.FAMS.dto.responses.GetUserPermissionsResponse;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.services.UserPermissionService;
@@ -23,8 +23,8 @@ public class UserPermissionController {
 
     @GetMapping("/get-all")
     @PreAuthorize("hasAuthority('user:read')")
-    public ResponseEntity<List<UserPermissionDTO>> getAllPermission() {
-        List<UserPermissionDTO> list = userPermissionService.getUserPermission();
+    public ResponseEntity<List<GetUserPermissionsResponse>> getAllPermission() {
+        List<GetUserPermissionsResponse> list = userPermissionService.getUserPermission();
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 

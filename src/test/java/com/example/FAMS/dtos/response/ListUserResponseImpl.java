@@ -12,7 +12,7 @@ public class ListUserResponseImpl implements ListUserResponse {
     private String phone;
     private Date dob;
     private String gender;
-    private Role role;
+//    private Role role;
 
     public ListUserResponseImpl(int userId, String name, String email, String phone, Date dob, String gender, Role role) {
         this.userId = userId;
@@ -21,7 +21,7 @@ public class ListUserResponseImpl implements ListUserResponse {
         this.phone = phone;
         this.dob = dob;
         this.gender = gender;
-        this.role = role;
+//        this.role = role;
     }
 
     @Override
@@ -54,8 +54,8 @@ public class ListUserResponseImpl implements ListUserResponse {
         return gender;
     }
 
-    @Override
-    public Role getRole() {
-        return role;
-    }
+//    @Override
+//    public Role getRole() {
+//        return role;
+//    }
 }

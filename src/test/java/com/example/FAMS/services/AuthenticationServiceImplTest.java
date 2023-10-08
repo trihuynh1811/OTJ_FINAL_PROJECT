@@ -8,8 +8,10 @@ import com.example.FAMS.dto.responses.LoginResponse;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.EmailDetails;
 import com.example.FAMS.models.User;
+import com.example.FAMS.models.UserPermission;
 import com.example.FAMS.repositories.TokenDAO;
 import com.example.FAMS.repositories.UserDAO;
+import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.service_implementors.AuthenticationServiceImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static com.example.FAMS.enums.Permission.USER_READ;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -41,6 +44,8 @@ public class AuthenticationServiceImplTest {
   private Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
   @Mock private UserDAO userDAO;
   @Mock private AuthenticationManager authenticationManager;
+  @Mock
+  private UserPermissionDAO userPermissionDAO;
   @Mock private JWTService jwtService;
   @Mock private TokenDAO tokenDAO;
   @Mock private PasswordEncoder passwordEncoder;
@@ -82,18 +87,30 @@ public class AuthenticationServiceImplTest {
 
   @Test
   void User_CreateUser_returnCreateResponse() {
+    when(userDAO.findByEmail(Mockito.any())).thenReturn(Optional.empty());
+    when(passwordEncoder.encode(any())).thenReturn("1fsdfadfqrwgtwerert234");
+
     int userId = 123;
-    Role role = Role.USER;
+    UserPermission userPermission = UserPermission.builder()
+            .role(Role.USER)
+            .syllabus(List.of())
+            .trainingProgram(List.of())
+            .userClass(List.of())
+            .userManagement(List.of(USER_READ))
+            .learningMaterial(List.of())
+            .build();
+
+    when(userPermissionDAO.findUserPermissionByRole(any())).thenReturn(Optional.of(userPermission));
+
     // Create a mock User object
     User mockUser = new User();
     mockUser.setUserId(userId);
-//    mockUser.setRole(Role.USER);
+    mockUser.setRole(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null));
 
-    when(userDAO.findByEmail(Mockito.any())).thenReturn(Optional.empty());
-    when(passwordEncoder.encode(any())).thenReturn("1fsdfadfqrwgtwerert234");
-//    when(authenticationService.passwordGenerator(any())).thenReturn("123fwwretwertewrtefqwef4");
 
-//    String initialPassword = authenticationService.passwordGenerator("Hefqwewretwertwretfqwefqwello");
+    when(authenticationService.passwordGenerator(any())).thenReturn("123fwwretwertewrtefqwef4");
+
+    String initialPassword = authenticationService.passwordGenerator("Hefqwewretwertwretfqwefqwello");
     CreateRequest request =
         CreateRequest.builder()
             .name("Albert Einstein")
@@ -101,7 +118,7 @@ public class AuthenticationServiceImplTest {
             .phone("0972156450")
             .dob(new Date())
             .gender("Male")
-//            .role(Role.SUPER_ADMIN)
+            .role(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null))
             .status("Wonderful")
             .createdBy("RankillerDY")
             .modifiedBy("Hoang Anh")
@@ -109,7 +126,7 @@ public class AuthenticationServiceImplTest {
     User user =
         User.builder()
             .name(request.getName())
-//            .password(passwordEncoder.encode(initialPassword))
+            .password(passwordEncoder.encode(initialPassword))
             .email(request.getEmail())
             .phone(request.getPhone())
             .dob(request.getDob())
