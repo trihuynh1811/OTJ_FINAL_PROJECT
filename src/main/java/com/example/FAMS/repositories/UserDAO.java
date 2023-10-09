@@ -22,6 +22,6 @@ public interface UserDAO extends JpaRepository<User, Integer> {
   <T> List<T> findBy(Class<T> classType);
 
   @Query(value = "SELECT a.user_id as 'userId', a.name, a.email, a.phone, a.dob, a.gender ,b.role\n"
-              + "FROM users A RIGHT JOIN user_permission B on a.user_id = b.permission_id", nativeQuery = true)
+              + "FROM users A INNER JOIN user_permission B on a.role = b.permission_id", nativeQuery = true)
   List<ListUserResponse> getAllUsersWithRole();
 }
