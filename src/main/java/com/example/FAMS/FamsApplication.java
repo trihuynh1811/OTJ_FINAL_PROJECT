@@ -73,7 +73,7 @@ public class FamsApplication {
                         .syllabus(List.of())
                         .trainingProgram(List.of())
                         .userClass(List.of())
-                        .userManagement(List.of(USER_READ))
+                        .userManagement(List.of())
                         .learningMaterial(List.of())
                         .build());
                 permissionList.add(UserPermission.builder()
