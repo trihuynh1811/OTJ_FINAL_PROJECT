@@ -38,15 +38,6 @@ public class UserServiceImpl implements UserService {
   public ResponseEntity<ResponseObject> getAll() {
     try {
       userList = userDAO.getAllUsersWithRole();
-
-//      try {
-//        List<ListUserResponse> testList = userDAO.getAllUsersWithRole();
-//        logger.info("What is inside testList " + testList.toString());
-//      } catch (Exception e) {
-//        logger.info("The error is " + e.getMessage());
-//      }
-
-
       logger.info("Return list of user");
       return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
     } catch (Exception e) {
