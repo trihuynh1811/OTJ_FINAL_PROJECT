@@ -6,6 +6,7 @@ import com.example.FAMS.dto.requests.UpdateRequest;
 import com.example.FAMS.dto.responses.ListUserResponse;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateResponse;
+import com.example.FAMS.dto.responses.UserWithRoleDTO;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.User;
 import com.example.FAMS.repositories.UserDAO;
@@ -36,8 +37,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public ResponseEntity<ResponseObject> getAll() {
     try {
-      userList = userDAO.findBy(ListUserResponse.class);
-
+      userList = userDAO.getAllUsersWithRole();
       logger.info("Return list of user");
       return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
     } catch (Exception e) {

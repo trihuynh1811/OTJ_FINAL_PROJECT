@@ -5,6 +5,8 @@ import java.util.Date;
 
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.User;
+import com.example.FAMS.models.UserPermission;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 public interface ListUserResponse{
@@ -20,7 +22,6 @@ public interface ListUserResponse{
 
     public String getGender();
 
-
-
+    public Role getRole();
 
 }
