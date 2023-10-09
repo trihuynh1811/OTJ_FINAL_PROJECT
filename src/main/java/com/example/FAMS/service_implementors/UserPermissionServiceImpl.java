@@ -134,6 +134,7 @@ public class UserPermissionServiceImpl implements UserPermissionService {
                     Class<?> objClass = updatePermission.getClass();
                     Field[] fields = objClass.getDeclaredFields();
                     for (Field field : fields) {
+                        field.setAccessible(true);
                         List<Permission> tmpUserPermission = new ArrayList<>();
                         if (nthChild > 0 && nthChild < fields.length) {
                             try {
