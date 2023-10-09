@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface UserPermissionDAO extends JpaRepository<UserPermission, Integer> {
 
     Optional<UserPermission> findUserPermissionByRole(Role role);
+
+
 }
