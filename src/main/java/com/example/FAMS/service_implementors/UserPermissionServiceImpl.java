@@ -56,6 +56,8 @@ public class UserPermissionServiceImpl implements UserPermissionService {
                                 if (permissionString.length() > 0) {
                                     if (permissionString.split(",").length == 5) {
                                         responseObj.setSyllabus("FULL_ACCESS");
+                                    } else if (permissionString.split(",").length == 1){
+                                        responseObj.setSyllabus(permissionString.split("_")[1]);
                                     } else {
                                         responseObj.setSyllabus(permissionString);
                                     }
@@ -67,6 +69,8 @@ public class UserPermissionServiceImpl implements UserPermissionService {
                                 if (permissionString.length() > 0) {
                                     if (permissionString.split(",").length == 5) {
                                         responseObj.setTraining("FULL_ACCESS");
+                                    } else if (permissionString.split(",").length == 1){
+                                        responseObj.setTraining(permissionString.split("_")[1]);
                                     } else {
                                         responseObj.setTraining(permissionString);
                                     }
@@ -78,6 +82,8 @@ public class UserPermissionServiceImpl implements UserPermissionService {
                                 if (permissionString.length() > 0) {
                                     if (permissionString.split(",").length == 5) {
                                         responseObj.setUserclass("FULL_ACCESS");
+                                    } else if (permissionString.split(",").length == 1){
+                                        responseObj.setUserclass(permissionString.split("_")[1]);
                                     } else {
                                         responseObj.setUserclass(permissionString);
                                     }
@@ -89,6 +95,8 @@ public class UserPermissionServiceImpl implements UserPermissionService {
                                 if (permissionString.length() > 0) {
                                     if (permissionString.split(",").length == 5) {
                                         responseObj.setLearningMaterial("FULL_ACCESS");
+                                    } else if (permissionString.split(",").length == 1){
+                                        responseObj.setLearningMaterial(permissionString.split("_")[1]);
                                     } else {
                                         responseObj.setLearningMaterial(permissionString);
                                     }
@@ -100,6 +108,8 @@ public class UserPermissionServiceImpl implements UserPermissionService {
                                 if (permissionString.length() > 0) {
                                     if (permissionString.split(",").length == 5) {
                                         responseObj.setUserManagement("FULL_ACCESS");
+                                    } else if (permissionString.split(",").length == 1){
+                                        responseObj.setUserManagement(permissionString.split("_")[1]);
                                     } else {
                                         responseObj.setUserManagement(permissionString);
                                     }

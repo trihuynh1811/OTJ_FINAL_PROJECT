@@ -62,7 +62,7 @@ public class FamsApplication {
                         .build());
                 permissionList.add(UserPermission.builder()
                         .role(Role.TRAINER)
-                        .syllabus(List.of(SYLLABUS_CREATE, SYLLABUS_READ, SYLLABUS_UPDATE, SYLLABUS_DELETE))
+                        .syllabus(List.of(SYLLABUS_CREATE, SYLLABUS_READ, SYLLABUS_UPDATE, SYLLABUS_DELETE, SYLLABUS_IMPORT))
                         .trainingProgram(List.of(TRAINING_READ))
                         .userClass(List.of(CLASS_READ))
                         .userManagement(List.of())
