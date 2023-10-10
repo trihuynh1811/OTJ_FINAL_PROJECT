@@ -19,5 +19,6 @@ public class UserWithRoleDTO {
     private String phone;
     private Date dob;
     private String gender;
+    private boolean status;
     private Role role;
 }

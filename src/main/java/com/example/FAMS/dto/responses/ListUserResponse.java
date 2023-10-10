@@ -20,4 +20,5 @@ public interface ListUserResponse {
 
     Role getRole();
 
+    public boolean isStatus();
 }
