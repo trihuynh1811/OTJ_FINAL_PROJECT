@@ -8,6 +8,8 @@ import com.example.FAMS.dto.responses.AuthenticationResponse;
 import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.LoginResponse;
 import com.example.FAMS.dto.responses.ResponseObject;
+import com.example.FAMS.enums.Permission;
+import com.example.FAMS.enums.Role;
 import com.example.FAMS.enums.TokenType;
 import com.example.FAMS.models.EmailDetails;
 import com.example.FAMS.models.Token;
@@ -28,6 +30,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
 import java.util.Date;
@@ -77,11 +81,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (!matcher.matches()) {
             throw new RuntimeException("Invalid email");
         }
-        if (
-                createRequest.getRequestedBy().isEmpty() ||
-                        !pattern.matcher(createRequest.getRequestedBy()).matches()
-        ) {
-            throw new RuntimeException("Invalid requester");
+        String token = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                .getRequest().getHeader("Authorization").substring(7);
+        String userEmail = jwtService.extractUserEmail(token);
+        var requester = userDAO.findByEmail(userEmail).orElse(null);
+        if (requester.getRole().getRole().equals(Role.CLASS_ADMIN) &&
+                createRequest.getRole().equals(Role.SUPER_ADMIN)) {
+            throw new RuntimeException("Invalid request: ADMIN can not create SUPER_ADMIN");
         }
         var permission = userPermissionDAO.findUserPermissionByRole(createRequest.getRole()).orElse(null);
         String initialPassword = passwordGenerator(createRequest.getEmail());

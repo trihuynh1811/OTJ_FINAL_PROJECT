@@ -13,8 +13,6 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateRequest {
-
-    private String requestedBy;
     private String name;
     private String email;
     private String phone;
