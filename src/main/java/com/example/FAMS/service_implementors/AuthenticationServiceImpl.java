@@ -31,12 +31,16 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final String emailRegex = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
+            + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
     private final UserDAO userDAO;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
@@ -44,6 +48,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final UserPermissionDAO userPermissionDAO;
+    Pattern pattern = Pattern.compile(emailRegex);
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
@@ -67,7 +72,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public CreateResponse createUser(CreateRequest createRequest) {
+    public CreateResponse createUser(CreateRequest createRequest) throws RuntimeException {
+        Matcher matcher = pattern.matcher(createRequest.getEmail());
+        if (!matcher.matches()) {
+            throw new RuntimeException("Invalid email");
+        }
+        if (
+                createRequest.getRequestedBy().isEmpty() ||
+                        !pattern.matcher(createRequest.getRequestedBy()).matches()
+        ) {
+            throw new RuntimeException("Invalid requester");
+        }
         var permission = userPermissionDAO.findUserPermissionByRole(createRequest.getRole()).orElse(null);
         String initialPassword = passwordGenerator(createRequest.getEmail());
         User user = User.builder()
@@ -78,7 +93,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .dob(createRequest.getDob())
                 .gender(createRequest.getGender())
                 .role(permission)
-                .status(createRequest.getStatus())
+                .status(createRequest.isStatus())
                 .createdBy(createRequest.getCreatedBy())
                 .createdDate(new Date())
                 .modifiedBy(createRequest.getModifiedBy())

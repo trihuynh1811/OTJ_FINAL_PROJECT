@@ -1,5 +1,6 @@
 package com.example.FAMS.controllers;
 
+import com.example.FAMS.dto.requests.DeleteRequest;
 import com.example.FAMS.dto.requests.UpdateRequest;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateResponse;
@@ -33,5 +34,11 @@ public class UserController {
             @RequestBody UpdateRequest updateRequest
     ) {
         return ResponseEntity.ok(userService.updateUser(updateRequest));
+    }
+
+    @DeleteMapping("/delete")
+    @PreAuthorize("hasAnyAuthority('user:delete')")
+    public ResponseEntity<ResponseObject> deletePermission(@RequestBody DeleteRequest request){
+        return ResponseEntity.ok(userService.deleteUser(request));
     }
 }

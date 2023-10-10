@@ -28,7 +28,15 @@ public class AuthenticationController {
 
     @PostMapping("/create-user")
     public ResponseEntity<CreateResponse> createUserRequest(@RequestBody CreateRequest createRequest) {
-        return ResponseEntity.ok(authenticationService.createUser(createRequest));
+        try {
+            var response = authenticationService.createUser(createRequest);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(CreateResponse.builder()
+                    .status(e.getMessage())
+                    .build());
+        }
+
     }
 
     @PostMapping("/refresh")

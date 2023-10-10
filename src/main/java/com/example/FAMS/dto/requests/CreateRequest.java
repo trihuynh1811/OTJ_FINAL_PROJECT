@@ -13,13 +13,15 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateRequest {
+
+    private String requestedBy;
     private String name;
     private String email;
     private String phone;
     private Date dob;
     private String gender;
     private Role role;
-    private String status;
+    private boolean status;
     private String createdBy;
     private String modifiedBy;
 }
