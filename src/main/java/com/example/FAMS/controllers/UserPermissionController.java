@@ -47,4 +47,6 @@ public class UserPermissionController {
     ) {
         return ResponseEntity.ok(userPermissionService.updatePermission(updateRequest));
     }
+
+
 }

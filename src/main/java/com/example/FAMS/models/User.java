@@ -51,7 +51,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserPermission role;
 
-    @Column(name = "status", nullable = false)
+    @Column(name = "isActive", nullable = false)
     private boolean status;
 
     @Column(name = "created_by", nullable = false)

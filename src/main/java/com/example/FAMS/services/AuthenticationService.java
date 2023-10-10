@@ -13,7 +13,7 @@ import java.io.IOException;
 public interface AuthenticationService {
     LoginResponse login(LoginRequest loginRequest);
 
-    CreateResponse createUser(CreateRequest createRequest);
+    CreateResponse createUser(CreateRequest createRequest) throws RuntimeException;
 
     void refresh(HttpServletRequest request, HttpServletResponse response) throws IOException;
 

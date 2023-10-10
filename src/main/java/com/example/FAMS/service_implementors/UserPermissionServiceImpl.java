@@ -213,8 +213,8 @@ public class UserPermissionServiceImpl implements UserPermissionService {
     }
     person.setRole(permission);
 
-    logger.info("Grant permission for a user");
-    return ResponseEntity.ok(
-        new ResponseObject("Successful", "Change user permission", userDAO.save(person)));
-  }
+        logger.info("Grant permission for a user");
+        return ResponseEntity.ok(new ResponseObject("Successful", "Change user permission", userDAO.save(person)));
+    }
+
 }

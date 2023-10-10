@@ -10,5 +10,5 @@ public interface UserService {
 
     UpdateResponse updateUser(UpdateRequest updateRequest);
 
-
+    ResponseObject deleteUser(String mail);
 }

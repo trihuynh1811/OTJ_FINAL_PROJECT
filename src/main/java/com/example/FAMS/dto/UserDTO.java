@@ -16,7 +16,7 @@ public interface UserDTO {
 
 //    public Role getRole() ;
 
-    public String getStatus() ;
+    public boolean isStatus() ;
 
     public String getCreatedBy();
 
