@@ -7,10 +7,11 @@ import com.example.FAMS.repositories.SyllabusDAO;
 import com.example.FAMS.services.SyllabusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -97,17 +98,19 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
-    public Syllabus getSyllabusById (String topicCode){
+    public Syllabus getSyllabusById(String topicCode) {
         Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
-        return optionalSyllabus.orElse(null);}
+        return optionalSyllabus.orElse(null);
+    }
 
     @Override
+    public List<Syllabus> processDataFromCSV(MultipartFile file) throws IOException {
+        List<Syllabus> syllabusList = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            String line;
 
-    public List<Syllabus> loadSyllabusData() {
-        List<Syllabus> customerList = new ArrayList<>();
-        try {
-            BufferedReader br = new BufferedReader(new FileReader("src/main/resources/syllabus.csv"));
-            while ((line = br.readLine()) != null) {
+
+            while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
                 Syllabus c = new Syllabus();
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -126,17 +129,11 @@ public class SyllabusServiceImpl implements SyllabusService {
                 c.setTrainingPrinciples(data[12]);
                 c.setVersion(data[13]);
 //                c.setUserID(data[14]);
-                customerList.add(c);
+                syllabusList.add(c);
             }
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
-        return customerList;
-
-
-
-        }
-
-
-
+        return syllabusList;
     }
+}

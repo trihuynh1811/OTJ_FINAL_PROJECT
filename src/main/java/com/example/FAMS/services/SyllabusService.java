@@ -2,7 +2,9 @@ package com.example.FAMS.services;
 
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.models.Syllabus;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface SyllabusService {
@@ -18,5 +20,5 @@ public interface SyllabusService {
     Syllabus getSyllabusById(String topicCode);
 
 
-    List<Syllabus> loadSyllabusData();
+    List<Syllabus> processDataFromCSV(MultipartFile file) throws IOException;
 }
