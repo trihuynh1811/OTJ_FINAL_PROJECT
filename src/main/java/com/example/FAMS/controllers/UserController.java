@@ -29,7 +29,7 @@ public class UserController {
         return userService.getAll();
     }
 
-    @PostMapping("/update-user/{userId}")
+    @PutMapping("/update-user/{userId}")
     @PreAuthorize("hasAuthority('user:update')")
     public ResponseEntity<UpdateResponse> updateUserRequest(
             @PathVariable int userId,
