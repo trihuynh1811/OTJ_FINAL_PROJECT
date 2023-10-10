@@ -3,6 +3,7 @@ package com.example.FAMS.services;
 import com.example.FAMS.dto.requests.UpdateRequest;
 import com.example.FAMS.dto.responses.ListUserResponse;
 import com.example.FAMS.dto.responses.UpdateResponse;
+import com.example.FAMS.dtos.response.ListUserResponseImpl;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.User;
 import com.example.FAMS.models.UserPermission;

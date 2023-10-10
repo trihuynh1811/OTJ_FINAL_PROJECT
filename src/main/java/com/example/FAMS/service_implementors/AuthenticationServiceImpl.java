@@ -78,7 +78,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .dob(createRequest.getDob())
                 .gender(createRequest.getGender())
                 .role(permission)
-                .status(createRequest.getStatus())
+                .status(createRequest.isStatus())
                 .createdBy(createRequest.getCreatedBy())
                 .createdDate(new Date())
                 .modifiedBy(createRequest.getModifiedBy())
@@ -157,7 +157,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
 
-    private String passwordGenerator(String email) {
+    public String passwordGenerator(String email) {
         return passwordEncoder.encode(email).substring(9, 20);
     }
 

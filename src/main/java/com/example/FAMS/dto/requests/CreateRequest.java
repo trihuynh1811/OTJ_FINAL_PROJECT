@@ -19,7 +19,7 @@ public class CreateRequest {
     private Date dob;
     private String gender;
     private Role role;
-    private String status;
+    private boolean status;
     private String createdBy;
     private String modifiedBy;
 }

@@ -15,5 +15,5 @@ public class UpdateRequest {
     private String phone;
     private Date dob;
     private String gender;
-    private String status;
+    private boolean status;
 }

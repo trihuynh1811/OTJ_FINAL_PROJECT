@@ -52,7 +52,7 @@ public class User implements UserDetails {
     private UserPermission role;
 
     @Column(name = "status", nullable = false)
-    private String status;
+    private boolean status;
 
     @Column(name = "created_by", nullable = false)
     private String createdBy;

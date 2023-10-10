@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
             existingUser.setPhone(updateRequest.getPhone());
             existingUser.setDob(updateRequest.getDob());
             existingUser.setGender(updateRequest.getGender());
-            existingUser.setStatus(updateRequest.getStatus());
+            existingUser.setStatus(updateRequest.isStatus());
 
             // Save the updated user
             User updatedUser = userDAO.save(existingUser);
