@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateResponse {
     private String status;
-   @JsonProperty(namespace = "created_user")
+    @JsonProperty(namespace = "created_user")
     private UserDTO createdUser;
 }

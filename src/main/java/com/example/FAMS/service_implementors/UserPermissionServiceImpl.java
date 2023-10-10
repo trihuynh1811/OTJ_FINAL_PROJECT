@@ -33,6 +33,7 @@ public class UserPermissionServiceImpl implements UserPermissionService {
         var listUserDTO = userPermissionDAO.findAll();
         List<GetUserPermissionsResponse> responseList = new ArrayList<>();
         for (UserPermission userPermission : listUserDTO) {
+            String[] permissionArr = {"FULL_ACCESS", "ACCESS_DENIED"};
             GetUserPermissionsResponse responseObj = new GetUserPermissionsResponse();
             Class<?> objClass = userPermission.getClass();
             Field[] fields = objClass.getDeclaredFields();
@@ -56,66 +57,66 @@ public class UserPermissionServiceImpl implements UserPermissionService {
                             case 2:
                                 if (!permissionString.isEmpty()) {
                                     if (permissionString.split(",").length == 5) {
-                                        responseObj.setSyllabus("FULL_ACCESS");
+                                        responseObj.setSyllabus(permissionArr[0]);
                                     } else if (permissionString.split(",").length == 1){
                                         responseObj.setSyllabus(permissionString.split("_")[1]);
                                     } else {
                                         responseObj.setSyllabus(permissionString);
                                     }
                                 } else {
-                                    responseObj.setSyllabus("ACCESS_DENIED");
+                                    responseObj.setSyllabus(permissionArr[1]);
                                 }
                                 break;
                             case 3:
                                 if (!permissionString.isEmpty()) {
                                     if (permissionString.split(",").length == 5) {
-                                        responseObj.setTraining("FULL_ACCESS");
+                                        responseObj.setTraining(permissionArr[0]);
                                     } else if (permissionString.split(",").length == 1){
                                         responseObj.setTraining(permissionString.split("_")[1]);
                                     } else {
                                         responseObj.setTraining(permissionString);
                                     }
                                 } else {
-                                    responseObj.setTraining("ACCESS_DENIED");
+                                    responseObj.setTraining(permissionArr[1]);
                                 }
                                 break;
                             case 4:
                                 if (!permissionString.isEmpty()) {
                                     if (permissionString.split(",").length == 5) {
-                                        responseObj.setUserclass("FULL_ACCESS");
+                                        responseObj.setUserclass(permissionArr[0]);
                                     } else if (permissionString.split(",").length == 1){
                                         responseObj.setUserclass(permissionString.split("_")[1]);
                                     } else {
                                         responseObj.setUserclass(permissionString);
                                     }
                                 } else {
-                                    responseObj.setUserclass("ACESS_DENIED");
+                                    responseObj.setUserclass(permissionArr[1]);
                                 }
                                 break;
                             case 5:
                                 if (!permissionString.isEmpty()) {
                                     if (permissionString.split(",").length == 5) {
-                                        responseObj.setLearningMaterial("FULL_ACCESS");
+                                        responseObj.setLearningMaterial(permissionArr[0]);
                                     } else if (permissionString.split(",").length == 1){
                                         responseObj.setLearningMaterial(permissionString.split("_")[1]);
                                     } else {
                                         responseObj.setLearningMaterial(permissionString);
                                     }
                                 } else {
-                                    responseObj.setLearningMaterial("ACCESS_DENIED");
+                                    responseObj.setLearningMaterial(permissionArr[1]);
                                 }
                                 break;
                             case 6:
                                 if (!permissionString.isEmpty()) {
                                     if (permissionString.split(",").length == 5) {
-                                        responseObj.setUserManagement("FULL_ACCESS");
+                                        responseObj.setUserManagement(permissionArr[0]);
                                     } else if (permissionString.split(",").length == 1){
                                         responseObj.setUserManagement(permissionString.split("_")[1]);
                                     } else {
                                         responseObj.setUserManagement(permissionString);
                                     }
                                 } else {
-                                    responseObj.setUserManagement("ACCESS_DENIED");
+                                    responseObj.setUserManagement(permissionArr[1]);
                                 }
                                 break;
                             default:
@@ -137,6 +138,7 @@ public class UserPermissionServiceImpl implements UserPermissionService {
     public ResponseObject updatePermission(List<UpdatePermissionRequest> updateRequest) {
         var permissionList = userPermissionDAO.findAll();
         final String[] prefixArr = {"ROLE", "SYLLABUS", "TRAINING", "CLASS", "MATERIAL", "USER"};
+        String[] permissionArr = {"FULL_ACCESS", "ACCESS_DENIED"};
         for (UpdatePermissionRequest updatePermission : updateRequest) {
             for (UserPermission permission : permissionList) {
                 if (permission.getRole().name().equals(updatePermission.getRoleName())) {
@@ -149,7 +151,7 @@ public class UserPermissionServiceImpl implements UserPermissionService {
                         if (nthChild > 0 && nthChild < fields.length) {
                             try {
                                 Object value = field.get(updatePermission);
-                                if (value.equals("FULL_ACCESS")) {
+                                if (value.equals(permissionArr[0])) {
                                     tmpUserPermission = List.of(
                                             Permission.valueOf(prefixArr[nthChild] + "_DELETE"),
                                             Permission.valueOf(prefixArr[nthChild] + "_CREATE"),
@@ -163,7 +165,7 @@ public class UserPermissionServiceImpl implements UserPermissionService {
                                     tmpUserPermission.add(Permission.valueOf(prefixArr[nthChild] + "_READ"));
                                 } else if (value.equals("MODIFY")) {
                                     tmpUserPermission.add(Permission.valueOf(prefixArr[nthChild] + "_UPDATE"));
-                                } else if (value.equals("ACCESS_DENIED")) {
+                                } else if (value.equals(permissionArr[1])) {
                                 }
                                 switch (nthChild) {
                                     case 1:

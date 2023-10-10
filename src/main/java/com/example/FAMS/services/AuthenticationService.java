@@ -7,7 +7,6 @@ import com.example.FAMS.dto.responses.LoginResponse;
 import com.example.FAMS.dto.responses.ResponseObject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 

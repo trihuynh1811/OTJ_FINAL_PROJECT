@@ -2,7 +2,10 @@ package com.example.FAMS.models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
@@ -27,7 +30,7 @@ public class LearningObjective {
     private String description;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable( name = "syllabus_objective",
+    @JoinTable(name = "syllabus_objective",
             joinColumns = {@JoinColumn(name = "objective_code")},
             inverseJoinColumns = {@JoinColumn(name = "syllabus_code")}
     )

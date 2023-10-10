@@ -53,14 +53,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         loginRequest.getPassword()
                 )
         );
-
         var user = userDAO.findByEmail(loginRequest.getEmail())
                 .orElseThrow();
         var token = jwtService.generateToken(user);
         revokeAllUserToken(user);
         saveUserToken(user, token);
         return LoginResponse.builder()
-//                Need something here
                 .status("Successful")
                 .role(user.getRole().getRole().name())
                 .token(token)

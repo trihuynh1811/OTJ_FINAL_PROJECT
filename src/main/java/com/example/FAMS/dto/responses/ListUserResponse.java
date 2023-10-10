@@ -1,27 +1,23 @@
 package com.example.FAMS.dto.responses;
 
+import com.example.FAMS.enums.Role;
+
 import java.util.Date;
 
 
-import com.example.FAMS.enums.Role;
-import com.example.FAMS.models.User;
-import com.example.FAMS.models.UserPermission;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+public interface ListUserResponse {
+    int getUserId();
 
+    String getName();
 
-public interface ListUserResponse{
-    public int getUserId();
+    String getEmail();
 
-    public String getName();
+    String getPhone();
 
-    public String getEmail();
+    Date getDob();
 
-    public String getPhone();
+    String getGender();
 
-    public Date getDob();
-
-    public String getGender();
-
-    public Role getRole();
+    Role getRole();
 
 }

@@ -34,8 +34,7 @@ public enum Permission {
     MATERIAL_READ("material:read"),
     MATERIAL_UPDATE("material:update"),
     MATERIAL_DELETE("material:delete"),
-    MATERIAL_IMPORT("material:import")
-    ;
+    MATERIAL_IMPORT("material:import");
 
     @Getter
     private final String permission;

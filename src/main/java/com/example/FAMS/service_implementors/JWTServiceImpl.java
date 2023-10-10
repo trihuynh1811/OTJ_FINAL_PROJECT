@@ -20,16 +20,13 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JWTServiceImpl implements JWTService {
 
+    private final TokenDAO tokenDAO;
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
-
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
-
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long jwtRefreshExpiration;
-
-    private final TokenDAO tokenDAO;
 
     @Override
     public String extractUserEmail(String token) {

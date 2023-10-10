@@ -4,7 +4,10 @@ import com.example.FAMS.enums.Permission;
 import com.example.FAMS.enums.Role;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.ArrayList;
@@ -24,11 +27,11 @@ public class UserPermission {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int permissionId;
 
-    @Column(name = "role",nullable = false)
+    @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(name = "syllabus",nullable = false)
+    @Column(name = "syllabus", nullable = false)
     @Enumerated(EnumType.STRING)
     private List<Permission> syllabus;
 
@@ -36,7 +39,7 @@ public class UserPermission {
     @Enumerated(EnumType.STRING)
     private List<Permission> trainingProgram;
 
-    @Column(name = "user_class",nullable = false)
+    @Column(name = "user_class", nullable = false)
     @Enumerated(EnumType.STRING)
     private List<Permission> userClass;
 
@@ -44,7 +47,7 @@ public class UserPermission {
     @Enumerated(EnumType.STRING)
     private List<Permission> learningMaterial;
 
-    @Column(name = "user_management",nullable = false)
+    @Column(name = "user_management", nullable = false)
     @Enumerated(EnumType.STRING)
     private List<Permission> userManagement;
 
