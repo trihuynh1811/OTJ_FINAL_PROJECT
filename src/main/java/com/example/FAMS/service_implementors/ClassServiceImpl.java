@@ -28,16 +28,8 @@ public class ClassServiceImpl implements ClassService {
   }
 
   @Override
-  public Class createClass(
-      String className,
-      String classCode,
-      String duration,
-      String location,
-      Date startDate,
-      Date endDate,
-      String createdBy) {
-    Class classInfo =
-        Class.builder()
+  public Class createClass(String className, String classCode, String duration, String location, Date startDate, Date endDate, String createdBy) {
+    Class classInfo = Class.builder()
             .className(className)
             .classCode(classCode)
             .duration(duration)
@@ -50,6 +42,7 @@ public class ClassServiceImpl implements ClassService {
     classDAO.save(classInfo);
     return classInfo;
   }
+
 
   @Override
   public UpdateClassResponse updateClass(UpdateClassRequest updateClassRequest) {
@@ -93,7 +86,9 @@ public class ClassServiceImpl implements ClassService {
                 .build();
     }
   }
-
+  public List<Class> getDetailClasses() {
+    return classDAO.findAll();
+  }
   @Override
   public Class getClassById(int classId) {
     Optional<Class> optionalClass = classDAO.findById(classId);
