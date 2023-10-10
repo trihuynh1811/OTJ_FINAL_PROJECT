@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -108,17 +109,21 @@ public class SyllabusServiceImpl implements SyllabusService {
         List<Syllabus> syllabusList = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
-
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
                 Syllabus c = new Syllabus();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
                 c.setTopicCode(data[0]);
                 c.setCreatedBy(data[1]);
-                c.setCreatedDate(dateFormat.parse(data[2]));
+
+                // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
+                Date parsedDate = dateFormat.parse(data[2]);
+                c.setCreatedDate(new java.sql.Date(parsedDate.getTime()));
+
                 c.setModifiedBy(data[3]);
-                c.setModifiedDate(dateFormat.parse(data[4]));
+                c.setModifiedDate(new java.sql.Date(dateFormat.parse(data[4]).getTime()));
                 c.setPriority(data[5]);
                 c.setPublishStatus(data[6]);
                 c.setTechnicalGroup(data[7]);
