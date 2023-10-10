@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,18 +32,16 @@ public class SyllabusController {
     @GetMapping("/detail")
     @PreAuthorize("hasAuthority('syllabus:read')")
     public ResponseEntity<List<Syllabus>> getDetail() {
-        return ResponseEntity.status(418).body(syllabusService.getDetailSyllabus());
+        return ResponseEntity.ok(syllabusService.getDetailSyllabus());
     }
 
-    @GetMapping("/show")
-    public ResponseEntity<?> loadDataInDB() throws IOException {
-        List<Syllabus> customers = syllabusService.loadSyllabusData();
-        if (customers != null) {
-            // Nếu thông tin khách hàng được tìm thấy, trả về phản hồi thành công.
-            return ResponseEntity.ok(customers);
+    @PostMapping("/importCSV")
+    public ResponseEntity<?> loadDataInFile(@RequestParam("file") MultipartFile file) throws IOException {
+        if (!file.isEmpty()) {
+            List<Syllabus> syllabus = syllabusService.processDataFromCSV(file);
+            return ResponseEntity.ok(syllabus);
         } else {
-            // Nếu không tìm thấy thông tin khách hàng, trả về phản hồi lỗi.
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer data not found.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded.");
         }
     }
 
