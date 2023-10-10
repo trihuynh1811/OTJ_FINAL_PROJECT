@@ -1,6 +1,7 @@
 package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.dto.requests.UpdateClassRequest;
+import com.example.FAMS.dto.responses.UpdateClassResponse;
 import com.example.FAMS.models.Class;
 import com.example.FAMS.repositories.ClassDAO;
 import com.example.FAMS.services.ClassService;
@@ -14,60 +15,88 @@ import java.util.Optional;
 @Service
 public class ClassServiceImpl implements ClassService {
 
-    @Autowired
-    ClassDAO classDAO;
+  @Autowired ClassDAO classDAO;
 
-    @Override
-    public List<Class> getClasses() {
-        return classDAO.findTop1000ByOrderByCreatedDateDesc();
-    }
+  @Override
+  public List<Class> getClasses() {
+    return classDAO.findTop1000ByOrderByCreatedDateDesc();
+  }
 
-    @Override
-    public Class createClass(String className, String classCode, String duration, String location, Date startDate, Date endDate, String createdBy) {
-        Class classInfo = Class.builder()
-                .className(className)
-                .classCode(classCode)
-                .duration(duration)
-                .location(location)
-                .startDate(startDate)
-                .endDate(endDate)
-                .createdBy(createdBy)
-                .build();
+  @Override
+  public List<Class> getDetailClass() {
+    return classDAO.findAll();
+  }
 
-        classDAO.save(classInfo);
-        return classInfo;
-    }
+  @Override
+  public Class createClass(
+      String className,
+      String classCode,
+      String duration,
+      String location,
+      Date startDate,
+      Date endDate,
+      String createdBy) {
+    Class classInfo =
+        Class.builder()
+            .className(className)
+            .classCode(classCode)
+            .duration(duration)
+            .location(location)
+            .startDate(startDate)
+            .endDate(endDate)
+            .createdBy(createdBy)
+            .build();
 
-    @Override
-    public Class updateClass(UpdateClassRequest updateClassRequest) {
-        Optional<Class> optionalClass = classDAO.findById(updateClassRequest.getClassId());
-        Class existingClass = optionalClass.orElse(null);
-        if (existingClass != null) {
-            existingClass.setClassName(updateClassRequest.getClassName());
-            existingClass.setClassCode(updateClassRequest.getClassCode());
-            existingClass.setDuration(updateClassRequest.getDuration());
-            existingClass.setLocation(updateClassRequest.getLocation());
-            existingClass.setStartDate(updateClassRequest.getStartDate());
-            existingClass.setEndDate(updateClassRequest.getEndDate());
+    classDAO.save(classInfo);
+    return classInfo;
+  }
 
-            Class updatedClass = classDAO.save(existingClass);
+  @Override
+  public UpdateClassResponse updateClass(UpdateClassRequest updateClassRequest) {
+    Optional<Class> optionalClass = classDAO.findById(updateClassRequest.getClassId());
+    Class existingClass = optionalClass.orElse(null);
+    if (existingClass != null) {
+      existingClass =
+          Class.builder()
+              .classId(existingClass.getClassId())
+              .className(updateClassRequest.getClassName())
+              .classCode(updateClassRequest.getClassCode())
+              .duration(updateClassRequest.getDuration())
+              .location(updateClassRequest.getLocation())
+              .startDate(updateClassRequest.getStartDate())
+              .endDate(updateClassRequest.getEndDate())
+              .createdBy(existingClass.getCreatedBy())
+              .createdDate(existingClass.getCreatedDate())
+              .modifiedBy(existingClass.getModifiedBy())
+              .modifiedDate(existingClass.getModifiedDate())
+              .build();
 
-            if (updatedClass != null) {
-                return updatedClass;
-            } else {
-                // Xử lý nếu việc cập nhật thất bại
-                return null;
-            }
+      Class updatedClass = classDAO.save(existingClass);
+
+        if (updatedClass != null) {
+            return UpdateClassResponse.builder()
+                    .status("Update Class successful")
+                    .updatedClass(updatedClass)
+                    .build();
         } else {
-            // Xử lý nếu lớp học không tồn tại
-            return null;
+            // Xử lý nếu việc cập nhật thất bại
+            return UpdateClassResponse.builder()
+                    .status("Update Class failed")
+                    .updatedClass(null)
+                    .build();
         }
+    } else {
+        // Xử lý nếu lớp học không tồn tại
+        return UpdateClassResponse.builder()
+                .status("Class not found")
+                .updatedClass(null)
+                .build();
     }
+  }
 
-    @Override
-    public Class getClassById(int classId) {
-        Optional<Class> optionalClass = classDAO.findById(classId);
-        return optionalClass.orElse(null);
-    }
-
+  @Override
+  public Class getClassById(int classId) {
+    Optional<Class> optionalClass = classDAO.findById(classId);
+    return optionalClass.orElse(null);
+  }
 }
