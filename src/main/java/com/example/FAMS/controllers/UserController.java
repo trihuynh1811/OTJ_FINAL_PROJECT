@@ -1,9 +1,10 @@
 package com.example.FAMS.controllers;
 
-import com.example.FAMS.dto.requests.DeleteRequest;
 import com.example.FAMS.dto.requests.UpdateRequest;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateResponse;
+import com.example.FAMS.dto.responses.UserWithRoleDTO;
+import com.example.FAMS.services.JWTService;
 import com.example.FAMS.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping("/get-all")
@@ -36,9 +38,9 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(updateRequest));
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping("/delete/{email}")
     @PreAuthorize("hasAnyAuthority('user:delete')")
-    public ResponseEntity<ResponseObject> deletePermission(@RequestBody DeleteRequest request){
-        return ResponseEntity.ok(userService.deleteUser(request));
+    public ResponseEntity<ResponseObject> deletePermission(@PathVariable String email){
+        return ResponseEntity.ok(userService.deleteUser(email));
     }
 }

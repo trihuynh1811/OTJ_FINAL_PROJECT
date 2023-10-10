@@ -15,7 +15,7 @@ public class TxtFileHandler {
         StringBuilder result = new StringBuilder();
         String line;
         while((line = br.readLine()) != null){
-            result.append(line + "\n");
+            result.append(line).append("\n");
         }
         String[] arr = result.toString().split("@@@@@@@@######");
         result = new StringBuilder();
