@@ -21,4 +21,7 @@ public interface ListUserResponse {
     Role getRole();
 
     public boolean isStatus();
+
+    public String getCreatedBy();
+    public String getModifiedBy();
 }

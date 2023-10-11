@@ -61,7 +61,7 @@ public class UserServiceTest {
                 .phone("0937534654")
                 .dob(dob)
                 .gender("Male")
-                .status("Active")
+                .status(true)
                 .build();
         when(userDAO.findById(1)).thenReturn(Optional.ofNullable(user));
         when(userDAO.save(user)).thenReturn(user);

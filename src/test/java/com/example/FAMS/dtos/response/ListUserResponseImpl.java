@@ -14,6 +14,8 @@ public class ListUserResponseImpl implements ListUserResponse {
     private String gender;
 
     private Role role;
+    private boolean status;
+
 
     public ListUserResponseImpl(int userId, String name, String email, String phone, Date dob, String gender, Role role) {
         this.userId = userId;
@@ -58,5 +60,10 @@ public class ListUserResponseImpl implements ListUserResponse {
     @Override
     public Role getRole() {
         return role;
+    }
+
+    @Override
+    public boolean isStatus() {
+        return status;
     }
 }

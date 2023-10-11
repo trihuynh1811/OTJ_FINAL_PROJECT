@@ -14,11 +14,13 @@ import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.service_implementors.AuthenticationServiceImpl;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +30,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.regex.Pattern;
 
+import static com.example.FAMS.enums.Permission.USER_CREATE;
 import static com.example.FAMS.enums.Permission.USER_READ;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -50,6 +54,7 @@ public class AuthenticationServiceImplTest {
   @Mock private PasswordEncoder passwordEncoder;
   @Mock private EmailService emailService;
   @InjectMocks private AuthenticationServiceImpl authenticationService;
+
 
   @Test
   void User_Login_returnLoginResponse() {
@@ -96,7 +101,7 @@ public class AuthenticationServiceImplTest {
   @Test
   void User_CreateUser_returnCreateResponse() {
     when(userDAO.findByEmail(Mockito.any())).thenReturn(Optional.empty());
-    when(passwordEncoder.encode(any())).thenReturn("1fsdfadfqrwgtwerert234");
+    when(passwordEncoder.encode(anyString())).thenReturn("1fsdfadfqrwgtwerert234");
 
     int userId = 123;
     UserPermission userPermission = UserPermission.builder()
@@ -115,35 +120,35 @@ public class AuthenticationServiceImplTest {
     mockUser.setUserId(userId);
     mockUser.setRole(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null));
 
-
-    when(authenticationService.passwordGenerator(any())).thenReturn("123fwwretwertewrtefqwef4");
-
+    when(authenticationService.passwordGenerator(anyString())).thenReturn("123fwwretwertewrtefqwef4");
     String initialPassword = authenticationService.passwordGenerator("Hefqwewretwertwretfqwefqwello");
+
+
     CreateRequest request =
-        CreateRequest.builder()
-            .name("Albert Einstein")
-            .email("admin@gmail.com")
-            .phone("0972156450")
-            .dob(new Date())
-            .gender("Male")
-            .role(Role.USER)
-            .status("Wonderful")
-            .createdBy("RankillerDY")
-            .modifiedBy("Hoang Anh")
-            .build();
+            CreateRequest.builder()
+                    .name("Albert Einstein")
+                    .email("admin@gmail.com")
+                    .phone("0972156450")
+                    .dob(new Date())
+                    .gender("Male")
+                    .role(Role.USER)
+                    .status(true)
+                    .createdBy("RankillerDY")
+                    .modifiedBy("Hoang Anh")
+                    .build();
     User user =
-        User.builder()
-            .name(request.getName())
-            .password(passwordEncoder.encode(initialPassword))
-            .email(request.getEmail())
-            .phone(request.getPhone())
-            .dob(request.getDob())
-            .gender(request.getGender())
-            .role(mockUser.getRole())
-            .status(request.getStatus())
-            .createdBy(request.getCreatedBy())
-            .modifiedBy(request.getModifiedBy())
-            .build();
+            User.builder()
+                    .name(request.getName())
+                    .password(passwordEncoder.encode(initialPassword))
+                    .email(request.getEmail())
+                    .phone(request.getPhone())
+                    .dob(request.getDob())
+                    .gender(request.getGender())
+                    .role(mockUser.getRole())
+                    .status(request.isStatus())
+                    .createdBy(request.getCreatedBy())
+                    .modifiedBy(request.getModifiedBy())
+                    .build();
 
     when(userDAO.save(any())).thenReturn(user);
     when(emailService.sendMail(any())).thenReturn("Mail sent successfully");
@@ -160,12 +165,14 @@ public class AuthenticationServiceImplTest {
     logger.info("Response value: " + response.toString());
     Assertions.assertThat(response).isNotNull();
     Assertions.assertThat(response.getStatus()).isEqualTo("Successful");
+
   }
 
   @Test
   void User_CreateUser_returnFailCreateResponse() {
 
     when(passwordEncoder.encode(any())).thenReturn("1fsdfadfqrwgtwerert234");
+
 
     UserPermission userPermission = UserPermission.builder()
             .role(Role.USER)
@@ -197,7 +204,7 @@ public class AuthenticationServiceImplTest {
                     .dob(new Date())
                     .gender("Male")
                     .role(Role.USER)
-                    .status("Wonderful")
+                    .status(true)
                     .createdBy("RankillerDY")
                     .modifiedBy("Hoang Anh")
                     .build();
@@ -210,7 +217,7 @@ public class AuthenticationServiceImplTest {
                     .dob(request.getDob())
                     .gender(request.getGender())
                     .role(mockUser.getRole())
-                    .status(request.getStatus())
+                    .status(request.isStatus())
                     .createdBy(request.getCreatedBy())
                     .modifiedBy(request.getModifiedBy())
                     .build();
