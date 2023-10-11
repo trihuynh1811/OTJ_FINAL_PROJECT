@@ -50,21 +50,21 @@ public class FamsApplication {
                         .role(Role.SUPER_ADMIN)
                         .syllabus(
                                 List.of(
-                                        SYLLABUS_CREATE, SYLLABUS_READ, SYLLABUS_UPDATE, SYLLABUS_DELETE, SYLLABUS_IMPORT))
+                                        SYLLABUS_CREATE, SYLLABUS_VIEW, SYLLABUS_MODIFY, SYLLABUS_DELETE, SYLLABUS_IMPORT))
                         .trainingProgram(
                                 List.of(
-                                        TRAINING_CREATE, TRAINING_READ, TRAINING_UPDATE, TRAINING_DELETE, TRAINING_IMPORT))
+                                        TRAINING_CREATE, TRAINING_VIEW, TRAINING_MODIFY, TRAINING_DELETE, TRAINING_IMPORT))
                         .userClass(
-                                List.of(CLASS_CREATE, CLASS_READ, CLASS_UPDATE, CLASS_DELETE, CLASS_IMPORT))
+                                List.of(CLASS_CREATE, CLASS_VIEW, CLASS_MODIFY, CLASS_DELETE, CLASS_IMPORT))
                         .userManagement(
-                                List.of(USER_CREATE, USER_READ, USER_UPDATE, USER_DELETE, USER_IMPORT))
+                                List.of(USER_CREATE, USER_VIEW, USER_MODIFY, USER_DELETE, USER_IMPORT))
                         .learningMaterial(List.of())
                         .build());
                 permissionList.add(UserPermission.builder()
                         .role(Role.TRAINER)
-                        .syllabus(List.of(SYLLABUS_CREATE, SYLLABUS_READ, SYLLABUS_UPDATE, SYLLABUS_DELETE, SYLLABUS_IMPORT))
-                        .trainingProgram(List.of(TRAINING_READ))
-                        .userClass(List.of(CLASS_READ))
+                        .syllabus(List.of(SYLLABUS_CREATE, SYLLABUS_VIEW, SYLLABUS_MODIFY, SYLLABUS_DELETE, SYLLABUS_IMPORT))
+                        .trainingProgram(List.of(TRAINING_VIEW))
+                        .userClass(List.of(CLASS_VIEW))
                         .userManagement(List.of())
                         .learningMaterial(List.of())
                         .build());
@@ -80,14 +80,14 @@ public class FamsApplication {
                         .role(Role.CLASS_ADMIN)
                         .syllabus(
                                 List.of(
-                                        SYLLABUS_CREATE, SYLLABUS_READ, SYLLABUS_UPDATE, SYLLABUS_DELETE, SYLLABUS_IMPORT))
+                                        SYLLABUS_CREATE, SYLLABUS_VIEW, SYLLABUS_MODIFY, SYLLABUS_DELETE, SYLLABUS_IMPORT))
                         .trainingProgram(
                                 List.of(
-                                        TRAINING_CREATE, TRAINING_READ, TRAINING_UPDATE, TRAINING_DELETE, TRAINING_IMPORT))
+                                        TRAINING_CREATE, TRAINING_VIEW, TRAINING_MODIFY, TRAINING_DELETE, TRAINING_IMPORT))
                         .userClass(
-                                List.of(CLASS_CREATE, CLASS_READ, CLASS_UPDATE, CLASS_DELETE, CLASS_IMPORT))
+                                List.of(CLASS_CREATE, CLASS_VIEW, CLASS_MODIFY, CLASS_DELETE, CLASS_IMPORT))
                         .userManagement(
-                                List.of(USER_CREATE, USER_READ, USER_UPDATE, USER_DELETE, USER_IMPORT))
+                                List.of(USER_CREATE, USER_VIEW, USER_MODIFY, USER_DELETE, USER_IMPORT))
                         .learningMaterial(List.of())
                         .build());
                 userPermissionDAO.saveAll(permissionList);

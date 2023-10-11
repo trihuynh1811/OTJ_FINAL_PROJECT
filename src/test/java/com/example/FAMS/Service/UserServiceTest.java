@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static com.example.FAMS.enums.Permission.USER_READ;
+import static com.example.FAMS.enums.Permission.USER_VIEW;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -48,7 +48,7 @@ public class UserServiceTest {
                 .syllabus(List.of())
                 .trainingProgram(List.of())
                 .userClass(List.of())
-                .userManagement(List.of(USER_READ))
+                .userManagement(List.of(USER_VIEW))
                 .learningMaterial(List.of())
                 .build();
 

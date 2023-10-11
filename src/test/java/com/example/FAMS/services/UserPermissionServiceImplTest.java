@@ -42,7 +42,7 @@ public class UserPermissionServiceImplTest {
             .syllabus(List.of())
             .trainingProgram(List.of())
             .userClass(List.of())
-            .userManagement(List.of(USER_READ))
+            .userManagement(List.of(USER_VIEW))
             .learningMaterial(List.of())
             .build();
 
@@ -72,19 +72,19 @@ public class UserPermissionServiceImplTest {
             .syllabus(
                 List.of(
                     SYLLABUS_CREATE,
-                    SYLLABUS_READ,
-                    SYLLABUS_UPDATE,
+                        SYLLABUS_VIEW,
+                        SYLLABUS_MODIFY,
                     SYLLABUS_DELETE,
                     SYLLABUS_IMPORT))
             .trainingProgram(
                 List.of(
                     TRAINING_CREATE,
-                    TRAINING_READ,
-                    TRAINING_UPDATE,
+                        TRAINING_VIEW,
+                        TRAINING_MODIFY,
                     TRAINING_DELETE,
                     TRAINING_IMPORT))
-            .userClass(List.of(CLASS_CREATE, CLASS_READ, CLASS_UPDATE, CLASS_DELETE, CLASS_IMPORT))
-            .userManagement(List.of(USER_CREATE, USER_READ, USER_UPDATE, USER_DELETE, USER_IMPORT))
+            .userClass(List.of(CLASS_CREATE, CLASS_VIEW, CLASS_MODIFY, CLASS_DELETE, CLASS_IMPORT))
+            .userManagement(List.of(USER_CREATE, USER_VIEW, USER_MODIFY, USER_DELETE, USER_IMPORT))
             .learningMaterial(List.of())
             .users(Collections.emptySet())
             .build();
@@ -95,12 +95,12 @@ public class UserPermissionServiceImplTest {
             .syllabus(
                 List.of(
                     SYLLABUS_CREATE,
-                    SYLLABUS_READ,
-                    SYLLABUS_UPDATE,
+                        SYLLABUS_VIEW,
+                        SYLLABUS_MODIFY,
                     SYLLABUS_DELETE,
                     SYLLABUS_IMPORT))
-            .trainingProgram(List.of(TRAINING_READ))
-            .userClass(List.of(CLASS_READ))
+            .trainingProgram(List.of(TRAINING_VIEW))
+            .userClass(List.of(CLASS_VIEW))
             .userManagement(List.of())
             .learningMaterial(List.of())
             .users(Collections.emptySet())
@@ -123,19 +123,19 @@ public class UserPermissionServiceImplTest {
             .syllabus(
                 List.of(
                     SYLLABUS_CREATE,
-                    SYLLABUS_READ,
-                    SYLLABUS_UPDATE,
+                        SYLLABUS_VIEW,
+                        SYLLABUS_MODIFY,
                     SYLLABUS_DELETE,
                     SYLLABUS_IMPORT))
             .trainingProgram(
                 List.of(
                     TRAINING_CREATE,
-                    TRAINING_READ,
-                    TRAINING_UPDATE,
+                        TRAINING_VIEW,
+                        TRAINING_MODIFY,
                     TRAINING_DELETE,
                     TRAINING_IMPORT))
-            .userClass(List.of(CLASS_CREATE, CLASS_READ, CLASS_UPDATE, CLASS_DELETE, CLASS_IMPORT))
-            .userManagement(List.of(USER_CREATE, USER_READ, USER_UPDATE, USER_DELETE, USER_IMPORT))
+            .userClass(List.of(CLASS_CREATE, CLASS_VIEW, CLASS_MODIFY, CLASS_DELETE, CLASS_IMPORT))
+            .userManagement(List.of(USER_CREATE, USER_VIEW, USER_MODIFY, USER_DELETE, USER_IMPORT))
             .learningMaterial(List.of())
             .users(Collections.emptySet())
             .build();

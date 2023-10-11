@@ -155,16 +155,14 @@ public class UserPermissionServiceImpl implements UserPermissionService {
                       List.of(
                           Permission.valueOf(prefixArr[nthChild] + "_DELETE"),
                           Permission.valueOf(prefixArr[nthChild] + "_CREATE"),
-                          Permission.valueOf(prefixArr[nthChild] + "_UPDATE"),
-                          Permission.valueOf(prefixArr[nthChild] + "_READ"),
+                          Permission.valueOf(prefixArr[nthChild] + "_MODIFY"),
+                          Permission.valueOf(prefixArr[nthChild] + "_VIEW"),
                           Permission.valueOf(prefixArr[nthChild] + "_IMPORT"));
-                } else if (value.equals("CREATE")) {
-                  tmpUserPermission.add(Permission.valueOf(prefixArr[nthChild] + "_CREATE"));
-                } else if (value.equals("VIEW")) {
-                  tmpUserPermission.add(Permission.valueOf(prefixArr[nthChild] + "_READ"));
-                } else if (value.equals("MODIFY")) {
-                  tmpUserPermission.add(Permission.valueOf(prefixArr[nthChild] + "_UPDATE"));
                 } else if (value.equals(permissionArr[1])) {
+                } else {
+                  tmpUserPermission = List.of(
+                          Permission.valueOf(prefixArr[nthChild] + "_" + value)
+                  );
                 }
                 switch (nthChild) {
                   case 1:
@@ -200,8 +198,114 @@ public class UserPermissionServiceImpl implements UserPermissionService {
     return ResponseObject.builder()
         .status("Successful")
         .message("Permission updated")
-        .payload(savedPermissionList)
+        .payload(
+//                savedPermissionList
+                convertToResponseList(savedPermissionList)
+        )
         .build();
+  }
+
+  private List<GetUserPermissionsResponse> convertToResponseList(List<UserPermission> userPermissionList) {
+    List<GetUserPermissionsResponse> responseList = new ArrayList<>();
+    for (UserPermission userPermission : userPermissionList) {
+      String[] permissionArr = {"FULL_ACCESS", "ACCESS_DENIED"};
+      GetUserPermissionsResponse responseObj = new GetUserPermissionsResponse();
+      Class<?> objClass = userPermission.getClass();
+      Field[] fields = objClass.getDeclaredFields();
+      int countField = 0;
+      for (Field field : fields) {
+        field.setAccessible(true);
+        try {
+          Object fieldValue = field.get(userPermission);
+          if (countField != 0) {
+            String permissionString;
+            if (countField != 1) {
+              permissionString =
+                      fieldValue.toString().substring(1, fieldValue.toString().length() - 1);
+            } else {
+              permissionString = fieldValue.toString();
+            }
+            switch (countField) {
+              case 1:
+                responseObj.setRoleName(fieldValue.toString());
+                break;
+              case 2:
+                if (!permissionString.isEmpty()) {
+                  if (permissionString.split(",").length == 5) {
+                    responseObj.setSyllabus(permissionArr[0]);
+                  } else if (permissionString.split(",").length == 1) {
+                    responseObj.setSyllabus(permissionString.split("_")[1]);
+                  } else {
+                    responseObj.setSyllabus(permissionString);
+                  }
+                } else {
+                  responseObj.setSyllabus(permissionArr[1]);
+                }
+                break;
+              case 3:
+                if (!permissionString.isEmpty()) {
+                  if (permissionString.split(",").length == 5) {
+                    responseObj.setTraining(permissionArr[0]);
+                  } else if (permissionString.split(",").length == 1) {
+                    responseObj.setTraining(permissionString.split("_")[1]);
+                  } else {
+                    responseObj.setTraining(permissionString);
+                  }
+                } else {
+                  responseObj.setTraining(permissionArr[1]);
+                }
+                break;
+              case 4:
+                if (!permissionString.isEmpty()) {
+                  if (permissionString.split(",").length == 5) {
+                    responseObj.setUserclass(permissionArr[0]);
+                  } else if (permissionString.split(",").length == 1) {
+                    responseObj.setUserclass(permissionString.split("_")[1]);
+                  } else {
+                    responseObj.setUserclass(permissionString);
+                  }
+                } else {
+                  responseObj.setUserclass(permissionArr[1]);
+                }
+                break;
+              case 5:
+                if (!permissionString.isEmpty()) {
+                  if (permissionString.split(",").length == 5) {
+                    responseObj.setLearningMaterial(permissionArr[0]);
+                  } else if (permissionString.split(",").length == 1) {
+                    responseObj.setLearningMaterial(permissionString.split("_")[1]);
+                  } else {
+                    responseObj.setLearningMaterial(permissionString);
+                  }
+                } else {
+                  responseObj.setLearningMaterial(permissionArr[1]);
+                }
+                break;
+              case 6:
+                if (!permissionString.isEmpty()) {
+                  if (permissionString.split(",").length == 5) {
+                    responseObj.setUserManagement(permissionArr[0]);
+                  } else if (permissionString.split(",").length == 1) {
+                    responseObj.setUserManagement(permissionString.split("_")[1]);
+                  } else {
+                    responseObj.setUserManagement(permissionString);
+                  }
+                } else {
+                  responseObj.setUserManagement(permissionArr[1]);
+                }
+                break;
+              default:
+                break;
+            }
+          }
+          countField++;
+        } catch (IllegalAccessException e) {
+          throw new RuntimeException(e);
+        }
+      }
+      responseList.add(responseObj);
+    }
+    return responseList;
   }
 
   @Override
