@@ -5,6 +5,7 @@ import com.example.FAMS.dto.requests.UpdateRequest;
 import com.example.FAMS.dto.responses.ListUserResponse;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateResponse;
+import com.example.FAMS.dto.responses.UserWithRoleDTO;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.User;
 import com.example.FAMS.repositories.UserDAO;
@@ -19,9 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,26 +47,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UpdateResponse updateUser(UpdateRequest updateRequest) {
-        Optional<User> optionalUser = userDAO.findById(updateRequest.getUserId());
+    public UpdateResponse updateUser(String userEmail, UpdateRequest updateRequest) {
+        var existedUser = userDAO.findByEmail(userEmail).orElse(null);
         var permission = userPermissionDAO.findUserPermissionByRole(updateRequest.getRole())
                 .orElse(null);
-        User existingUser = optionalUser.orElse(null);
-        if (existingUser != null) {
-            existingUser.setRole(permission);
-            existingUser.setName(updateRequest.getName());
-            existingUser.setPhone(updateRequest.getPhone());
-            existingUser.setDob(updateRequest.getDob());
-            existingUser.setGender(updateRequest.getGender());
-            existingUser.setStatus(updateRequest.isStatus());
+        if (existedUser != null) {
+            existedUser.setRole(permission);
+            existedUser.setName(updateRequest.getName());
+            existedUser.setPhone(updateRequest.getPhone());
+            existedUser.setDob(updateRequest.getDob());
+            existedUser.setGender(updateRequest.getGender());
+            existedUser.setStatus(updateRequest.isStatus());
 
             // Save the updated user
-            User updatedUser = userDAO.save(existingUser);
+            User updatedUser = userDAO.save(existedUser);
 
             if (updatedUser != null) {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 return UpdateResponse.builder()
                         .status("Update successful")
-                        .updatedUser(updatedUser)
+                        .updatedUser(UserWithRoleDTO.builder()
+                                .name(updatedUser.getName())
+                                .role(updatedUser.getRole().getRole())
+                                .email(updatedUser.getEmail())
+                                .phone(updatedUser.getPhone())
+                                .dob(formatter.format(updatedUser.getDob()))
+                                .gender(updatedUser.getGender())
+                                .status(updatedUser.isStatus())
+                                .createdBy(updatedUser.getCreatedBy())
+                                .createdDate(formatter.format(updatedUser.getCreatedDate()))
+                                .modifiedBy(updatedUser.getModifiedBy())
+                                .modifiedDate(formatter.format(updatedUser.getModifiedDate()))
+                                .build())
                         .build();
             } else {
                 return UpdateResponse.builder()
@@ -90,7 +103,7 @@ public class UserServiceImpl implements UserService {
         User performUser = userDAO.findByEmail(performUserEmail).orElse(null);
 
         //set default ResponseObject
-        ResponseObject ro = ResponseObject
+        ResponseObject responseObject = ResponseObject
                 .builder()
                 .status("Failed")
                 .message("Delete user failed")
@@ -100,14 +113,14 @@ public class UserServiceImpl implements UserService {
         if (performUser != null) {
             switch (performUser.getRole().getRole()) {
                 case SUPER_ADMIN:
-                    ro = disableUser(performUserEmail, mail, null);
+                    responseObject = disableUser(performUserEmail, mail, null);
                     break;
                 case CLASS_ADMIN:
-                    ro = disableUser(performUserEmail, mail, Role.USER);
+                    responseObject = disableUser(performUserEmail, mail, Role.USER);
                     break;
             }
         }
-        return ro;
+        return responseObject;
     }
 
     private ResponseObject disableUser(String performUserEmail, String deletedUserEmail, Role role) {

@@ -9,7 +9,6 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateRequest {
-    private int userId;
     private Role role;
     private String name;
     private String phone;

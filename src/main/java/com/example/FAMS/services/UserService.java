@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 public interface UserService {
     ResponseEntity<ResponseObject> getAll();
 
-    UpdateResponse updateUser(UpdateRequest updateRequest);
+    UpdateResponse updateUser(String userEmail, UpdateRequest updateRequest);
 
     ResponseObject deleteUser(String mail);
 }

@@ -4,10 +4,7 @@ import com.example.FAMS.controllers.UserController;
 import com.example.FAMS.dto.UserDTO;
 import com.example.FAMS.dto.requests.CreateRequest;
 import com.example.FAMS.dto.requests.LoginRequest;
-import com.example.FAMS.dto.responses.AuthenticationResponse;
-import com.example.FAMS.dto.responses.CreateResponse;
-import com.example.FAMS.dto.responses.LoginResponse;
-import com.example.FAMS.dto.responses.ResponseObject;
+import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.enums.Permission;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.enums.TokenType;
@@ -21,6 +18,7 @@ import com.example.FAMS.services.AuthenticationService;
 import com.example.FAMS.services.EmailService;
 import com.example.FAMS.services.JWTService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.Observation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +32,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +44,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final String emailRegex = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
             + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
+    private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     private final UserDAO userDAO;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
@@ -115,7 +115,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     .build());
             return CreateResponse.builder()
                     .status("Successful")
-                    .createdUser(userDAO.findUserByEmail(savedUser.getEmail()).orElse(null))
+                    .createdUser(UserWithRoleDTO.builder()
+                            .name(savedUser.getName())
+                            .role(savedUser.getRole().getRole())
+                            .email(savedUser.getEmail())
+                            .phone(savedUser.getPhone())
+                            .dob(formatter.format(savedUser.getDob()))
+                            .gender(savedUser.getGender())
+                            .status(savedUser.isStatus())
+                            .createdBy(savedUser.getCreatedBy())
+                            .createdDate(formatter.format(savedUser.getCreatedDate()))
+                            .modifiedBy(savedUser.getModifiedBy())
+                            .modifiedDate(formatter.format(savedUser.getModifiedDate()))
+                            .build())
                     .build();
         }
         return CreateResponse.builder()
@@ -167,7 +179,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 return ResponseObject.builder()
                         .status("Successful")
                         .message(loggedInUser.getRole().getRole().name())
-                        .payload(userDTO)
+                        .payload(UserWithRoleDTO.builder()
+                                .name(userDTO.getName())
+                                .role(userDTO.getRole().getRole())
+                                .email(userDTO.getEmail())
+                                .phone(userDTO.getPhone())
+                                .dob(formatter.format(userDTO.getDob()))
+                                .gender(userDTO.getGender())
+                                .status(userDTO.isStatus())
+                                .createdBy(userDTO.getCreatedBy())
+                                .createdDate(formatter.format(userDTO.getCreatedDate()))
+                                .modifiedBy(userDTO.getModifiedBy())
+                                .modifiedDate(formatter.format(userDTO.getModifiedDate()))
+                                .build())
                         .build();
             }
         }

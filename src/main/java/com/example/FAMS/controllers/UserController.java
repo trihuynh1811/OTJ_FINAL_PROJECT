@@ -3,8 +3,6 @@ package com.example.FAMS.controllers;
 import com.example.FAMS.dto.requests.UpdateRequest;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateResponse;
-import com.example.FAMS.dto.responses.UserWithRoleDTO;
-import com.example.FAMS.services.JWTService;
 import com.example.FAMS.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -29,13 +27,13 @@ public class UserController {
         return userService.getAll();
     }
 
-    @PutMapping("/update-user/{userId}")
+    @PutMapping("/update-user/{userEmail}")
     @PreAuthorize("hasAuthority('user:update')")
     public ResponseEntity<UpdateResponse> updateUserRequest(
-            @PathVariable int userId,
+            @PathVariable String userEmail,
             @RequestBody UpdateRequest updateRequest
     ) {
-        return ResponseEntity.ok(userService.updateUser(updateRequest));
+        return ResponseEntity.ok(userService.updateUser(userEmail, updateRequest));
     }
 
     @DeleteMapping("/delete/{email}")

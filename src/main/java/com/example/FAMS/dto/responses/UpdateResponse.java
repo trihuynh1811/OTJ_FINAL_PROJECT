@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateResponse {
     private String status;
-    private User updatedUser;
+    private Object updatedUser;
 }

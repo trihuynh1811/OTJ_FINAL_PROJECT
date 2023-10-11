@@ -13,13 +13,15 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserWithRoleDTO {
-    private int user_id;
     private String name;
+    private Role role;
     private String email;
     private String phone;
-    private Date dob;
+    private String dob;
     private String gender;
     private boolean status;
-    private Role role;
-
+    private String createdBy;
+    private String createdDate;
+    private String modifiedBy;
+    private String modifiedDate;
 }
