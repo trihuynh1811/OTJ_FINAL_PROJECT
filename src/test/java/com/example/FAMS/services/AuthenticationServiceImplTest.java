@@ -1,10 +1,14 @@
 package com.example.FAMS.services;
 
+import static com.example.FAMS.enums.Permission.USER_READ;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.example.FAMS.dto.requests.CreateRequest;
 import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.LoginResponse;
-
+import com.example.FAMS.dtos.response.UserDTOImp;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.EmailDetails;
 import com.example.FAMS.models.User;
@@ -13,14 +17,12 @@ import com.example.FAMS.repositories.TokenDAO;
 import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.service_implementors.AuthenticationServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.*;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,17 +32,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import java.util.*;
-import java.util.regex.Pattern;
-
-import static com.example.FAMS.enums.Permission.USER_CREATE;
-import static com.example.FAMS.enums.Permission.USER_READ;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationServiceImplTest {
@@ -100,10 +93,15 @@ public class AuthenticationServiceImplTest {
 
   @Test
   void User_CreateUser_returnCreateResponse() {
-    when(userDAO.findByEmail(Mockito.any())).thenReturn(Optional.empty());
     when(passwordEncoder.encode(anyString())).thenReturn("1fsdfadfqrwgtwerert234");
 
-    int userId = 123;
+    HttpServletRequest httpServletRequestMock = mock(HttpServletRequest.class);
+    when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer yourToken");
+    ServletRequestAttributes customServletRequestAttributes = new ServletRequestAttributes(httpServletRequestMock);
+    RequestContextHolder.setRequestAttributes(customServletRequestAttributes);
+
+
+
     UserPermission userPermission = UserPermission.builder()
             .role(Role.USER)
             .syllabus(List.of())
@@ -114,16 +112,17 @@ public class AuthenticationServiceImplTest {
             .build();
 
     when(userPermissionDAO.findUserPermissionByRole(any())).thenReturn(Optional.of(userPermission));
+    when(authenticationService.passwordGenerator(anyString())).thenReturn("123fwwretwertewrtefqwef4");
 
     // Create a mock User object
-    User mockUser = new User();
+    int userId = 123;
+    UserDTOImp mockUser = new UserDTOImp();
     mockUser.setUserId(userId);
-    mockUser.setRole(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null));
+    mockUser.setRole(userPermissionDAO.findUserPermissionByRole(Role.SUPER_ADMIN).orElse(null));
+    when(userDAO.findUserByEmail(Mockito.any())).thenReturn(Optional.of(mockUser));
+    when(userDAO.findByEmail(Mockito.any())).thenReturn(Optional.empty());
 
-    when(authenticationService.passwordGenerator(anyString())).thenReturn("123fwwretwertewrtefqwef4");
     String initialPassword = authenticationService.passwordGenerator("Hefqwewretwertwretfqwefqwello");
-
-
     CreateRequest request =
             CreateRequest.builder()
                     .name("Albert Einstein")
@@ -149,7 +148,6 @@ public class AuthenticationServiceImplTest {
                     .createdBy(request.getCreatedBy())
                     .modifiedBy(request.getModifiedBy())
                     .build();
-
     when(userDAO.save(any())).thenReturn(user);
     when(emailService.sendMail(any())).thenReturn("Mail sent successfully");
 
@@ -170,8 +168,13 @@ public class AuthenticationServiceImplTest {
 
   @Test
   void User_CreateUser_returnFailCreateResponse() {
+    when(passwordEncoder.encode(anyString())).thenReturn("1fsdfadfqrwgtwerert234");
 
-    when(passwordEncoder.encode(any())).thenReturn("1fsdfadfqrwgtwerert234");
+    HttpServletRequest httpServletRequestMock = mock(HttpServletRequest.class);
+    when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer yourToken");
+    ServletRequestAttributes customServletRequestAttributes = new ServletRequestAttributes(httpServletRequestMock);
+    RequestContextHolder.setRequestAttributes(customServletRequestAttributes);
+
 
 
     UserPermission userPermission = UserPermission.builder()
@@ -184,16 +187,15 @@ public class AuthenticationServiceImplTest {
             .build();
 
     when(userPermissionDAO.findUserPermissionByRole(any())).thenReturn(Optional.of(userPermission));
+    when(authenticationService.passwordGenerator(anyString())).thenReturn("123fwwretwertewrtefqwef4");
 
     // Create a mock User object
     int userId = 123;
-    User mockUser = new User();
+    UserDTOImp mockUser = new UserDTOImp();
     mockUser.setUserId(userId);
-    mockUser.setRole(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null));
+    mockUser.setRole(userPermissionDAO.findUserPermissionByRole(Role.SUPER_ADMIN).orElse(null));
+    when(userDAO.findUserByEmail(Mockito.any())).thenReturn(Optional.of(mockUser));
 
-
-    when(userDAO.findByEmail(Mockito.any())).thenReturn(Optional.of(mockUser));
-    when(authenticationService.passwordGenerator(any())).thenReturn("123fwwretwertewrtefqwef4");
 
     String initialPassword = authenticationService.passwordGenerator("Hefqwewretwertwretfqwefqwello");
     CreateRequest request =
@@ -221,7 +223,7 @@ public class AuthenticationServiceImplTest {
                     .createdBy(request.getCreatedBy())
                     .modifiedBy(request.getModifiedBy())
                     .build();
-
+    when(userDAO.findByEmail(Mockito.any())).thenReturn(Optional.of(user));
     when(userDAO.save(any())).thenReturn(user);
     when(emailService.sendMail(any())).thenReturn("Mail sent successfully");
 

@@ -23,5 +23,6 @@ public interface ListUserResponse {
     public boolean isStatus();
 
     public String getCreatedBy();
+
     public String getModifiedBy();
 }

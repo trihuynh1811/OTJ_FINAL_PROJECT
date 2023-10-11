@@ -1,11 +1,18 @@
 package com.example.FAMS.dtos.response;
 
-import com.example.FAMS.dto.responses.ListUserResponse;
+import com.example.FAMS.dto.UserDTO;
 import com.example.FAMS.enums.Role;
+import com.example.FAMS.models.UserPermission;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-public class ListUserResponseImpl implements ListUserResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class UserDTOImp implements UserDTO {
     private int userId;
     private String name;
     private String email;
@@ -14,23 +21,16 @@ public class ListUserResponseImpl implements ListUserResponse {
     private String gender;
     private String createdBy;
     private String modifiedBy;
-    private Role role;
+    private UserPermission role;
     private boolean status;
 
 
-    public ListUserResponseImpl(int userId, String name, String email, String phone, Date dob, String gender, Role role) {
+    public void setUserId(int userId) {
         this.userId = userId;
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.dob = dob;
-        this.gender = gender;
-        this.role = role;
     }
 
-    @Override
-    public int getUserId() {
-        return userId;
+    public void setRole(UserPermission role) {
+        this.role = role;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ListUserResponseImpl implements ListUserResponse {
     }
 
     @Override
-    public Role getRole() {
+    public UserPermission getRole() {
         return role;
     }
 
@@ -74,7 +74,17 @@ public class ListUserResponseImpl implements ListUserResponse {
     }
 
     @Override
+    public Date getCreatedDate() {
+        return getCreatedDate();
+    }
+
+    @Override
     public String getModifiedBy() {
         return modifiedBy;
+    }
+
+    @Override
+    public Date getModifiedDate() {
+        return null;
     }
 }

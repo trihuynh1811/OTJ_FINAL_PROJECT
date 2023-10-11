@@ -77,18 +77,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public CreateResponse createUser(CreateRequest createRequest) throws RuntimeException {
-//        Matcher matcher = pattern.matcher(createRequest.getEmail());
-//        if (!matcher.matches()) {
-//            throw new RuntimeException("Invalid email");
-//        }
-//        String token = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-//                .getRequest().getHeader("Authorization").substring(7);
-//        String userEmail = jwtService.extractUserEmail(token);
-//        var requester = userDAO.findByEmail(userEmail).orElse(null);
-//        if (requester.getRole().getRole().equals(Role.CLASS_ADMIN) &&
-//                createRequest.getRole().equals(Role.SUPER_ADMIN)) {
-//            throw new RuntimeException("Invalid request: ADMIN can not create SUPER_ADMIN");
-//        }
+        Matcher matcher = pattern.matcher(createRequest.getEmail());
+        if (!matcher.matches()) {
+            throw new RuntimeException("Invalid email");
+        }
+        String token = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                .getRequest().getHeader("Authorization").substring(7);
+        String userEmail = jwtService.extractUserEmail(token);
+        var requester = userDAO.findUserByEmail(userEmail).orElse(null);
+        if (requester.getRole().getRole().equals(Role.CLASS_ADMIN) &&
+                createRequest.getRole().equals(Role.SUPER_ADMIN)) {
+            throw new RuntimeException("Invalid request: ADMIN can not create SUPER_ADMIN");
+        }
         var permission = userPermissionDAO.findUserPermissionByRole(createRequest.getRole()).orElse(null);
         String initialPassword = passwordGenerator(createRequest.getEmail());
         User user = User.builder()

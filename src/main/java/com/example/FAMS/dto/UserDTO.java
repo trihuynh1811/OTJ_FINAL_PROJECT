@@ -1,5 +1,7 @@
 package com.example.FAMS.dto;
 
+import com.example.FAMS.models.UserPermission;
+
 import java.util.Date;
 
 public interface UserDTO {
@@ -14,7 +16,7 @@ public interface UserDTO {
 
     public String getGender();
 
-//    public Role getRole() ;
+    public UserPermission getRole() ;
 
     public boolean isStatus() ;
 
