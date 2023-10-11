@@ -44,7 +44,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final String emailRegex = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
             + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
-    private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     private final UserDAO userDAO;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
@@ -120,13 +119,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                             .role(savedUser.getRole().getRole())
                             .email(savedUser.getEmail())
                             .phone(savedUser.getPhone())
-                            .dob(formatter.format(savedUser.getDob()))
+                            .dob(savedUser.getDob())
                             .gender(savedUser.getGender())
                             .status(savedUser.isStatus())
                             .createdBy(savedUser.getCreatedBy())
-                            .createdDate(formatter.format(savedUser.getCreatedDate()))
+                            .createdDate(savedUser.getCreatedDate())
                             .modifiedBy(savedUser.getModifiedBy())
-                            .modifiedDate(formatter.format(savedUser.getModifiedDate()))
+                            .modifiedDate(savedUser.getModifiedDate())
                             .build())
                     .build();
         } else {
@@ -182,13 +181,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                                 .role(userDTO.getRole().getRole())
                                 .email(userDTO.getEmail())
                                 .phone(userDTO.getPhone())
-                                .dob(formatter.format(userDTO.getDob()))
+                                .dob(userDTO.getDob())
                                 .gender(userDTO.getGender())
                                 .status(userDTO.isStatus())
                                 .createdBy(userDTO.getCreatedBy())
-                                .createdDate(formatter.format(userDTO.getCreatedDate()))
+                                .createdDate(userDTO.getCreatedDate())
                                 .modifiedBy(userDTO.getModifiedBy())
-                                .modifiedDate(formatter.format(userDTO.getModifiedDate()))
+                                .modifiedDate(userDTO.getModifiedDate())
                                 .build())
                         .build();
             }

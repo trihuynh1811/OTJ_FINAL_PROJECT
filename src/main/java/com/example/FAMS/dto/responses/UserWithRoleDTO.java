@@ -17,11 +17,11 @@ public class UserWithRoleDTO {
     private Role role;
     private String email;
     private String phone;
-    private String dob;
+    private Date dob;
     private String gender;
     private boolean status;
     private String createdBy;
-    private String createdDate;
+    private Date createdDate;
     private String modifiedBy;
-    private String modifiedDate;
+    private Date modifiedDate;
 }

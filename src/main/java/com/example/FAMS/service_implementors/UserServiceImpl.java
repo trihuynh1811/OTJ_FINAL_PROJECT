@@ -74,13 +74,13 @@ public class UserServiceImpl implements UserService {
                                 .role(updatedUser.getRole().getRole())
                                 .email(updatedUser.getEmail())
                                 .phone(updatedUser.getPhone())
-                                .dob(formatter.format(updatedUser.getDob()))
+                                .dob(updatedUser.getDob())
                                 .gender(updatedUser.getGender())
                                 .status(updatedUser.isStatus())
                                 .createdBy(updatedUser.getCreatedBy())
-                                .createdDate(formatter.format(updatedUser.getCreatedDate()))
+                                .createdDate(updatedUser.getCreatedDate())
                                 .modifiedBy(updatedUser.getModifiedBy())
-                                .modifiedDate(formatter.format(updatedUser.getModifiedDate()))
+                                .modifiedDate(updatedUser.getModifiedDate())
                                 .build())
                         .build();
             } else {
