@@ -22,6 +22,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -58,6 +59,8 @@ public class UserServiceImpl implements UserService {
             existedUser.setDob(updateRequest.getDob());
             existedUser.setGender(updateRequest.getGender());
             existedUser.setStatus(updateRequest.isStatus());
+            existedUser.setModifiedBy(updateRequest.getModifiedBy());
+            existedUser.setModifiedDate(new Date());
 
             // Save the updated user
             User updatedUser = userDAO.save(existedUser);

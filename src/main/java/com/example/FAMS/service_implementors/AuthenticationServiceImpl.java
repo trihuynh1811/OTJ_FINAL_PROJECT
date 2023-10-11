@@ -129,11 +129,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                             .modifiedDate(formatter.format(savedUser.getModifiedDate()))
                             .build())
                     .build();
+        } else {
+            throw new RuntimeException("Existed User!");
         }
-        return CreateResponse.builder()
-                .status("Fail")
-                .createdUser(null)
-                .build();
     }
 
     @Override

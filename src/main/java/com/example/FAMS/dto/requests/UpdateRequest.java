@@ -15,4 +15,5 @@ public class UpdateRequest {
     private Date dob;
     private String gender;
     private boolean status;
+    private String modifiedBy;
 }
