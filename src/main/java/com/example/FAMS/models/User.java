@@ -78,7 +78,7 @@ public class User implements UserDetails {
     private final Set<ClassUser> classUsers = new HashSet<>();
 
     @ManyToOne
-    @JoinColumn(name = "permissionId")
+    @JoinColumn(name = "role")
     @JsonIgnore
     private UserPermission role;
 
