@@ -1,0 +1,21 @@
+package com.example.FAMS.dto.requests.SyllbusRequest;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class CreateSyllabusOutlineRequest {
+    String topicName = "";
+    String topicCode = "";
+    List<DayDTO> syllabus;
+
+
+}

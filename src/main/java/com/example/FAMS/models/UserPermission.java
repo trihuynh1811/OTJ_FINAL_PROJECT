@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,7 +37,7 @@ public class UserPermission {
     @Column(name = "learning_material",nullable = false)
     private String learningMaterial;
 
-    @OneToMany(mappedBy = "userPermission")
+    @OneToMany(mappedBy = "userPermission", fetch = FetchType.EAGER)
     @JsonManagedReference
     private Set<User> users = new HashSet<>();
 }

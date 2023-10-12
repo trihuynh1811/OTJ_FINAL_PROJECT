@@ -1,5 +1,6 @@
 package com.example.FAMS.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,19 +16,23 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 @Table(name = "TrainingPrograms")
 public class TrainingProgram {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "training_program_code")
-    private String trainingProgramCode;
+    private int trainingProgramCode;
 
     @Column(nullable = false, name = "name")
     private String name;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
+    @JsonManagedReference
+    @ToString.Exclude
     private User userID;
 
     @Column(nullable = false, name = "start_date")
@@ -35,9 +40,6 @@ public class TrainingProgram {
 
     @Column(nullable = false, name = "duration")
     private int duration;
-
-    @Column(nullable = false, name = "topic_code")
-    private String topicCode;
 
     @Column(nullable = false, name = "status")
     private String status;
@@ -48,10 +50,10 @@ public class TrainingProgram {
     @Column(nullable = false, name = "created_date")
     private Date createdDate;
 
-    @Column(nullable = false, name = "modified_by")
+    @Column(name = "modified_by")
     private String modifiedBy;
 
-    @Column(nullable = false, name = "modified_date")
+    @Column(name = "modified_date")
     private Date modifiedDate;
 
     @OneToMany(mappedBy = "trainingProgramCode")

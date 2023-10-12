@@ -2,13 +2,11 @@ package com.example.FAMS.models;
 
 
 import com.example.FAMS.enums.Role;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -19,6 +17,8 @@ import java.util.Set;
 
 @Entity
 @Data
+@Getter
+@Setter
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
@@ -49,11 +49,6 @@ public class User implements UserDetails {
     @Column(name = "gender", nullable = false)
     private String gender;
 
-//    @Column(name = "role", nullable = false)
-//    @Enumerated(EnumType.STRING)
-//    @JsonIgnore
-//    private Role role;
-
     @Column(name = "status", nullable = false)
     private String status;
 
@@ -69,24 +64,28 @@ public class User implements UserDetails {
     @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
-    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
+    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private final Set<ClassUser> classUsers = new HashSet<>();
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "role", referencedColumnName = "role")
-    @JsonIgnore
+    @JsonManagedReference
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private UserPermission userPermission;
 
-    @OneToMany(mappedBy = "userID")
-    @JsonManagedReference
+    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonBackReference
     private final Set<TrainingProgram> trainingPrograms = new HashSet<>();
 
-    @OneToMany(mappedBy = "userID")
+    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     private final Set<Syllabus> syllabusList = new HashSet<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonBackReference
+    @ToString.Exclude
     private final Set<Token> tokens = new HashSet<>();
 
     @Override

@@ -1,11 +1,10 @@
 package com.example.FAMS.models;
 
 import com.example.FAMS.enums.TokenType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Data
@@ -30,5 +29,7 @@ public class Token {
 
     @ManyToOne
     @JoinColumn(name = "userID")
+    @ToString.Exclude
+    @JsonManagedReference
     private User user;
 }

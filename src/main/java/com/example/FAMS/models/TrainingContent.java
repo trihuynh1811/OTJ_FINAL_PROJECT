@@ -1,5 +1,7 @@
 package com.example.FAMS.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,19 +11,31 @@ import java.util.Set;
 
 @Entity
 @Builder
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "TrainingContents")
 public class TrainingContent {
 
     @Id
-    @Column(nullable = false, name = "unit_code")
-    private String unitCode;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "content_code")
+    private int contentCode;
 
-    @Column(nullable = false, name = "learning_object")
-    private String learningObjective;
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false)
+    @JoinColumns({
+            @JoinColumn(name="unit_code", referencedColumnName="unit_code"),
+            @JoinColumn(name="topic_code", referencedColumnName="topic_code")
+    })
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    @ToString.Exclude
+    @JsonBackReference
+    private TrainingUnit unitCode;
+
+    @OneToMany(mappedBy = "contentCode", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private final Set<LearningObjective> learningObjectives = new HashSet<>();
 
     @Column(nullable = false, name = "delivery_type")
     private String deliveryType;
@@ -32,14 +46,16 @@ public class TrainingContent {
     @Column(nullable = false, name = "training_format")
     private String trainingFormat;
 
-    @Column(nullable = false, name = "note")
+    @Column(name = "content")
+    private String content;
+
+    @Column(name = "note")
     private String note;
 
-    @OneToMany(mappedBy = "unitCode")
-    @JsonManagedReference
-    private final Set<TrainingUnit> tu = new HashSet<>();
+    public void addLearningObjective(LearningObjective learningObjective){
+        learningObjectives.add(learningObjective);
+        learningObjective.setContentCode(this);
+    }
 
-    @OneToMany(mappedBy = "trainingContent")
-    @JsonManagedReference
-    private final Set<LearningObjective> learningObjectives = new HashSet<>();
+
 }

@@ -1,10 +1,12 @@
 package com.example.FAMS.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,8 +25,10 @@ public class Syllabus {
     @Column(name = "topic_name", nullable = false)
     private String topicName;
 
-    @Lob
-    @Column(name = "technical_group", nullable = false)
+    @Column(name = "number_of_day")
+    private int numberOfDay = 1;
+
+    @Column(name = "technical_group", nullable = false, length = 2048)
     private String technicalGroup;
 
     @Column(nullable = false)
@@ -33,13 +37,14 @@ public class Syllabus {
     @Column(name = "training_audience", nullable = false)
     private int trainingAudience;
 
-    @Column(name = "topic_outline", nullable = false)
+    @Column(name = "topic_outline")
     private String topicOutline;
 
-    @Column(name = "training_materials", nullable = false)
+    @Column(name = "training_materials")
     private String trainingMaterials;
 
-    @Column(name = "training_principles", nullable = false)
+    @Lob
+    @Column(name = "training_principles")
     private String trainingPrinciples;
 
     @Column(nullable = false)
@@ -54,30 +59,48 @@ public class Syllabus {
     @Column(name = "created_date", nullable = false)
     private Date createdDate;
 
-    @Column(name = "modified_by", nullable = false)
+    @Column(name = "modified_by")
     private String modifiedBy;
 
-    @Column(name = "modified_date", nullable = false)
+    @Column(name = "modified_date")
     private Date modifiedDate;
+
+    @Column(name = "course_objective", length = 5000, nullable = false)
+    private String courseObjective;
 
     @OneToMany(mappedBy = "topicCode")
     @JsonManagedReference
     private final Set<TrainingProgramSyllabus> tps = new HashSet<>();
 
-    @OneToMany(mappedBy = "topicCode")
+    @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL)
     @JsonManagedReference
+    @JsonIgnore
     private final Set<TrainingUnit> tu = new HashSet<>();
 
-
-    @ManyToOne
-    @JoinColumn(nullable=false, name = "user_syllabus")
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false)
+    @JoinColumn(nullable = false, name = "user_syllabus", referencedColumnName = "user_id")
+    @JsonIgnore
+    @JsonBackReference
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User userID;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable( name = "syllabus_objective",
-            joinColumns = {@JoinColumn(name = "syllabus_code")},
-            inverseJoinColumns = {@JoinColumn(name = "objective_code")}
-    )
+//    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    @JoinTable(name = "syllabus_objective",
+//            joinColumns = {@JoinColumn(name = "syllabus_code")},
+//            inverseJoinColumns = {
+//                    @JoinColumn(name = "objective_code", referencedColumnName = "output_code")
+//            }
+//    )
+//    @JsonManagedReference
+//    @JsonIgnore
+//    private Set<StandardOutput> standardOutputs;
+
+//    @OneToMany(mappedBy = "topicCode", cascade = CascadeType.ALL)
+//    @JsonManagedReference
+//    private final Set<LearningObjective> learningObjectives = new HashSet<>();
+
+    @OneToMany(mappedBy = "topicCode", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
-    private Set<LearningObjective> learningObjectives;
+    private final Set<SyllabusObjective> syllabusObjectives = new HashSet<>();
 }
