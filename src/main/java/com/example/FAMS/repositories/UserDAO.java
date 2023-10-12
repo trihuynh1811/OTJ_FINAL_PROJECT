@@ -13,6 +13,9 @@ import java.util.Optional;
 @Repository
 public interface UserDAO extends JpaRepository<User, Integer> {
 
+    @Query("""
+        SELECT Us FROM User Us WHERE Us.email = :email AND Us.status = true
+""")
     Optional<User> findByEmail(String email);
 
     Optional<UserDTO> findUserByEmail(String email);
