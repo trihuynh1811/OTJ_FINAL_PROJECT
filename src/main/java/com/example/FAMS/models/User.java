@@ -1,9 +1,16 @@
 package com.example.FAMS.models;
 
 
+import com.example.FAMS.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -46,10 +53,10 @@ public class User implements UserDetails {
     @Column(name = "gender", nullable = false)
     private String gender;
 
-    @ManyToOne
-    @JoinColumn(name = "role", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private UserPermission role;
+//    @Column(name = "role", nullable = false)
+//    @Enumerated(EnumType.STRING)
+//    @JsonIgnore
+//    private Role role;
 
     @Column(name = "isActive", nullable = false)
     private boolean status;
@@ -66,9 +73,14 @@ public class User implements UserDetails {
     @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
-    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<ClassUser> classUsers = new HashSet<>();
+    private final Set<ClassUser> classUsers = new HashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "permissionId")
+    @JsonIgnore
+    private UserPermission role;
 
     @OneToMany(mappedBy = "userID")
     @JsonManagedReference
