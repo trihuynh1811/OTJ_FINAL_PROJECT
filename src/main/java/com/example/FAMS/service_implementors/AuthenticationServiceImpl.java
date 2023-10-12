@@ -5,7 +5,6 @@ import com.example.FAMS.dto.UserDTO;
 import com.example.FAMS.dto.requests.CreateRequest;
 import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.dto.responses.*;
-import com.example.FAMS.enums.Permission;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.enums.TokenType;
 import com.example.FAMS.models.EmailDetails;
@@ -18,7 +17,6 @@ import com.example.FAMS.services.AuthenticationService;
 import com.example.FAMS.services.EmailService;
 import com.example.FAMS.services.JWTService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.micrometer.observation.Observation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +30,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -86,7 +83,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var requester = userDAO.findUserByEmail(userEmail).orElse(null);
         if (requester.getRole().getRole().equals(Role.CLASS_ADMIN) &&
                 createRequest.getRole().equals(Role.SUPER_ADMIN)) {
-            throw new RuntimeException("Invalid request: ADMIN can not create SUPER_ADMIN");
+            throw new RuntimeException("ADMIN can not create SUPER_ADMIN");
         }
         var permission = userPermissionDAO.findUserPermissionByRole(createRequest.getRole()).orElse(null);
         String initialPassword = passwordGenerator(createRequest.getEmail());
