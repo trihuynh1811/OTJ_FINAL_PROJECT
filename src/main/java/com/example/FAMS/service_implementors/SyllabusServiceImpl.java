@@ -8,6 +8,8 @@ import com.example.FAMS.services.SyllabusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import com.google.common.base.Strings;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,8 +20,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class SyllabusServiceImpl implements SyllabusService {
 
     @Autowired
@@ -141,4 +145,27 @@ public class SyllabusServiceImpl implements SyllabusService {
         }
         return syllabusList;
     }
+
+    @Override
+    public Syllabus duplicateSyllabus(String topicCode) {
+        return syllabusDAO.getLastSyllabusByTopicCode(topicCode);
+    }
+    public Syllabus saveSyllabus(Syllabus syllabus) {
+        return syllabusDAO.save(syllabus);
+    }
+
+    public List<Syllabus> searchSyllabus(String createdDate, String searchValue, String orderBy) {
+        List<Syllabus> syllabusList = syllabusDAO.findAll();
+        if(!Strings.isNullOrEmpty(createdDate)){
+            syllabusList = syllabusList.stream().filter(n -> {
+                return new SimpleDateFormat("yyyy-MM-dd").format(n.getCreatedDate()).equals(createdDate);
+            }).collect(Collectors.toList());
+        }
+        if(!Strings.isNullOrEmpty(searchValue)){
+            syllabusList = syllabusList.stream().filter(n -> n.getTopicName().trim().toLowerCase().contains(searchValue.trim().toLowerCase())
+                    || n.getTopicCode().trim().toLowerCase().contains(searchValue.trim().toLowerCase())).collect(Collectors.toList());
+        }
+        return syllabusList;
+    }
+
 }

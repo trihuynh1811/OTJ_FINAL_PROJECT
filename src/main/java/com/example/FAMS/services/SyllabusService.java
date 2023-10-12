@@ -21,4 +21,6 @@ public interface SyllabusService {
 
 
     List<Syllabus> processDataFromCSV(MultipartFile file) throws IOException;
+
+    Syllabus duplicateSyllabus(String topicCode);
 }
