@@ -44,9 +44,8 @@ public class SyllabusServiceImpl implements SyllabusService {
     @Override
     public List<Syllabus> getSyllabuses() {
 //        log.info(userDAO.findAll());
-        List<Syllabus> syllabusList = syllabusDAO.findTop1000ByOrderByCreatedDateDesc();
-        log.info(trainingUnitDAO.countDayNumberBySyllabus_TopicCode("lmao"));
-        return syllabusList;
+//        log.info(trainingUnitDAO.countDayNumberBySyllabus_TopicCode("lmao"));
+        return syllabusDAO.findTop1000ByOrderByCreatedDateDesc();
     }
 
     @Override
