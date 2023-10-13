@@ -1,239 +1,199 @@
 package com.example.FAMS;
 
+import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.StandardOutput;
 import com.example.FAMS.models.User;
 import com.example.FAMS.models.UserPermission;
-import com.example.FAMS.repositories.*;
+import com.example.FAMS.repositories.StandardOutputDAO;
+import com.example.FAMS.repositories.UserDAO;
+import com.example.FAMS.repositories.UserPermissionDAO;
+import com.example.FAMS.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.example.FAMS.enums.Permission.*;
+
 @SpringBootApplication
 @RequiredArgsConstructor
+@RestController
+@RequestMapping(path = "/")
 public class FamsApplication {
 
-	private final UserDAO userDAO;
-	@Autowired
-	private UserPermissionDAO userPermissionDAO;
+    private final UserDAO userDAO;
+    private final UserPermissionDAO userPermissionDAO;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationService authenticationService;
+    private final StandardOutputDAO standardOutputDAO;
+    public static void main(String[] args) {
+        SpringApplication.run(FamsApplication.class, args);
+    }
 
-	@Autowired
-	private SyllabusDAO syllabusDAO;
+    @Bean
+    public CommandLineRunner initData() {
+        return new CommandLineRunner() {
+            @Override
+            public void run(String... args) throws Exception {
+                List<StandardOutput> standardOutputList = new ArrayList<>();
 
-	@Autowired
-	private StandardOutputDAO standardOutputDAO;
+                String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
 
-	@Autowired
-	private TrainingProgramDAO trainingProgramDAO;
+                for (int i = 0; i < objectiveCode.length; i++) {
+                    StandardOutput standardOutput = StandardOutput.builder()
+                            .outputCode(objectiveCode[i].toUpperCase())
+                            .outputName(objectiveCode[i])
+                            .description("some bs description.")
+                            .build();
 
-	private final PasswordEncoder passwordEncoder;
+                    standardOutputList.add(standardOutput);
+                }
 
-	public static void main(String[] args) {
-		SpringApplication.run(FamsApplication.class, args);
-	}
-
-	@Bean
-	public CommandLineRunner initData() {
-		return new CommandLineRunner() {
-			@Override
-			public void run(String... args) throws Exception {
-//				List<StandardOutput> standardOutputList = new ArrayList<>();
-//
-//				String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
-//
-//				for (int i = 0; i < objectiveCode.length; i++){
-//					StandardOutput standardOutput = StandardOutput.builder()
-//							.outputCode(objectiveCode[i].toUpperCase())
-//							.outputName(objectiveCode[i])
-//							.description("some bs description.")
-//							.build();
-//
-//					standardOutputList.add(standardOutput);
-//				}
-//
-//				standardOutputDAO.saveAll(standardOutputList);
-
-//				List<UserPermission> userPermissionList = new ArrayList<>();
-//
-//				userPermissionList.add(
-//						UserPermission.builder()
-//								.learningMaterial("some bs").syllabus("some more bs").userClass("the fuck is user class").role(Role.SUPER_ADMIN)
-//								.build()
-//				);
-//				userPermissionList.add(
-//						UserPermission.builder()
-//								.learningMaterial("some bs").syllabus("some more bs").userClass("the fuck is user class").role(Role.CLASS_ADMIN)
-//								.build()
-//				);
-//				userPermissionList.add(
-//						UserPermission.builder()
-//								.learningMaterial("some bs").syllabus("some more bs").userClass("the fuck is user class").role(Role.TRAINER)
-//								.build()
-//				);
-//				userPermissionList.add(
-//						UserPermission.builder()
-//								.learningMaterial("some bs").syllabus("some more bs").userClass("the fuck is user class").role(Role.USER)
-//								.build()
-//				);
-//				userPermissionDAO.saveAll(userPermissionList);
+                standardOutputDAO.saveAll(standardOutputList);
 
 
+//                List<UserPermission> permissionList = new ArrayList<>();
+//                List<User> userList = new ArrayList<>();
+//
+//                permissionList.add(UserPermission.builder()
+//                        .role(Role.SUPER_ADMIN)
+//                        .syllabus(
+//                                List.of(
+//                                        SYLLABUS_CREATE, SYLLABUS_VIEW, SYLLABUS_MODIFY, SYLLABUS_DELETE, SYLLABUS_IMPORT))
+//                        .trainingProgram(
+//                                List.of(
+//                                        TRAINING_CREATE, TRAINING_VIEW, TRAINING_MODIFY, TRAINING_DELETE, TRAINING_IMPORT))
+//                        .userClass(
+//                                List.of(CLASS_CREATE, CLASS_VIEW, CLASS_MODIFY, CLASS_DELETE, CLASS_IMPORT))
+//                        .userManagement(
+//                                List.of(USER_CREATE, USER_VIEW, USER_MODIFY, USER_DELETE, USER_IMPORT))
+//                        .learningMaterial(List.of())
+//                        .build());
+//                permissionList.add(UserPermission.builder()
+//                        .role(Role.TRAINER)
+//                        .syllabus(List.of(SYLLABUS_CREATE, SYLLABUS_VIEW, SYLLABUS_MODIFY, SYLLABUS_DELETE, SYLLABUS_IMPORT))
+//                        .trainingProgram(List.of(TRAINING_VIEW))
+//                        .userClass(List.of(CLASS_VIEW))
+//                        .userManagement(List.of())
+//                        .learningMaterial(List.of())
+//                        .build());
+//                permissionList.add(UserPermission.builder()
+//                        .role(Role.USER)
+//                        .syllabus(List.of())
+//                        .trainingProgram(List.of())
+//                        .userClass(List.of())
+//                        .userManagement(List.of())
+//                        .learningMaterial(List.of())
+//                        .build());
+//                permissionList.add(UserPermission.builder()
+//                        .role(Role.CLASS_ADMIN)
+//                        .syllabus(
+//                                List.of(
+//                                        SYLLABUS_CREATE, SYLLABUS_VIEW, SYLLABUS_MODIFY, SYLLABUS_DELETE, SYLLABUS_IMPORT))
+//                        .trainingProgram(
+//                                List.of(
+//                                        TRAINING_CREATE, TRAINING_VIEW, TRAINING_MODIFY, TRAINING_DELETE, TRAINING_IMPORT))
+//                        .userClass(
+//                                List.of(CLASS_CREATE, CLASS_VIEW, CLASS_MODIFY, CLASS_DELETE, CLASS_IMPORT))
+//                        .userManagement(
+//                                List.of(USER_CREATE, USER_VIEW, USER_MODIFY, USER_DELETE, USER_IMPORT))
+//                        .learningMaterial(List.of())
+//                        .build());
+//                userPermissionDAO.saveAll(permissionList);
+//
+//                userList.add(User.builder()
+//                        .email("admin@gmail.com")
+//                        .password(passwordEncoder.encode("1"))
+//                        .name("Admin")
+//                        .phone("0977545450")
+//                        .dob(new Date())
+//                        .gender("male")
+//                        .role(userPermissionDAO.findUserPermissionByRole(Role.SUPER_ADMIN).orElse(null))
+//                        .status(true)
+//                        .createdBy("Hoang Anh")
+//                        .createdDate(new Date())
+//                        .modifiedBy("Hoang Anh")
+//                        .modifiedDate(new Date())
+//                        .build());
+//                userList.add(User.builder()
+//                        .email("classadmin@gmail.com")
+//                        .password(passwordEncoder.encode("1"))
+//                        .name("Class Admin")
+//                        .phone("0977545451")
+//                        .dob(new Date())
+//                        .gender("male")
+//                        .role(userPermissionDAO.findUserPermissionByRole(Role.CLASS_ADMIN).orElse(null))
+//                        .status(true)
+//                        .createdBy("Hoang Anh")
+//                        .createdDate(new Date())
+//                        .modifiedBy("Hoang Anh")
+//                        .modifiedDate(new Date())
+//                        .build());
+//                userList.add(User.builder()
+//                        .email("trainer@gmail.com")
+//                        .password(passwordEncoder.encode("1"))
+//                        .name("Trainer")
+//                        .phone("0977545452")
+//                        .dob(new Date())
+//                        .gender("male")
+//                        .role(userPermissionDAO.findUserPermissionByRole(Role.TRAINER).orElse(null))
+//                        .status(true)
+//                        .createdBy("Hoang Anh")
+//                        .createdDate(new Date())
+//                        .modifiedBy("Hoang Anh")
+//                        .modifiedDate(new Date())
+//                        .build());
+//                userList.add(User.builder()
+//                        .email("user@gmail.com")
+//                        .password(passwordEncoder.encode("1"))
+//                        .name("User")
+//                        .phone("0977545453")
+//                        .dob(new Date())
+//                        .gender("male")
+//                        .role(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null))
+//                        .status(true)
+//                        .createdBy("Hoang Anh")
+//                        .createdDate(new Date())
+//                        .modifiedBy("Hoang Anh")
+//                        .modifiedDate(new Date())
+//                        .build());
+//                userDAO.saveAll(userList);
+//                System.out.println("SUPER_ADMIN Token: " + authenticationService.login(
+//                        LoginRequest.builder()
+//                                .email(userList.get(0).getEmail())
+//                                .password("1")
+//                        .build()).getToken());
+//                System.out.println("CLASS_ADMIN Token: " + authenticationService.login(
+//                        LoginRequest.builder()
+//                                .email(userList.get(1).getEmail())
+//                                .password("1")
+//                                .build()).getToken());
+//                System.out.println("TRAINER Token: " + authenticationService.login(
+//                        LoginRequest.builder()
+//                                .email(userList.get(2).getEmail())
+//                                .password("1")
+//                                .build()).getToken());
+//                System.out.println("USER Token: " + authenticationService.login(
+//                        LoginRequest.builder()
+//                                .email(userList.get(3).getEmail())
+//                                .password("1")
+//                                .build()).getToken());
+            }
+        };
+    }
 
-//				List<User> userList = new ArrayList<>();
-//				User admin = User.builder()
-//						.email("admin@gmail.com")
-//						.password(passwordEncoder.encode("1"))
-//						.name("Admin")
-//						.phone("0977545450")
-//						.dob(new Date())
-//						.gender("Male")
-//						.userPermission(userPermissionDAO.findById(1).get())
-//						.status("i want to kill myself")
-//						.createdBy("Hoang Anh")
-//						.createdDate(new Date())
-//						.modifiedBy("Hoang Anh")
-//						.modifiedDate(new Date())
-//						.build();
-//
-//				User superAdmin = User.builder()
-//						.email("superadmin@gmail.com")
-//						.password(passwordEncoder.encode("1"))
-//						.name("Super_Admin")
-//						.phone("0977545452")
-//						.dob(new Date())
-//						.gender("Microwave")
-//						.userPermission(userPermissionDAO.findById(2).get())
-//						.status("i still want to kill myself")
-//						.createdBy("Hoang Anh")
-//						.createdDate(new Date())
-//						.modifiedBy("Hoang Anh")
-//						.modifiedDate(new Date())
-//						.build();
-//
-//				User trainer = User.builder()
-//						.email("trainer@gmail.com")
-//						.password(passwordEncoder.encode("1"))
-//						.name("Trainer")
-//						.phone("0977545453")
-//						.dob(new Date())
-//						.gender("Microwave")
-//						.userPermission(userPermissionDAO.findById(3).get())
-//						.status("ಠ_ಠ")
-//						.createdBy("Hoang Anh")
-//						.createdDate(new Date())
-//						.modifiedBy("Hoang Anh")
-//						.modifiedDate(new Date())
-//						.build();
-//
-//				User joe = User.builder()
-//						.email("user@gmail.com")
-//						.password(passwordEncoder.encode("1"))
-//						.name("Joe")
-//						.phone("0977545454")
-//						.dob(new Date())
-//						.gender("Microwave")
-//						.userPermission(userPermissionDAO.findById(4).get())
-//						.status("💪(⌐■_■)")
-//						.createdBy("Hoang Anh")
-//						.createdDate(new Date())
-//						.modifiedBy("Hoang Anh")
-//						.modifiedDate(new Date())
-//						.build();
-//
-//				userList.add(admin);
-//				userList.add(superAdmin);
-//				userList.add(trainer);
-//				userList.add(joe);
-//				userDAO.saveAll(userList);
-
-//				List<Syllabus> syllabusList = new ArrayList<>();
-//
-//				Syllabus syllabus1 = Syllabus.builder()
-//						.version("1.0")
-//						.topicCode("9/11")
-//						.trainingAudience(10)
-//						.topicName("world trade center")
-//						.createdBy("osama bin-laden")
-//						.createdDate(new Date("2001/09/11"))
-//						.priority("high")
-//						.technicalGroup("OS: Windows XP/Vista/7/8 or 10. Processor: 2.3 GHz Intel Core 2 Duo or better. Memory: 512 MB RAM.")
-//						.modifiedBy("")
-//						.modifiedDate(null)
-//						.userID(userDAO.findById(2).get())
-//						.topicOutline("wtf is topic outline")
-//						.publishStatus("draft")
-//						.trainingMaterials("how to 9/11 part 2 book")
-//						.trainingPrinciples("hit the world trade center tower")
-//						.build();
-//
-//				Syllabus syllabus2 = Syllabus.builder()
-//						.version("1.1")
-//						.topicCode("4/06")
-//						.trainingAudience(1000)
-//						.topicName("tian ming square")
-//						.createdBy("beijing student")
-//						.createdDate(new Date("1989/06/04"))
-//						.priority("high")
-//						.technicalGroup("OS: Windows XP/Vista/7/8 or 10. Processor: 2.3 GHz Intel Core 2 Duo or better. Memory: 512 MB RAM.")
-//						.modifiedBy("")
-//						.modifiedDate(null)
-//						.userID(userDAO.findById(2).get())
-//						.topicOutline("wtf is topic outline")
-//						.publishStatus("active")
-//						.trainingMaterials("tian ming square massacre")
-//						.trainingPrinciples("protest")
-//						.build();
-//
-//				Syllabus syllabus3 = Syllabus.builder()
-//						.version("9.9")
-//						.topicCode("9/11(2)")
-//						.trainingAudience(10)
-//						.topicName("world trade center")
-//						.createdBy("osama bin-laden")
-//						.createdDate(new Date("1999/11/09"))
-//						.priority("high")
-//						.technicalGroup("OS: Windows XP/Vista/7/8 or 10. Processor: 2.3 GHz Intel Core 2 Duo or better. Memory: 512 MB RAM.")
-//						.modifiedBy("")
-//						.modifiedDate(null)
-//						.userID(userDAO.findById(1).get())
-//						.topicOutline("wtf is topic outline")
-//						.publishStatus("inactive")
-//						.trainingMaterials("how to 9/11 part 2 book")
-//						.trainingPrinciples("hit the world trade center tower")
-//						.build();
-//
-//				syllabusList.add(syllabus1);
-//				syllabusList.add(syllabus2);
-//				syllabusList.add(syllabus3);
-//
-//				syllabusDAO.saveAll(syllabusList);
-
-
-//				TrainingProgram trainingProgram = TrainingProgram.builder()
-//						.createdBy("joe biden")
-//						.createdDate(new Date())
-//						.duration(120)
-//						.trainingProgramCode(1)
-//						.modifiedBy("")
-//						.modifiedDate(new Date())
-//						.userID(userDAO.findById(1).get())
-//						.name("lmao fuck this shit")
-//						.startDate(new Date("2023/11/18"))
-//						.status("active")
-//						.topicCode("4/06")
-//						.build();
-//
-//				trainingProgramDAO.save(trainingProgram);
-			}
-		};
-	}
-
+    @GetMapping("")
+    public String greeting() {
+        return "Hello from FAMS Application made from GROUP 1 WITH LOVE";
+    }
 }

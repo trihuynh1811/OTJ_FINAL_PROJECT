@@ -14,8 +14,8 @@ public interface TokenDAO extends JpaRepository<Token, Integer> {
     Optional<Token> findByToken(String token);
 
     @Query("""
-        SELECT t FROM Token t INNER JOIN User u ON t.user.userId = u.userId
-        WHERE u.userId = :userId AND (t.expired = FALSE OR t.revoked = FALSE)
-""")
+                    SELECT t FROM Token t INNER JOIN User u ON t.user.userId = u.userId
+                    WHERE u.userId = :userId AND (t.expired = FALSE OR t.revoked = FALSE)
+            """)
     List<Token> findAllUserTokenByUserId(Integer userId);
 }

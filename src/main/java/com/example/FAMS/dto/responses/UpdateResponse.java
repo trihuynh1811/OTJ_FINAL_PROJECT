@@ -1,6 +1,7 @@
 package com.example.FAMS.dto.responses;
 
-import com.example.FAMS.dto.UserDTO;
+import com.example.FAMS.models.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,9 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginResponse {
+public class UpdateResponse {
     private String status;
-    private String role;
-    private String token;
-    private UserDTO userInfo;
+    private Object updatedUser;
 }
