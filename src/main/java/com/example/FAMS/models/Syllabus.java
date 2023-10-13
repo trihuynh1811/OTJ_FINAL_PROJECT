@@ -56,12 +56,14 @@ public class Syllabus {
     @Column(name = "created_by", nullable = false)
     private String createdBy;
 
+    @Temporal(TemporalType.DATE)
     @Column(name = "created_date", nullable = false)
     private Date createdDate;
 
     @Column(name = "modified_by")
     private String modifiedBy;
 
+    @Temporal(TemporalType.DATE)
     @Column(name = "modified_date")
     private Date modifiedDate;
 
