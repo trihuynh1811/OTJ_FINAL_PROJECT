@@ -35,7 +35,6 @@ import java.util.*;
 
 @Service
 @Log4j2
-@Transactional
 public class SyllabusServiceImpl implements SyllabusService {
 
     @Autowired
