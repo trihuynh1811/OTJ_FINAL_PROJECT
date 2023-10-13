@@ -57,89 +57,34 @@ public class UserServiceImplTest {
   }
 
   @Test
-  void UpdateUser() throws ParseException {
-    {
-      int userId = 1;
-      String dateStr = "2023/05/10";
-      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-      Date dob = dateFormat.parse(dateStr);
-      UserPermission userPermission =
-          UserPermission.builder()
-              .role(Role.USER)
-              .syllabus(List.of())
-              .trainingProgram(List.of())
-              .userClass(List.of())
-              .userManagement(List.of(USER_VIEW))
-              .learningMaterial(List.of())
-              .build();
+  public void testUpdateUser() {
+    // Tạo dữ liệu giả lập
+    UpdateRequest updateRequest = new UpdateRequest();
+    updateRequest.setRole(Role.USER);
+    updateRequest.setName("Anh Quan");
+    updateRequest.setPhone("1234567890");
+    updateRequest.setDob(new Date());
+    updateRequest.setGender("Male");
+    updateRequest.setStatus(true);
+    updateRequest.setModifiedBy("admin");
 
-      when(userPermissionDAO.findUserPermissionByRole(any()))
-          .thenReturn(Optional.of(userPermission));
+    User existingUser = new User();
+    existingUser.setEmail("user@gmail.com");
+    UserPermission userPermission = new UserPermission();
+    userPermission.setRole(Role.USER);
 
-      User user =
-          User.builder()
-              .userId(1)
-              .role(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null))
-              .name("Anh Quan")
-              .phone("0937534654")
-              .dob(dob)
-              .gender("Male")
-              .status(true)
-              .build();
-      when(userDAO.findById(1)).thenReturn(Optional.of(user));
-      when(userDAO.save(user)).thenReturn(user);
+    when(userDAO.findByEmail("user@gmail.com")).thenReturn(Optional.of(existingUser));
+    when(userPermissionDAO.findUserPermissionByRole(Role.USER)).thenReturn(Optional.of(userPermission));
+    when(userDAO.save(any())).thenAnswer(invocation -> {
+      Object[] args = invocation.getArguments();
+      return (User) args[0];
+    });
 
-      UpdateRequest updateRequest = new UpdateRequest();
-//      updateRequest.setUserId(userId);
-//
-//      UpdateResponse updateResponse = userService.updateUser(updateRequest);
-//
-//      // Sử dụng AssertJ để kiểm tra
-//      Assertions.assertThat(updateResponse).isNotNull();
-//      Assertions.assertThat(updateResponse.getStatus()).isEqualTo("Update successful");
-//      Assertions.assertThat(updateResponse.getUpdatedUser()).isEqualTo(user);
-    }
-  }
+    UpdateResponse updateResponse = userService.updateUser("user@gmail.com", updateRequest);
 
-  @Test
-  void Update_User() throws ParseException {
-    int userId = 1;
-    String dateStr = "2023/05/10";
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-    Date dob = dateFormat.parse(dateStr);
-    UserPermission userPermission = UserPermission.builder()
-            .role(Role.USER)
-            .syllabus(List.of())
-            .trainingProgram(List.of())
-            .userClass(List.of())
-            .userManagement(List.of(USER_VIEW))
-            .learningMaterial(List.of())
-            .build();
-
-    when(userPermissionDAO.findUserPermissionByRole(any())).thenReturn(Optional.of(userPermission));
-
-    User user = User.builder()
-            .userId(1)
-            .role(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null))
-            .name("Anh Quan")
-            .phone("0937534654")
-            .dob(dob)
-            .gender("Male")
-            .status(true)
-            .build();
-    when(userDAO.findById(1)).thenReturn(Optional.ofNullable(user));
-    when(userDAO.save(user)).thenReturn(user);
-
-//    UpdateRequest updateRequest = new UpdateRequest();
-//    updateRequest.setUserId(userId);
-//
-//    UpdateResponse updateResponse = userService.updateUser(updateRequest);
-//    Assertions.assertThat(updateResponse).isNotNull();
-//    Assertions.assertThat(updateResponse.getStatus()).isEqualTo("Update successful");
-//    Assertions.assertThat(updateResponse.getUpdatedUser()).isEqualTo(user);
-
-
-    verify(userDAO, times(1)).findById(userId);
-    verify(userDAO, times(1)).save(user);
+    // Kiểm tra các lệnh đã được gọi đúng số lần
+    verify(userDAO, times(1)).findByEmail("user@gmail.com");
+    verify(userPermissionDAO, times(1)).findUserPermissionByRole(Role.USER);
+    verify(userDAO, times(1)).save(existingUser);
   }
 }
