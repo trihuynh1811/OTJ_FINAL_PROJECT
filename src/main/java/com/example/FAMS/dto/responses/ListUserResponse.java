@@ -20,9 +20,9 @@ public interface ListUserResponse {
 
     Role getRole();
 
-    public boolean isStatus();
+    boolean isStatus();
 
-    public String getCreatedBy();
+    String getCreatedBy();
 
-    public String getModifiedBy();
+    String getModifiedBy();
 }
