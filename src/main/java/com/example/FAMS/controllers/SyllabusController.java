@@ -1,15 +1,15 @@
 package com.example.FAMS.controllers;
 
+import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
+import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.models.Syllabus;
+import com.example.FAMS.repositories.SyllabusDAO;
+import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.service_implementors.SyllabusServiceImpl;
-import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -23,15 +23,24 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/syllabus")
 @PreAuthorize("hasRole('CLASS_ADMIN') or hasRole('SUPER_ADMIN') or hasRole('TRAINER')")
+@Log4j2
 public class SyllabusController {
 
     @Autowired
     SyllabusServiceImpl syllabusService;
 
+    @Autowired
+    UserDAO userDAO;
+
+    @Autowired
+    SyllabusDAO syllabusDAO;
+
     @GetMapping
     @PreAuthorize("hasAuthority('syllabus:read')")
-    public ResponseEntity<List<Syllabus>> get() {
-        return ResponseEntity.status(418).body(syllabusService.getSyllabuses());
+    public ResponseEntity<?> get() {
+        List<Syllabus> syllabusList = syllabusService.getSyllabuses();
+        log.info(syllabusList);
+        return ResponseEntity.status(200).body(syllabusList);
     }
 
     @GetMapping("/detail")
@@ -41,6 +50,7 @@ public class SyllabusController {
     }
 
     @PostMapping("/importCSV")
+    @PreAuthorize("hasAuthority('syllabus:import')")
     public ResponseEntity<?> loadDataInFile(@RequestParam("file") MultipartFile file) throws IOException {
         if (!file.isEmpty()) {
             List<Syllabus> syllabus = syllabusService.processDataFromCSV(file);
@@ -52,23 +62,30 @@ public class SyllabusController {
 
     @PostMapping("/create/{type}")
     @PreAuthorize("hasAuthority('syllabus:create')")
-    public ResponseEntity<List<Syllabus>> create(@PathVariable("type") String type, @RequestBody JsonNode request, Authentication authentication) {
+    public ResponseEntity<String> create(@PathVariable("type") String type, @RequestBody CreateSyllabusGeneralRequest request, Authentication authentication) {
+        int result = -1;
+//        log.info(syllabusDAO.findById(request.getTopicCode()).get());
         switch (type) {
             case "general":
-//                String topicName = request.get("topic_name").asText();
-//                String topicCode = request.get("topic_code").asText();
-//                int version = request.get("version").asInt();
-//                String technicalRequirement = request.get("technical_group").asText();
-                Object creator = authentication.getPrincipal();
-                System.out.println(creator);
-                break;
-            case "outline":
-                break;
+                log.info(authentication.getPrincipal());
+                result = syllabusService.createSyllabusGeneral(request, authentication);
+                if (result == 1) {
+                    return ResponseEntity.status(418).body("syllabus is duplicated, change it or else.");
+                }
+                return ResponseEntity.status(200).body("syllabus created.");
             case "other":
                 break;
         }
-        return ResponseEntity.status(418).body(syllabusService.getSyllabuses());
+        return ResponseEntity.status(404).body(null);
     }
+
+    @PostMapping("/create/outline")
+    @PreAuthorize("hasAuthority('syllabus:create')")
+    public ResponseEntity<?> create(@RequestBody CreateSyllabusOutlineRequest request, Authentication authentication) {
+        syllabusService.createSyllabusOutline(request, authentication);
+        return ResponseEntity.status(200).body(request);
+    }
+
 
     @GetMapping("/draft/create/{type}")
     @PreAuthorize("hasAuthority('syllabus:create')")
@@ -77,6 +94,7 @@ public class SyllabusController {
     }
 
     @PutMapping("/update/{topicCode}")
+    @PreAuthorize("hasAuthority('syllabus:update')")
     public ResponseEntity<Syllabus> updateSyllabusRequest(@PathVariable String topicCode, @RequestBody UpdateSyllabusRequest updateSyllabusRequest) {
         Syllabus updatedSyllabus = syllabusService.updateSyllabus(updateSyllabusRequest);
         if (updatedSyllabus != null) {
@@ -87,6 +105,7 @@ public class SyllabusController {
     }
 
     @GetMapping("/search/{topicCode}")
+    @PreAuthorize("hasAuthority('syllabus:read')")
     public ResponseEntity<?> getSyllabusById(@PathVariable String topicCode) {
         Syllabus syllabus = syllabusService.getSyllabusById(topicCode);
         if (syllabus != null) {
@@ -97,6 +116,7 @@ public class SyllabusController {
     }
 
     @GetMapping("/duplicate/{topicCode}")
+    @PreAuthorize("hasAuthority('syllabus:update')")
     public ResponseEntity<?> duplicateTopicCode(@PathVariable String topicCode) {
         Syllabus updatesyllabusRequest = syllabusService.duplicateSyllabus(topicCode + "_[0-9]");
         boolean check = true;
@@ -106,7 +126,7 @@ public class SyllabusController {
         }
         Syllabus syllabusexits = new Syllabus();
         syllabusexits.setTopicName(updatesyllabusRequest.getTopicName());
-        syllabusexits.setLearningObjectives(updatesyllabusRequest.getLearningObjectives());
+//        syllabusexits.setLearningObjectives(updatesyllabusRequest.getLearningObjectives());
         syllabusexits.setUserID(updatesyllabusRequest.getUserID());
         syllabusexits.setTrainingPrinciples(updatesyllabusRequest.getTrainingPrinciples());
         syllabusexits.setVersion(updatesyllabusRequest.getVersion());
@@ -134,16 +154,17 @@ public class SyllabusController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchSyllabus(@RequestParam(name = "createdDate", required = false)
-                                            String createdDate,
-                                            @RequestParam(name = "searchValue", required = false)
-                                            String searchValue,
-                                            @RequestParam(name = "orderBy", required = false)
-                                            String orderBy) {
+    @PreAuthorize("hasAuthority('syllabus:read')")
+    public ResponseEntity<?> searchSyllabus(
+            @RequestParam(name = "createdDate", required = false)
+            String createdDate,
+            @RequestParam(name = "searchValue", required = false)
+            String searchValue,
+            @RequestParam(name = "orderBy", required = false)
+            String orderBy) {
         List<Syllabus> syllabusList = syllabusService.searchSyllabus(createdDate, searchValue, orderBy);
         return ResponseEntity.ok(syllabusList);
     }
-
 
 
 }

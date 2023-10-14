@@ -14,11 +14,11 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class SyllabusTrainingContentCompositeKey implements Serializable {
+public class SyllabusTrainingUnitCompositeKey implements Serializable {
 
     @Column(name = "unit_code")
-    String unitCode;
+    int uCode;
 
     @Column(name = "topic_code")
-    String topicCode;
+    String tCode;
 }

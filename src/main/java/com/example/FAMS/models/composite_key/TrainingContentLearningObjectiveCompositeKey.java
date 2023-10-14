@@ -9,16 +9,20 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Embeddable
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-public class SyllabusTrainingProgramCompositeKey implements Serializable {
+public class TrainingContentLearningObjectiveCompositeKey implements Serializable {
+
+    @Column(name = "content_code")
+    int trainingContentCode;
+
+    @Column(name = "output_code", length = 10)
+    String learningObjectiveCode;
 
     @Column(name = "topic_code")
     String topicCode;
 
-    @Column(name = "training_program_code")
-    int trainingProgramCode;
 }

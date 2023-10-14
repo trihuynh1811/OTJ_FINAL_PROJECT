@@ -1,13 +1,9 @@
 package com.example.FAMS.models;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.example.FAMS.models.composite_key.TrainingContentLearningObjectiveCompositeKey;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.Set;
+import lombok.*;
 
 @Entity
 @Data
@@ -16,9 +12,13 @@ import java.util.Set;
 @NoArgsConstructor
 public class LearningObjective {
 
+//    @EmbeddedId
+//    TrainingContentLearningObjectiveCompositeKey id;
+
     @Id
-    @Column(name = "code")
-    private String learningObjectiveCode;
+    @Column(name = "learning_objective_code")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int learningObjectiveCode;
 
     @Column(nullable = false)
     private String name;
@@ -29,15 +29,34 @@ public class LearningObjective {
     @Column(nullable = false)
     private String description;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "syllabus_objective",
-            joinColumns = {@JoinColumn(name = "objective_code")},
-            inverseJoinColumns = {@JoinColumn(name = "syllabus_code")}
-    )
-    @JsonManagedReference
-    private Set<Syllabus> syllabus;
+//    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "learningObjectives")
+//    @JsonManagedReference
+//    private Set<Syllabus> syllabus;
 
-    @ManyToOne
-    @JoinColumn(name = "training_content")
-    private TrainingContent trainingContent;
+//    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.EAGER)
+//    @JoinColumn(name = "topic_code", referencedColumnName = "topic_code")
+//    @MapsId("topicCode")
+//    @EqualsAndHashCode.Exclude
+//    @ToString.Exclude
+////    @JsonIgnore
+//    @JsonBackReference
+//    private Syllabus topicCode;
+
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "content_code", referencedColumnName = "content_code")
+//    @MapsId("contentCode")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+//    @JsonIgnore
+    @JsonBackReference
+    private TrainingContent contentCode;
+
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "output_code", referencedColumnName = "output_code")
+//    @MapsId("outputCode")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
+    private StandardOutput outputCode;
+
 }
