@@ -1,9 +1,12 @@
 package com.example.FAMS;
 
+import com.example.FAMS.dto.UserDTO;
 import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.enums.Role;
+import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.models.User;
 import com.example.FAMS.models.UserPermission;
+import com.example.FAMS.repositories.SyllabusDAO;
 import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.services.AuthenticationService;
@@ -33,6 +36,7 @@ public class FamsApplication {
     private final UserPermissionDAO userPermissionDAO;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationService authenticationService;
+    private final SyllabusDAO syllabusDAO;
 
     public static void main(String[] args) {
         SpringApplication.run(FamsApplication.class, args);
@@ -169,6 +173,44 @@ public class FamsApplication {
                                 .email(userList.get(3).getEmail())
                                 .password("1")
                                 .build()).getToken());
+                List<Syllabus> syllabusList = new ArrayList<>();
+                syllabusList.add( Syllabus.builder()
+                        .topicCode("TOPIC001")
+                        .topicName("OOP")
+                        .technicalGroup("Team1")
+                        .version("1.0")
+                        .trainingAudience(1)
+                        .topicOutline("Topic Outline 1")
+                        .trainingMaterials("Training Materials 1")
+                        .trainingPrinciples("Training Principles 1")
+                        .priority("High")
+                        .publishStatus("Published")
+                        .createdBy("User1")
+                        .createdDate(new Date())
+                        .modifiedBy("User1")
+                        .modifiedDate(new Date())
+                        .userID(userDAO.findById(1).orElse(null))
+                        .build());
+
+               syllabusList.add(Syllabus.builder()
+                       .topicCode("TOPIC002")
+                       .topicName("LAB")
+                       .technicalGroup("Team2")
+                       .version("1.0")
+                       .trainingAudience(1)
+                       .topicOutline("Topic Outline 2")
+                       .trainingMaterials("Training Materials 2")
+                       .trainingPrinciples("Training Principles 2")
+                       .priority("High")
+                       .publishStatus("Published")
+                       .createdBy("User1")
+                       .createdDate(new Date())
+                       .modifiedBy("User1")
+                       .modifiedDate(new Date())
+                       .userID(userDAO.findById(2).orElse(null))
+                       .build());
+
+                syllabusDAO.saveAll(syllabusList);
             }
         };
     }
