@@ -67,6 +67,7 @@ public class Class {
     @OneToMany(mappedBy = "classID")
     @JsonManagedReference
     private Set<ClassUser> classUsers = new HashSet<>();
+
     public static ClassBuilder builder() {
         return new ClassBuilder();
     }

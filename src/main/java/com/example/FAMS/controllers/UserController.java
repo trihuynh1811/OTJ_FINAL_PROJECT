@@ -38,7 +38,7 @@ public class UserController {
 
     @DeleteMapping("/delete/{email}")
     @PreAuthorize("hasAnyAuthority('user:delete')")
-    public ResponseEntity<ResponseObject> deletePermission(@PathVariable String email){
+    public ResponseEntity<ResponseObject> deletePermission(@PathVariable String email) {
         return ResponseEntity.ok(userService.deleteUser(email));
     }
 }

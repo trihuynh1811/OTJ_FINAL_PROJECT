@@ -153,7 +153,7 @@ public class FamsApplication {
                         LoginRequest.builder()
                                 .email(userList.get(0).getEmail())
                                 .password("1")
-                        .build()).getToken());
+                                .build()).getToken());
                 System.out.println("CLASS_ADMIN Token: " + authenticationService.login(
                         LoginRequest.builder()
                                 .email(userList.get(1).getEmail())

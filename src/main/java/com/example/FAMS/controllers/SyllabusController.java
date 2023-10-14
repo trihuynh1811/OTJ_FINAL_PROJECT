@@ -49,7 +49,7 @@ public class SyllabusController {
     @PostMapping("/create/{type}")
     @PreAuthorize("hasAuthority('syllabus:create')")
     public ResponseEntity<List<Syllabus>> create(@PathVariable("type") String type, @RequestBody JsonNode request, Authentication authentication) {
-        switch(type){
+        switch (type) {
             case "general":
 //                String topicName = request.get("topic_name").asText();
 //                String topicCode = request.get("topic_code").asText();
@@ -96,7 +96,7 @@ public class SyllabusController {
     public ResponseEntity<?> duplicateTopicCode(@PathVariable String topicCode) {
         Syllabus updatesyllabusRequest = syllabusService.duplicateSyllabus(topicCode + "_[0-9]");
         boolean check = true;
-        if(updatesyllabusRequest == null){
+        if (updatesyllabusRequest == null) {
             updatesyllabusRequest = syllabusService.getSyllabusById(topicCode);
             check = false;
         }
@@ -119,11 +119,10 @@ public class SyllabusController {
         syllabusexits.setModifiedDate(new Date());
         topicCode = updatesyllabusRequest.getTopicCode();
         String topicCodeClone = "";
-        if(check){
+        if (check) {
             int index = topicCode.lastIndexOf('_');
-            topicCodeClone = topicCode.substring(0,index + 1) + (Integer.parseInt(topicCode.substring(index + 1)) + 1);
-        }
-        else {
+            topicCodeClone = topicCode.substring(0, index + 1) + (Integer.parseInt(topicCode.substring(index + 1)) + 1);
+        } else {
             topicCodeClone += topicCode + "_1";
         }
         syllabusexits.setTopicCode(topicCodeClone);
@@ -131,13 +130,12 @@ public class SyllabusController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchSyllabus(@RequestParam(name = "createdDate",required = false)
+    public ResponseEntity<?> searchSyllabus(@RequestParam(name = "createdDate", required = false)
                                             String createdDate,
-                                            @RequestParam(name = "searchValue",required = false)
+                                            @RequestParam(name = "searchValue", required = false)
                                             String searchValue,
-                                            @RequestParam(name = "orderBy",required = false)
-                                            String orderBy)
-    {
+                                            @RequestParam(name = "orderBy", required = false)
+                                            String orderBy) {
         List<Syllabus> syllabusList = syllabusService.searchSyllabus(createdDate, searchValue, orderBy);
         return ResponseEntity.ok(syllabusList);
     }

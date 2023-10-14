@@ -14,8 +14,8 @@ import java.util.Optional;
 public interface UserDAO extends JpaRepository<User, Integer> {
 
     @Query("""
-        SELECT Us FROM User Us WHERE Us.email = :email AND Us.status = true
-""")
+                    SELECT Us FROM User Us WHERE Us.email = :email AND Us.status = true
+            """)
     Optional<User> findByEmail(String email);
 
     Optional<UserDTO> findUserByEmail(String email);
@@ -24,8 +24,8 @@ public interface UserDAO extends JpaRepository<User, Integer> {
 
     <T> List<T> findBy(Class<T> classType);
 
-        @Query(value = "SELECT u.user_id as 'userId', u.name, u.email, u.phone, u.dob, u.gender, u.created_by as 'createdBy', u.modified_by as 'modifiedBy', u.is_active as 'status', p.role\n" +
-                "FROM users as u INNER JOIN user_permission as p on u.role = p.permission_id \n" +
-                "WHERE u.is_active = true", nativeQuery = true)
+    @Query(value = "SELECT u.user_id as 'userId', u.name, u.email, u.phone, u.dob, u.gender, u.created_by as 'createdBy', u.modified_by as 'modifiedBy', u.is_active as 'status', p.role\n" +
+            "FROM users as u INNER JOIN user_permission as p on u.role = p.permission_id \n" +
+            "WHERE u.is_active = true", nativeQuery = true)
     List<ListUserResponse> getAllUsersWithRole();
 }

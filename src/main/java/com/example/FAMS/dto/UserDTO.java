@@ -6,26 +6,26 @@ import java.util.Date;
 
 public interface UserDTO {
 
-    public String getName() ;
+    String getName();
 
-    public String getEmail();
+    String getEmail();
 
-    public String getPhone();
+    String getPhone();
 
-    public Date getDob() ;
+    Date getDob();
 
-    public String getGender();
+    String getGender();
 
-    public UserPermission getRole() ;
+    UserPermission getRole();
 
-    public boolean isStatus() ;
+    boolean isStatus();
 
-    public String getCreatedBy();
+    String getCreatedBy();
 
-    public Date getCreatedDate() ;
+    Date getCreatedDate();
 
-    public String getModifiedBy() ;
+    String getModifiedBy();
 
-    public Date getModifiedDate() ;
+    Date getModifiedDate();
 
 }
