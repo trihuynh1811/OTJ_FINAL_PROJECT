@@ -27,6 +27,14 @@ public class UserController {
         return userService.getAll();
     }
 
+    @GetMapping("/pagination")
+    @PreAuthorize("hasAuthority('user:read')")
+    public ResponseEntity<ResponseObject> getPagination(
+            @RequestParam(defaultValue = "0", name = "pageNo") Integer pageNo
+    ) {
+        return userService.pagination(pageNo);
+    }
+
     @PutMapping("/update-user/{userEmail}")
     @PreAuthorize("hasAuthority('user:update')")
     public ResponseEntity<UpdateResponse> updateUserRequest(

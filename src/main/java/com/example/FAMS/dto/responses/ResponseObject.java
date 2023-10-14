@@ -12,5 +12,12 @@ import lombok.NoArgsConstructor;
 public class ResponseObject {
     private String status;
     private String message;
+    private int numberOfPage;
     private Object payload;
+
+    public ResponseObject(String status, String message, Object payload) {
+        this.status = status;
+        this.message = message;
+        this.payload = payload;
+    }
 }
