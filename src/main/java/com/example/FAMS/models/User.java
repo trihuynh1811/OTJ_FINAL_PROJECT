@@ -6,19 +6,24 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Data
-@Getter
-@Setter
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
@@ -49,8 +54,8 @@ public class User implements UserDetails {
     @Column(name = "gender", nullable = false)
     private String gender;
 
-    @Column(name = "status", nullable = false)
-    private String status;
+    @Column(name = "isActive", nullable = false)
+    private boolean status;
 
     @Column(name = "created_by", nullable = false)
     private String createdBy;
@@ -65,15 +70,16 @@ public class User implements UserDetails {
     private Date modifiedDate;
 
     @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
     private final Set<ClassUser> classUsers = new HashSet<>();
 
-    @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "role", referencedColumnName = "role")
+    @JoinColumn(name = "role")
+    @JsonIgnore
     @JsonManagedReference
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private UserPermission userPermission;
+    private UserPermission role;
 
     @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonBackReference
@@ -90,7 +96,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return userPermission.getRole().getAuthorities();
+        return role.getAuthorities();
     }
 
     @Override
@@ -122,4 +128,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }
