@@ -7,11 +7,11 @@ public class TxtFileHandler {
 
     private static final String filePath = "src/main/java/com/example/FAMS/files/MailFormat.txt";
 
-    public static String readMailFormatFile(String password) throws Exception{
+    public static String readMailFormatFile(String password) throws Exception {
         BufferedReader br = new BufferedReader(new FileReader(filePath));
         StringBuilder result = new StringBuilder();
         String line;
-        while((line = br.readLine()) != null){
+        while ((line = br.readLine()) != null) {
             result.append(line).append("\n");
         }
         String[] arr = result.toString().split("@@@@@@@@######");

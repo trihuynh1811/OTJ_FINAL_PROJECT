@@ -16,6 +16,4 @@ public class UpdateSyllabusResponse {
     private Syllabus updateSyllabus;
 
 
-
-
 }

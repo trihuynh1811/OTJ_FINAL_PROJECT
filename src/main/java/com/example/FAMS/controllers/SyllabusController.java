@@ -50,6 +50,7 @@ public class SyllabusController {
     }
 
     @PostMapping("/importCSV")
+    @PreAuthorize("hasAuthority('syllabus:import')")
     public ResponseEntity<?> loadDataInFile(@RequestParam("file") MultipartFile file) throws IOException {
         if (!file.isEmpty()) {
             List<Syllabus> syllabus = syllabusService.processDataFromCSV(file);
@@ -61,14 +62,14 @@ public class SyllabusController {
 
     @PostMapping("/create/{type}")
     @PreAuthorize("hasAuthority('syllabus:create')")
-    public ResponseEntity<String> create(@PathVariable("type") String type, @RequestBody CreateSyllabusGeneralRequest request, Authentication authentication){
+    public ResponseEntity<String> create(@PathVariable("type") String type, @RequestBody CreateSyllabusGeneralRequest request, Authentication authentication) {
         int result = -1;
 //        log.info(syllabusDAO.findById(request.getTopicCode()).get());
-        switch(type){
+        switch (type) {
             case "general":
                 log.info(authentication.getPrincipal());
                 result = syllabusService.createSyllabusGeneral(request, authentication);
-                if(result == 1){
+                if (result == 1) {
                     return ResponseEntity.status(418).body("syllabus is duplicated, change it or else.");
                 }
                 return ResponseEntity.status(200).body("syllabus created.");
@@ -86,7 +87,6 @@ public class SyllabusController {
     }
 
 
-
     @GetMapping("/draft/create/{type}")
     @PreAuthorize("hasAuthority('syllabus:create')")
     public ResponseEntity<List<Syllabus>> draftCreate(@PathVariable("type") String type) {
@@ -94,6 +94,7 @@ public class SyllabusController {
     }
 
     @PutMapping("/update/{topicCode}")
+    @PreAuthorize("hasAuthority('syllabus:update')")
     public ResponseEntity<Syllabus> updateSyllabusRequest(@PathVariable String topicCode, @RequestBody UpdateSyllabusRequest updateSyllabusRequest) {
         Syllabus updatedSyllabus = syllabusService.updateSyllabus(updateSyllabusRequest);
         if (updatedSyllabus != null) {
@@ -104,6 +105,7 @@ public class SyllabusController {
     }
 
     @GetMapping("/search/{topicCode}")
+    @PreAuthorize("hasAuthority('syllabus:read')")
     public ResponseEntity<?> getSyllabusById(@PathVariable String topicCode) {
         Syllabus syllabus = syllabusService.getSyllabusById(topicCode);
         if (syllabus != null) {
@@ -114,10 +116,11 @@ public class SyllabusController {
     }
 
     @GetMapping("/duplicate/{topicCode}")
+    @PreAuthorize("hasAuthority('syllabus:update')")
     public ResponseEntity<?> duplicateTopicCode(@PathVariable String topicCode) {
         Syllabus updatesyllabusRequest = syllabusService.duplicateSyllabus(topicCode + "_[0-9]");
         boolean check = true;
-        if(updatesyllabusRequest == null){
+        if (updatesyllabusRequest == null) {
             updatesyllabusRequest = syllabusService.getSyllabusById(topicCode);
             check = false;
         }
@@ -140,11 +143,10 @@ public class SyllabusController {
         syllabusexits.setModifiedDate(new Date());
         topicCode = updatesyllabusRequest.getTopicCode();
         String topicCodeClone = "";
-        if(check){
+        if (check) {
             int index = topicCode.lastIndexOf('_');
-            topicCodeClone = topicCode.substring(0,index + 1) + (Integer.parseInt(topicCode.substring(index + 1)) + 1);
-        }
-        else {
+            topicCodeClone = topicCode.substring(0, index + 1) + (Integer.parseInt(topicCode.substring(index + 1)) + 1);
+        } else {
             topicCodeClone += topicCode + "_1";
         }
         syllabusexits.setTopicCode(topicCodeClone);
@@ -152,13 +154,14 @@ public class SyllabusController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchSyllabus(@RequestParam(name = "createdDate",required = false)
-                                            String createdDate,
-                                            @RequestParam(name = "searchValue",required = false)
-                                            String searchValue,
-                                            @RequestParam(name = "orderBy",required = false)
-                                            String orderBy)
-    {
+    @PreAuthorize("hasAuthority('syllabus:read')")
+    public ResponseEntity<?> searchSyllabus(
+            @RequestParam(name = "createdDate", required = false)
+            String createdDate,
+            @RequestParam(name = "searchValue", required = false)
+            String searchValue,
+            @RequestParam(name = "orderBy", required = false)
+            String orderBy) {
         List<Syllabus> syllabusList = syllabusService.searchSyllabus(createdDate, searchValue, orderBy);
         return ResponseEntity.ok(syllabusList);
     }

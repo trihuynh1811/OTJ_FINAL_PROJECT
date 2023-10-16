@@ -27,6 +27,14 @@ public class UserController {
         return userService.getAll();
     }
 
+    @GetMapping("/pagination")
+    @PreAuthorize("hasAuthority('user:read')")
+    public ResponseEntity<ResponseObject> getPagination(
+            @RequestParam(defaultValue = "0", name = "pageNo") Integer pageNo
+    ) {
+        return userService.pagination(pageNo);
+    }
+
     @PutMapping("/update-user/{userEmail}")
     @PreAuthorize("hasAuthority('user:update')")
     public ResponseEntity<UpdateResponse> updateUserRequest(
@@ -38,7 +46,7 @@ public class UserController {
 
     @DeleteMapping("/delete/{email}")
     @PreAuthorize("hasAnyAuthority('user:delete')")
-    public ResponseEntity<ResponseObject> deletePermission(@PathVariable String email){
+    public ResponseEntity<ResponseObject> deletePermission(@PathVariable String email) {
         return ResponseEntity.ok(userService.deleteUser(email));
     }
 }

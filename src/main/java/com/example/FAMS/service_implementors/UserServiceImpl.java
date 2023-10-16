@@ -15,6 +15,9 @@ import com.example.FAMS.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -44,6 +47,20 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             userList = Collections.emptyList();
             return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
+        }
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> pagination(int pageNo) {
+        int totalPage = getNumberOfUsers();
+
+        Pageable paging = PageRequest.of(pageNo, 2);
+        Page<ListUserResponse> pagedResult = userDAO.findAllUsersBy(paging);
+
+        if(pagedResult.hasContent()) {
+            return ResponseEntity.ok(new ResponseObject("Successful", "null", totalPage, pagedResult.getContent()));
+        } else {
+            return ResponseEntity.ok(new ResponseObject("Failed", "null", totalPage, pagedResult.getContent()));
         }
     }
 
@@ -173,5 +190,9 @@ public class UserServiceImpl implements UserService {
                 .message("Delete user failed")
                 .payload("User " + deletedUserEmail + " not found")
                 .build();
+    }
+
+    public int getNumberOfUsers() {
+        return userDAO.countAllByStatusIs(true);
     }
 }

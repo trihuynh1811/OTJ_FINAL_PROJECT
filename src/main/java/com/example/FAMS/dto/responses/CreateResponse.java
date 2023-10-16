@@ -1,6 +1,5 @@
 package com.example.FAMS.dto.responses;
 
-import com.example.FAMS.dto.UserDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

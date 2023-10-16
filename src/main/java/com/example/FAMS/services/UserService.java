@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 public interface UserService {
     ResponseEntity<ResponseObject> getAll();
 
+    ResponseEntity<ResponseObject> pagination(int pageNo);
+
     UpdateResponse updateUser(String userEmail, UpdateRequest updateRequest);
 
     ResponseObject deleteUser(String mail);
