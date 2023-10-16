@@ -70,6 +70,7 @@ public class Syllabus {
 
     @OneToMany(mappedBy = "topicCode")
     @JsonManagedReference
+    @JsonIgnore
     private final Set<TrainingProgramSyllabus> tps = new HashSet<>();
 
     @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL)

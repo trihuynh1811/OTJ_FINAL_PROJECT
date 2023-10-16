@@ -60,7 +60,7 @@ public class FamsApplication {
 //				}
 //
 //				standardOutputDAO.saveAll(standardOutputList);
-
+//
 //				List<UserPermission> userPermissionList = new ArrayList<>();
 //
 //				userPermissionList.add(
@@ -84,9 +84,9 @@ public class FamsApplication {
 //								.build()
 //				);
 //				userPermissionDAO.saveAll(userPermissionList);
-
-
-
+//
+//
+//
 //				List<User> userList = new ArrayList<>();
 //				User admin = User.builder()
 //						.email("admin@gmail.com")
