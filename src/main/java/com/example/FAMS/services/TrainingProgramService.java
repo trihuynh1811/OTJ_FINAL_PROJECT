@@ -5,7 +5,7 @@ import com.example.FAMS.dto.responses.TrainingProgramDTO;
 import org.springframework.http.ResponseEntity;
 
 public interface TrainingProgramService {
-    ResponseEntity<ResponseObject> createTrainingProgram(TrainingProgramDTO trainingProgramDTO, int trainerID);
+    ResponseEntity<ResponseObject> createTrainingProgram(TrainingProgramDTO trainingProgramDTO, int trainerID, String topicCode);
 
     ResponseEntity<ResponseObject> getAll();
 }

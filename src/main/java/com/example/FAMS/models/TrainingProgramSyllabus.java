@@ -7,8 +7,7 @@ import lombok.*;
 
 @Entity
 @Builder
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "TrainingProgramSyllabuses")
@@ -17,7 +16,7 @@ public class TrainingProgramSyllabus {
     @EmbeddedId
     SyllabusTrainingProgramCompositeKey id;
 
-    @ManyToOne(cascade = CascadeType.MERGE, optional = false)
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.EAGER)
     @MapsId("topicCode")
     @JoinColumn(name = "topic_code", referencedColumnName = "topic_code")
     @EqualsAndHashCode.Exclude
@@ -26,9 +25,12 @@ public class TrainingProgramSyllabus {
     private Syllabus topicCode;
 
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.EAGER)
     @MapsId("trainingProgramCode")
-    @JoinColumn(name = "training_programs_code")
+    @JoinColumn(name = "training_program_code", referencedColumnName = "training_program_code")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
     private TrainingProgram trainingProgramCode;
 
     @Column(name = "sequence", nullable = false)

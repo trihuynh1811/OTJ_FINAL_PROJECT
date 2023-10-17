@@ -19,9 +19,10 @@ public class TrainingProgramController {
     @PreAuthorize("hasAuthority('user:create')")
     public ResponseEntity<ResponseObject> createTrainingProgram(
             @RequestBody TrainingProgramDTO trainingProgramDTO,
-            @RequestParam(name = "trainerID") int trainerID
+            @RequestParam(name = "trainerID") int trainerID,
+            @RequestParam(name = "topicCode") String topicCode
     ) {
-        return trainingProgram.createTrainingProgram(trainingProgramDTO, trainerID);
+        return trainingProgram.createTrainingProgram(trainingProgramDTO, trainerID, topicCode);
     }
 
     @GetMapping("/get-all")
@@ -29,4 +30,6 @@ public class TrainingProgramController {
     public ResponseEntity<ResponseObject> getAllTrainingProgram() {
         return trainingProgram.getAll();
     }
+
+
 }
