@@ -1,9 +1,12 @@
 package com.example.FAMS.service_implementors;
 
+
 import com.example.FAMS.dto.requests.UpdateClassRequest;
 import com.example.FAMS.dto.responses.UpdateClassResponse;
 import com.example.FAMS.models.Class;
+import com.example.FAMS.models.TrainingProgram;
 import com.example.FAMS.repositories.ClassDAO;
+import com.example.FAMS.repositories.TrainingProgramDAO;
 import com.example.FAMS.services.ClassService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ public class ClassServiceImpl implements ClassService {
 
     @Autowired
     ClassDAO classDAO;
+    TrainingProgramDAO trainingProgramDAO;
 
     @Override
     public List<Class> getClasses() {
@@ -97,4 +101,6 @@ public class ClassServiceImpl implements ClassService {
         Optional<Class> optionalClass = classDAO.findById(classId);
         return optionalClass.orElse(null);
     }
+
+
 }
