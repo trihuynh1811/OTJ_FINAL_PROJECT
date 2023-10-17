@@ -8,9 +8,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Time;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Timer;
 
 @Entity
 @Data
@@ -36,6 +38,12 @@ public class Class {
 
     @Column(name = "duration", nullable = false)
     private String duration;
+
+    @Column(name = "time_from", nullable = false)
+    private Time timeFrom;
+
+    @Column(name = "time_to", nullable = false)
+    private Time timeTo;
 
     @Column(name = "status", nullable = false)
     private String status;
@@ -167,8 +175,8 @@ public class Class {
             return this;
         }
 
-        public Class build() {
-            return new Class(classId, trainingProgram, className, classCode, duration, status, location, fsu, startDate, endDate, createdBy, createdDate, modifiedBy, modifiedDate, classUsers);
-        }
+//        public Class build() {
+//            return new Class(classId, trainingProgram, className, classCode, duration, status, location, fsu, startDate, endDate, createdBy, createdDate, modifiedBy, modifiedDate, classUsers);
+//        }
     }
 }

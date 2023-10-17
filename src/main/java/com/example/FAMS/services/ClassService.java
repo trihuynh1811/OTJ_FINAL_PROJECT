@@ -3,6 +3,8 @@ package com.example.FAMS.services;
 import com.example.FAMS.dto.requests.UpdateClassRequest;
 import com.example.FAMS.dto.responses.UpdateClassResponse;
 import com.example.FAMS.models.Class;
+import com.example.FAMS.models.Syllabus;
+import com.example.FAMS.models.TrainingProgram;
 
 import java.sql.Date;
 import java.util.List;
@@ -17,4 +19,6 @@ public interface ClassService {
     UpdateClassResponse updateClass(UpdateClassRequest updateClassRequest);
 
     Class getClassById(int classId);
+
+
 }
