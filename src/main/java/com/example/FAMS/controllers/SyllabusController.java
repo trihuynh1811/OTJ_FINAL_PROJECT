@@ -9,14 +9,18 @@ import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.service_implementors.SyllabusServiceImpl;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Date;
 import java.util.List;
 
@@ -50,13 +54,32 @@ public class SyllabusController {
     }
 
     @PostMapping("/importCSV")
-    @PreAuthorize("hasAuthority('syllabus:import')")
     public ResponseEntity<?> loadDataInFile(@RequestParam("file") MultipartFile file) throws IOException {
         if (!file.isEmpty()) {
             List<Syllabus> syllabus = syllabusService.processDataFromCSV(file);
             return ResponseEntity.ok(syllabus);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded.");
+        }
+    }
+
+    @PostMapping("/downloadCSV")
+    public ResponseEntity<byte[]> downloadFile() throws IOException {
+        syllabusService.downloadCSV();
+
+        String computerAccountName = System.getProperty("user.name");
+        File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/Template.csv");
+
+        if (csvFile.exists()) {
+            byte[] data = Files.readAllBytes(csvFile.toPath());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType("text/csv"));
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Template.csv");
+
+            return ResponseEntity.ok().headers(headers).body(data);
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to read CSV file.".getBytes());
         }
     }
 

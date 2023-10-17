@@ -50,20 +50,20 @@ public class FamsApplication {
         return new CommandLineRunner() {
             @Override
             public void run(String... args) throws Exception {
-                if (standardOutputDAO.findAll().size() == 0) {
-                    List<StandardOutput> standardOutputList = new ArrayList<>();
-                    String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
-                    for (int i = 0; i < objectiveCode.length; i++) {
-                        StandardOutput standardOutput = StandardOutput.builder()
-                                .outputCode(objectiveCode[i].toUpperCase())
-                                .outputName(objectiveCode[i])
-                                .description("some bs description.")
-                                .build();
-
-                        standardOutputList.add(standardOutput);
-                    }
-                    standardOutputDAO.saveAll(standardOutputList);
-                }
+//                if (standardOutputDAO.findAll().size() == 0) {
+//                    List<StandardOutput> standardOutputList = new ArrayList<>();
+//                    String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
+//                    for (int i = 0; i < objectiveCode.length; i++) {
+//                        StandardOutput standardOutput = StandardOutput.builder()
+//                                .outputCode(objectiveCode[i].toUpperCase())
+//                                .outputName(objectiveCode[i])
+//                                .description("some bs description.")
+//                                .build();
+//
+//                        standardOutputList.add(standardOutput);
+//                    }
+//                    standardOutputDAO.saveAll(standardOutputList);
+//                }
                 if (userPermissionDAO.findAll().size() == 0) {
                     List<UserPermission> permissionList = new ArrayList<>();
                     permissionList.add(UserPermission.builder()
@@ -192,46 +192,46 @@ public class FamsApplication {
                                     .password("1")
                                     .build()).getToken());
                 }
-                if (syllabusDAO.findAll().size() == 0) {
-                    List<Syllabus> syllabusList = new ArrayList<>();
-                    syllabusList.add(Syllabus.builder()
-                            .topicCode("TOPIC001")
-                            .topicName("OOP")
-                            .technicalGroup("Team1")
-                            .version("1.0")
-                            .trainingAudience(1)
-                            .topicOutline("Topic Outline 1")
-                            .trainingMaterials("Training Materials 1")
-                            .trainingPrinciples("Training Principles 1")
-                            .priority("High")
-                            .publishStatus("Published")
-                            .createdBy("User1")
-                            .createdDate(new Date())
-                            .modifiedBy("User1")
-                            .modifiedDate(new Date())
-                            .userID(userDAO.findById(1).orElse(null))
-                            .courseObjective("IDK")
-                            .build());
-                    syllabusList.add(Syllabus.builder()
-                            .topicCode("TOPIC002")
-                            .topicName("LAB")
-                            .technicalGroup("Team2")
-                            .version("1.0")
-                            .trainingAudience(1)
-                            .topicOutline("Topic Outline 2")
-                            .trainingMaterials("Training Materials 2")
-                            .trainingPrinciples("Training Principles 2")
-                            .priority("High")
-                            .publishStatus("Published")
-                            .createdBy("User1")
-                            .createdDate(new Date())
-                            .modifiedBy("User1")
-                            .modifiedDate(new Date())
-                            .userID(userDAO.findById(2).orElse(null))
-                            .courseObjective("IDK")
-                            .build());
-                    syllabusDAO.saveAll(syllabusList);
-                }
+//                if (syllabusDAO.findAll().size() == 0) {
+//                    List<Syllabus> syllabusList = new ArrayList<>();
+//                    syllabusList.add(Syllabus.builder()
+//                            .topicCode("TOPIC001")
+//                            .topicName("OOP")
+//                            .technicalGroup("Team1")
+//                            .version("1.0")
+//                            .trainingAudience(1)
+//                            .topicOutline("Topic Outline 1")
+//                            .trainingMaterials("Training Materials 1")
+//                            .trainingPrinciples("Training Principles 1")
+//                            .priority("High")
+//                            .publishStatus("Published")
+//                            .createdBy("User1")
+//                            .createdDate(new Date())
+//                            .modifiedBy("User1")
+//                            .modifiedDate(new Date())
+//                            .userID(userDAO.findById(1).orElse(null))
+//                            .courseObjective("IDK")
+//                            .build());
+//                    syllabusList.add(Syllabus.builder()
+//                            .topicCode("TOPIC002")
+//                            .topicName("LAB")
+//                            .technicalGroup("Team2")
+//                            .version("1.0")
+//                            .trainingAudience(1)
+//                            .topicOutline("Topic Outline 2")
+//                            .trainingMaterials("Training Materials 2")
+//                            .trainingPrinciples("Training Principles 2")
+//                            .priority("High")
+//                            .publishStatus("Published")
+//                            .createdBy("User1")
+//                            .createdDate(new Date())
+//                            .modifiedBy("User1")
+//                            .modifiedDate(new Date())
+//                            .userID(userDAO.findById(2).orElse(null))
+//                            .courseObjective("IDK")
+//                            .build());
+//                    syllabusDAO.saveAll(syllabusList);
+//                }
             }
         };
     }

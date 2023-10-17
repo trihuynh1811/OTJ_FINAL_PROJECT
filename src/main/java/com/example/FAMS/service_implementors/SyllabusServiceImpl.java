@@ -21,9 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.common.base.Strings;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -357,9 +355,14 @@ public class SyllabusServiceImpl implements SyllabusService {
         List<Syllabus> syllabusList = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
+            boolean firstLine = true;
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
             while ((line = reader.readLine()) != null) {
+                if (firstLine) {
+                    firstLine = false; // Đây là dòng đầu tiên, bỏ qua nó
+                    continue;
+                }
                 String[] data = line.split(",");
                 Syllabus c = new Syllabus();
 
@@ -388,6 +391,24 @@ public class SyllabusServiceImpl implements SyllabusService {
             e.printStackTrace();
         }
         return syllabusList;
+    }
+
+    public void downloadCSV() throws IOException {
+        String computerAccountName = System.getProperty("user.name");
+
+        File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/Template.csv");
+
+        // Sử dụng FileWriter để ghi vào tệp CSV
+        FileWriter fileWriter = new FileWriter(csvFile, false); // Use false to overwrite the file
+
+        // Sử dụng BufferedWriter để ghi dữ liệu vào tệp CSV
+        BufferedWriter out = new BufferedWriter(fileWriter);
+
+        // Thêm nội dung vào tệp
+        out.write("Sysllabus Name, Code, Created on, Created by, Duration, Output standard, Status");
+        out.newLine(); // Xuống dòng
+        // Đóng BufferedWriter
+        out.close();
     }
 
     @Override
