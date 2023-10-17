@@ -64,5 +64,4 @@ public class TrainingProgram {
     @JsonManagedReference
     private final Set<Class> classes = new HashSet<>();
 
-
 }

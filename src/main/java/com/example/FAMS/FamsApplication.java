@@ -232,6 +232,8 @@ public class FamsApplication {
                             .build());
                     syllabusDAO.saveAll(syllabusList);
                 }
+
+
             }
         };
     }
