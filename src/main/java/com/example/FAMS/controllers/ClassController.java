@@ -82,4 +82,9 @@ public class ClassController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/listClass")
+    public ResponseEntity<?> getall(){
+        return ResponseEntity.ok(classService.getAll());
+    }
 }

@@ -102,5 +102,10 @@ public class ClassServiceImpl implements ClassService {
         return optionalClass.orElse(null);
     }
 
+    @Override
+    public List<Class> getAll() {
+        return classDAO.getAll();
+    }
+
 
 }

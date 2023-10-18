@@ -20,5 +20,5 @@ public interface ClassService {
 
     Class getClassById(int classId);
 
-
+    List<Class> getAll();
 }
