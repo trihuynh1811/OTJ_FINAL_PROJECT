@@ -1,8 +1,11 @@
 package com.example.FAMS.services;
 
 import com.example.FAMS.dto.requests.UpdateClassRequest;
-import com.example.FAMS.dto.responses.UpdateClassResponse;
+import com.example.FAMS.dto.responses.Class.ClassDetailResponse;
+import com.example.FAMS.dto.responses.Class.DeactivateClassResponse;
+import com.example.FAMS.dto.responses.Class.UpdateClassResponse;
 import com.example.FAMS.models.Class;
+import org.springframework.http.ResponseEntity;
 
 import java.sql.Date;
 import java.util.List;
@@ -10,11 +13,13 @@ import java.util.List;
 public interface ClassService {
     List<Class> getClasses();
 
-    List<Class> getDetailClass();
+    ResponseEntity<ClassDetailResponse> getClassDetail(String classCode) throws InterruptedException;
 
-    Class createClass(String className, String classCode, String duration, String location, Date startDate, Date endDate, String createdBy);
+    Class createClass(String className, String classCode, int duration, String location, Date startDate, Date endDate, String createdBy);
 
     UpdateClassResponse updateClass(UpdateClassRequest updateClassRequest);
 
-    Class getClassById(int classId);
+    ResponseEntity<DeactivateClassResponse> deactivateClass(String classCode, boolean deactivated);
+
+    Class getClassById(String classId);
 }

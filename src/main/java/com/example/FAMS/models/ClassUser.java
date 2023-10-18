@@ -2,11 +2,9 @@ package com.example.FAMS.models;
 
 
 import com.example.FAMS.models.composite_key.ClassUserCompositeKey;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.transaction.annotation.Transactional;
 
 @Entity
@@ -20,14 +18,20 @@ public class ClassUser {
     @EmbeddedId
     ClassUserCompositeKey id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
     @MapsId("classId")
     @JoinColumn(name = "class_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
     private Class classID;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "users_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
     private User userID;
 
     @Column(nullable = false)

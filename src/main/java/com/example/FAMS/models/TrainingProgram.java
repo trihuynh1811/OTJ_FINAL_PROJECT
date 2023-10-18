@@ -1,5 +1,6 @@
 package com.example.FAMS.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -12,12 +13,15 @@ import java.util.Set;
 
 @Entity
 @Builder
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "TrainingPrograms")
+@Table(name = "TrainingPrograms",  uniqueConstraints = {
+        @UniqueConstraint(
+                name = "training_program_name_constraint",
+                columnNames = "name"
+        )
+})
 public class TrainingProgram {
 
     @Id
@@ -25,13 +29,14 @@ public class TrainingProgram {
     @Column(name = "training_program_code")
     private int trainingProgramCode;
 
+
     @Column(nullable = false, name = "name")
     private String name;
 
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
-    @JsonManagedReference
+    @JsonBackReference
     @ToString.Exclude
     private User userID;
 
@@ -51,16 +56,16 @@ public class TrainingProgram {
     private Date createdDate;
 
     @Column(name = "modified_by")
-    private String modifiedBy;
+    private String modifiedBy = "";
 
     @Column(name = "modified_date")
-    private Date modifiedDate;
+    private Date modifiedDate = null;
 
-    @OneToMany(mappedBy = "trainingProgramCode")
+    @OneToMany(mappedBy = "trainingProgramCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private final Set<TrainingProgramSyllabus> trainingProgramSyllabus = new HashSet<>();
 
-    @OneToMany(mappedBy = "trainingProgram")
+    @OneToMany(mappedBy = "trainingProgram", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private final Set<Class> classes = new HashSet<>();
 

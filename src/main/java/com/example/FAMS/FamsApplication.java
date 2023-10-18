@@ -3,14 +3,11 @@ package com.example.FAMS;
 import com.example.FAMS.dto.UserDTO;
 import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.enums.Role;
-import com.example.FAMS.models.StandardOutput;
-import com.example.FAMS.models.Syllabus;
-import com.example.FAMS.models.User;
-import com.example.FAMS.models.UserPermission;
-import com.example.FAMS.repositories.StandardOutputDAO;
-import com.example.FAMS.repositories.SyllabusDAO;
-import com.example.FAMS.repositories.UserDAO;
-import com.example.FAMS.repositories.UserPermissionDAO;
+import com.example.FAMS.models.*;
+import com.example.FAMS.models.Class;
+import com.example.FAMS.models.composite_key.ClassUserCompositeKey;
+import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
+import com.example.FAMS.repositories.*;
 import com.example.FAMS.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -40,6 +37,10 @@ public class FamsApplication {
     private final AuthenticationService authenticationService;
     private final StandardOutputDAO standardOutputDAO;
     private final SyllabusDAO syllabusDAO;
+    private final ClassDAO classDAO;
+    private final TrainingProgramDAO trainingProgramDAO;
+    private final ClassUserDAO classUserDAO;
+    private final TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
 
     public static void main(String[] args) {
         SpringApplication.run(FamsApplication.class, args);
@@ -192,45 +193,163 @@ public class FamsApplication {
                                     .password("1")
                                     .build()).getToken());
                 }
-                if (syllabusDAO.findAll().size() == 0) {
-                    List<Syllabus> syllabusList = new ArrayList<>();
-                    syllabusList.add(Syllabus.builder()
-                            .topicCode("TOPIC001")
-                            .topicName("OOP")
-                            .technicalGroup("Team1")
-                            .version("1.0")
-                            .trainingAudience(1)
-                            .topicOutline("Topic Outline 1")
-                            .trainingMaterials("Training Materials 1")
-                            .trainingPrinciples("Training Principles 1")
-                            .priority("High")
-                            .publishStatus("Published")
-                            .createdBy("User1")
+                if (trainingProgramDAO.findAll().isEmpty()) {
+                    List<TrainingProgram> trainingPrograms = new ArrayList<>();
+
+                    TrainingProgram trainingProgram = TrainingProgram.builder()
+                            .name("some bs name")
+                            .userID(userDAO.findById(1).get())
+                            .startDate(new Date("2001/9/11"))
+                            .duration(999)
+                            .status("active")
+                            .createdBy("jotaro")
                             .createdDate(new Date())
-                            .modifiedBy("User1")
-                            .modifiedDate(new Date())
-                            .userID(userDAO.findById(1).orElse(null))
-                            .courseObjective("IDK")
-                            .build());
-                    syllabusList.add(Syllabus.builder()
-                            .topicCode("TOPIC002")
-                            .topicName("LAB")
-                            .technicalGroup("Team2")
-                            .version("1.0")
-                            .trainingAudience(1)
-                            .topicOutline("Topic Outline 2")
-                            .trainingMaterials("Training Materials 2")
-                            .trainingPrinciples("Training Principles 2")
-                            .priority("High")
-                            .publishStatus("Published")
-                            .createdBy("User1")
+                            .build();
+                    TrainingProgram trainingProgram1 = TrainingProgram.builder()
+                            .name("some bs name")
+                            .userID(userDAO.findById(2).get())
+                            .startDate(new Date("2001/9/11"))
+                            .duration(999)
+                            .status("inactive")
+                            .createdBy("dio")
                             .createdDate(new Date())
-                            .modifiedBy("User1")
-                            .modifiedDate(new Date())
-                            .userID(userDAO.findById(2).orElse(null))
-                            .courseObjective("IDK")
-                            .build());
-                    syllabusDAO.saveAll(syllabusList);
+                            .build();
+                    TrainingProgram trainingProgram2 = TrainingProgram.builder()
+                            .name("some bs name")
+                            .userID(userDAO.findById(1).get())
+                            .startDate(new Date("2001/9/11"))
+                            .duration(999)
+                            .status("drafting")
+                            .createdBy("jojo")
+                            .createdDate(new Date())
+                            .build();
+
+                    trainingPrograms.add(trainingProgram);
+                    trainingPrograms.add(trainingProgram1);
+                    trainingPrograms.add(trainingProgram2);
+
+                    trainingProgramDAO.saveAll(trainingPrograms);
+                }
+                if (classDAO.findAll().isEmpty()) {
+                    List<Class> classes = new ArrayList<>();
+
+                    Class class_ = Class.builder()
+                            .classId("ayy22_lmao_01")
+                            .className("ayy lmao1")
+                            .duration(999)
+                            .status("planing")
+                            .fsu("hn")
+                            .startDate(new Date("2001/09/11"))
+                            .endDate(new Date("2011/5/2"))
+                            .createdBy("bin laden")
+                            .createdDate(new Date())
+                            .location("your mom house :).")
+                            .trainingProgram(trainingProgramDAO.findAll().get(1))
+                            .build();
+
+                    Class class_1 = Class.builder()
+                            .classId("ayy22_lmao_02")
+                            .className("ayy lmao2")
+                            .duration(999)
+                            .status("completed")
+                            .fsu("hcm")
+                            .startDate(new Date("2001/09/11"))
+                            .endDate(new Date("2011/5/2"))
+                            .createdBy("bin laden")
+                            .createdDate(new Date())
+                            .location("your mom house :).")
+                            .trainingProgram(trainingProgramDAO.findAll().get(0))
+                            .build();
+
+                    Class class_2 = Class.builder()
+                            .classId("ayy22_lmao_03")
+                            .className("ayy lmao3")
+                            .duration(999)
+                            .status("opening")
+                            .fsu("hn")
+                            .startDate(new Date("2001/09/11"))
+                            .endDate(new Date("2011/5/2"))
+                            .createdBy("bin laden")
+                            .createdDate(new Date())
+                            .location("your mom house :).")
+                            .trainingProgram(trainingProgramDAO.findAll().get(0))
+                            .build();
+
+                    classes.add(class_);
+                    classes.add(class_1);
+                    classes.add(class_2);
+
+                    classDAO.saveAll(classes);
+                }
+                if(classUserDAO.findAll().isEmpty()){
+                    List<ClassUser> classUsers = new ArrayList<>();
+                    ClassUser classUser = ClassUser.builder()
+                            .id(ClassUserCompositeKey.builder()
+                                    .classId("ayy22_lmao_01")
+                                    .userId(2)
+                                    .build())
+                            .classID(classDAO.findById("ayy22_lmao_01").get())
+                            .userID(userDAO.findById(2).get())
+                            .userType(userDAO.findById(2).get().getRole().getRole().name())
+                            .build();
+                    ClassUser classUser1 = ClassUser.builder()
+                            .id(ClassUserCompositeKey.builder()
+                                    .classId("ayy22_lmao_01")
+                                    .userId(3)
+                                    .build())
+                            .classID(classDAO.findById("ayy22_lmao_01").get())
+                            .userID(userDAO.findById(3).get())
+                            .userType(userDAO.findById(3).get().getRole().getRole().name())
+                            .build();
+
+                    classUsers.add(classUser);
+                    classUsers.add(classUser1);
+
+                    classUserDAO.saveAll(classUsers);
+                }
+
+                if(trainingProgramSyllabusDAO.findAll().isEmpty()){
+                    List<TrainingProgramSyllabus> trainingProgramSyllabusList = new ArrayList<>();
+
+                    TrainingProgramSyllabus trainingProgramSyllabus = TrainingProgramSyllabus.builder()
+                            .id(SyllabusTrainingProgramCompositeKey.builder()
+                                    .trainingProgramCode(2)
+                                    .topicCode("lmao 1")
+                                    .build())
+                            .trainingProgramCode(trainingProgramDAO.findById(2).get())
+                            .topicCode(syllabusDAO.findById("lmao 1").get())
+                            .build();
+                    TrainingProgramSyllabus trainingProgramSyllabus1 = TrainingProgramSyllabus.builder()
+                            .id(SyllabusTrainingProgramCompositeKey.builder()
+                                    .trainingProgramCode(2)
+                                    .topicCode("lmao 2")
+                                    .build())
+                            .trainingProgramCode(trainingProgramDAO.findById(2).get())
+                            .topicCode(syllabusDAO.findById("lmao 2").get())
+                            .build();
+                    TrainingProgramSyllabus trainingProgramSyllabus2 = TrainingProgramSyllabus.builder()
+                            .id(SyllabusTrainingProgramCompositeKey.builder()
+                                    .trainingProgramCode(2)
+                                    .topicCode("lmao 3")
+                                    .build())
+                            .trainingProgramCode(trainingProgramDAO.findById(2).get())
+                            .topicCode(syllabusDAO.findById("lmao 3").get())
+                            .build();
+                    TrainingProgramSyllabus trainingProgramSyllabus3 = TrainingProgramSyllabus.builder()
+                            .id(SyllabusTrainingProgramCompositeKey.builder()
+                                    .trainingProgramCode(2)
+                                    .topicCode("lmao 4")
+                                    .build())
+                            .trainingProgramCode(trainingProgramDAO.findById(2).get())
+                            .topicCode(syllabusDAO.findById("lmao 4").get())
+                            .build();
+
+                    trainingProgramSyllabusList.add(trainingProgramSyllabus);
+                    trainingProgramSyllabusList.add(trainingProgramSyllabus1);
+                    trainingProgramSyllabusList.add(trainingProgramSyllabus2);
+                    trainingProgramSyllabusList.add(trainingProgramSyllabus3);
+
+                    trainingProgramSyllabusDAO.saveAll(trainingProgramSyllabusList);
                 }
             }
         };

@@ -1,7 +1,9 @@
 package com.example.FAMS.controllers;
 
 import com.example.FAMS.dto.requests.UpdateClassRequest;
-import com.example.FAMS.dto.responses.UpdateClassResponse;
+import com.example.FAMS.dto.responses.Class.ClassDetailResponse;
+import com.example.FAMS.dto.responses.Class.DeactivateClassResponse;
+import com.example.FAMS.dto.responses.Class.UpdateClassResponse;
 import com.example.FAMS.models.Class;
 import com.example.FAMS.service_implementors.ClassServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -74,12 +76,22 @@ public class ClassController {
     }
 
     @GetMapping("/search/{classId}")
-    public ResponseEntity<?> getClassById(@PathVariable int classId) {
+    public ResponseEntity<?> getClassById(@PathVariable String classId) {
         Class classInfo = classService.getClassById(classId);
         if (classInfo != null) {
             return ResponseEntity.ok(classInfo);
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping("/deactivate/{id}")
+    public ResponseEntity<DeactivateClassResponse> deactivateClass(@PathVariable("id") String classCode, @RequestParam(defaultValue = "false", name = "deactivated") boolean deactivated){
+        return classService.deactivateClass(classCode, deactivated);
+    }
+
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<ClassDetailResponse> getClassDetail(@PathVariable("id") String classCode) throws InterruptedException {
+        return classService.getClassDetail(classCode);
     }
 }

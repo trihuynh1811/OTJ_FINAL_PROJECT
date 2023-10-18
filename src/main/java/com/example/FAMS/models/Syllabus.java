@@ -68,17 +68,15 @@ public class Syllabus {
     @Column(name = "course_objective", length = 5000, nullable = false)
     private String courseObjective;
 
-    @OneToMany(mappedBy = "topicCode")
+    @OneToMany(mappedBy = "topicCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    @JsonIgnore
     private final Set<TrainingProgramSyllabus> tps = new HashSet<>();
 
-    @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    @JsonIgnore
     private final Set<TrainingUnit> tu = new HashSet<>();
 
-    @ManyToOne(cascade = CascadeType.MERGE, optional = false)
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "user_syllabus", referencedColumnName = "user_id")
     @JsonIgnore
     @JsonBackReference
@@ -86,22 +84,7 @@ public class Syllabus {
     @EqualsAndHashCode.Exclude
     private User userID;
 
-//    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JoinTable(name = "syllabus_objective",
-//            joinColumns = {@JoinColumn(name = "syllabus_code")},
-//            inverseJoinColumns = {
-//                    @JoinColumn(name = "objective_code", referencedColumnName = "output_code")
-//            }
-//    )
-//    @JsonManagedReference
-//    @JsonIgnore
-//    private Set<StandardOutput> standardOutputs;
-
-//    @OneToMany(mappedBy = "topicCode", cascade = CascadeType.ALL)
-//    @JsonManagedReference
-//    private final Set<LearningObjective> learningObjectives = new HashSet<>();
-
-    @OneToMany(mappedBy = "topicCode", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "topicCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private final Set<SyllabusObjective> syllabusObjectives = new HashSet<>();
 }

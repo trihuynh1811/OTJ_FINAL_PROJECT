@@ -1,7 +1,6 @@
 package com.example.FAMS.models;
 
 
-import com.example.FAMS.enums.Role;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -13,14 +12,11 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Data
@@ -83,10 +79,12 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonBackReference
+    @JsonIgnore
     private final Set<TrainingProgram> trainingPrograms = new HashSet<>();
 
     @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
+    @JsonIgnore
     private final Set<Syllabus> syllabusList = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ClassDAO extends JpaRepository<Class, Integer> {
+public interface ClassDAO extends JpaRepository<Class, String> {
 
     List<Class> findTop1000ByOrderByCreatedDateDesc();
 }

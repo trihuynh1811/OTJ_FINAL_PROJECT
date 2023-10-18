@@ -1,4 +1,4 @@
-package com.example.FAMS.dto.responses;
+package com.example.FAMS.dto.responses.Class;
 
 import com.example.FAMS.models.Class;
 import lombok.AllArgsConstructor;
