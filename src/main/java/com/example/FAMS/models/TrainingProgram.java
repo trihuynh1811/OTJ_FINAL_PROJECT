@@ -56,13 +56,12 @@ public class TrainingProgram {
     @Column(name = "modified_date")
     private Date modifiedDate;
 
-    @OneToMany(mappedBy = "trainingProgramCode")
+    @OneToMany(mappedBy = "trainingProgramCode", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     private final Set<TrainingProgramSyllabus> trainingProgramSyllabus = new HashSet<>();
 
     @OneToMany(mappedBy = "trainingProgram")
     @JsonManagedReference
     private final Set<Class> classes = new HashSet<>();
-
 
 }
