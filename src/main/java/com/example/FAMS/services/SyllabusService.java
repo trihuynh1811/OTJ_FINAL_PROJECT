@@ -20,7 +20,7 @@ public interface SyllabusService {
     public void createSyllabusOther(CreateSyllabusGeneralRequest request);
     List<Syllabus> getDetailSyllabus();
 
-    Syllabus updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest);
+    Syllabus updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest, String topicCode);
 
     Syllabus getSyllabusById(String topicCode);
 

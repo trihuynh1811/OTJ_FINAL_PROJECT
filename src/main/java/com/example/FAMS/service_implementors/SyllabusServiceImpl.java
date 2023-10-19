@@ -298,8 +298,8 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
-    public Syllabus updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest) {
-        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(updatesyllabusRequest.getTopicCode());
+    public Syllabus updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest,String topicCode) {
+        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
         Syllabus syllabusexits = optionalSyllabus.orElse(null);
         if (syllabusexits != null) {
             syllabusexits.setTopicName(updatesyllabusRequest.getTopicName());
