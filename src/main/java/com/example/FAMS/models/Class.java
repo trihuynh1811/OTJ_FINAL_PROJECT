@@ -1,18 +1,15 @@
 package com.example.FAMS.models;
 
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.sql.Time;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Timer;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
@@ -76,6 +73,9 @@ public class Class {
     @JsonManagedReference
     private Set<ClassUser> classUsers = new HashSet<>();
 
+    @OneToMany(mappedBy = "classes")
+    private Set<ClassLearningDay> classLearningDays = new HashSet<>();
+
     public static ClassBuilder builder() {
         return new ClassBuilder();
     }
@@ -96,6 +96,9 @@ public class Class {
         private String modifiedBy;
         private Date modifiedDate;
         private Set<ClassUser> classUsers = new HashSet<>();
+
+        // Thêm Set để biểu diễn ngày học
+        private Set<ClassLearningDay> classLearningDays = new HashSet<>();
 
         ClassBuilder() {
         }
@@ -175,8 +178,10 @@ public class Class {
             return this;
         }
 
-//        public Class build() {
-//            return new Class(classId, trainingProgram, className, classCode, duration, status, location, fsu, startDate, endDate, createdBy, createdDate, modifiedBy, modifiedDate, classUsers);
-//        }
+        // Thêm phương thức để thiết lập danh sách ngày học
+        public ClassBuilder classLearningDays(Set<ClassLearningDay> classLearningDays) {
+            this.classLearningDays = classLearningDays;
+            return this;
+        }
     }
 }

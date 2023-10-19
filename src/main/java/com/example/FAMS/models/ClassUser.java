@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
 
 @Entity
 @Data
@@ -28,8 +27,10 @@ public class ClassUser {
     @ManyToOne
     @MapsId("userId")
     @JoinColumn(name = "users_id")
-    private User userID;
+    private User userID; //ADMIN or MENTOR or STUDENT
 
     @Column(nullable = false)
     private String userType;
+
+
 }

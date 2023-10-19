@@ -1,19 +1,23 @@
 package com.example.FAMS.service_implementors;
 
-
 import com.example.FAMS.dto.requests.UpdateClassRequest;
 import com.example.FAMS.dto.responses.UpdateClassResponse;
 import com.example.FAMS.models.Class;
-import com.example.FAMS.models.TrainingProgram;
+import com.example.FAMS.models.ClassLearningDay; // Thêm ClassLearningDay
 import com.example.FAMS.repositories.ClassDAO;
 import com.example.FAMS.repositories.TrainingProgramDAO;
 import com.example.FAMS.services.ClassService;
+import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ClassServiceImpl implements ClassService {
@@ -48,6 +52,25 @@ public class ClassServiceImpl implements ClassService {
         return classInfo;
     }
 
+    // Thêm phương thức tạo lớp học với danh sách ngày học
+    @Override
+    public Class createClassWithLearningDays(
+            String className, String classCode, String duration, String location, Date startDate, Date endDate, String createdBy, Set<ClassLearningDay> learningDays
+    ) {
+        Class classInfo = Class.builder()
+                .className(className)
+                .classCode(classCode)
+                .duration(duration)
+                .location(location)
+                .startDate(startDate)
+                .endDate(endDate)
+                .createdBy(createdBy)
+                .classLearningDays(learningDays) // Đặt danh sách ngày học
+                .build();
+
+        classDAO.save(classInfo);
+        return classInfo;
+    }
 
     @Override
     public UpdateClassResponse updateClass(UpdateClassRequest updateClassRequest) {
@@ -67,6 +90,7 @@ public class ClassServiceImpl implements ClassService {
                             .createdDate(existingClass.getCreatedDate())
                             .modifiedBy(existingClass.getModifiedBy())
                             .modifiedDate(existingClass.getModifiedDate())
+                            .classLearningDays(existingClass.getClassLearningDays()) // Bổ sung cập nhật danh sách ngày học
                             .build();
 
             Class updatedClass = classDAO.save(existingClass);
@@ -77,14 +101,12 @@ public class ClassServiceImpl implements ClassService {
                         .updatedClass(updatedClass)
                         .build();
             } else {
-                // Xử lý nếu việc cập nhật thất bại
                 return UpdateClassResponse.builder()
                         .status("Update Class failed")
                         .updatedClass(null)
                         .build();
             }
         } else {
-            // Xử lý nếu lớp học không tồn tại
             return UpdateClassResponse.builder()
                     .status("Class not found")
                     .updatedClass(null)
@@ -107,5 +129,30 @@ public class ClassServiceImpl implements ClassService {
         return classDAO.getAll();
     }
 
+    public List<Class> searchClass(String createdDate, String searchValue, String orderBy) {
+        List<Class> classList = classDAO.findAll();
 
+        if (!Strings.isNullOrEmpty(createdDate)) {
+            classList = classList.stream()
+                    .filter(c -> new SimpleDateFormat("yyyy-MM-dd").format(c.getCreatedDate()).equals(createdDate))
+                    .collect(Collectors.toList());
+        }
+
+        if (!Strings.isNullOrEmpty(searchValue)) {
+            classList = classList.stream()
+                    .filter(c -> c.getClassName().toLowerCase().contains(searchValue.trim().toLowerCase())
+                            || c.getClassCode().toLowerCase().contains(searchValue.trim().toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        if (!Strings.isNullOrEmpty(orderBy)) {
+            if (orderBy.equals("asc")) {
+                classList.sort(Comparator.comparing(Class::getClassName));
+            } else if (orderBy.equals("desc")) {
+                classList.sort(Comparator.comparing(Class::getClassName).reversed());
+            }
+        }
+
+        return classList;
+    }
 }
