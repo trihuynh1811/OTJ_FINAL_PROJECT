@@ -1,9 +1,11 @@
 package com.example.FAMS.services;
 
 import com.example.FAMS.dto.requests.UpdateClassRequest;
+import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateClassResponse;
 import com.example.FAMS.models.*;
 import com.example.FAMS.models.Class;
+import org.springframework.http.ResponseEntity;
 
 import java.sql.Date;
 import java.util.List;
@@ -31,4 +33,8 @@ public interface ClassService {
   Class getClassById(int classId);
 
   List<Class> getAll();
+
+  ResponseEntity<ResponseObject> getDayCalendar(java.util.Date currentDate);
+
+  ResponseEntity<ResponseObject> getWeekCalendar(java.util.Date startDate, java.util.Date endDate);
 }

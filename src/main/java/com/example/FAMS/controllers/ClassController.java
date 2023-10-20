@@ -1,6 +1,7 @@
 package com.example.FAMS.controllers;
 
 import com.example.FAMS.dto.requests.UpdateClassRequest;
+import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateClassResponse;
 import com.example.FAMS.models.Class;
 import com.example.FAMS.service_implementors.ClassServiceImpl;
@@ -12,6 +13,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -86,5 +90,22 @@ public class ClassController {
     @GetMapping("/listClass")
     public ResponseEntity<?> getall(){
         return ResponseEntity.ok(classService.getAll());
+
+    }
+
+    @GetMapping("/view-calendar/day")
+    public ResponseEntity<ResponseObject> getDayCalendar(@RequestParam(name = "currentDate") String currentDate) throws ParseException {
+        Date current = new SimpleDateFormat("yyyy-MM-dd").parse(currentDate);
+        return classService.getDayCalendar(current);
+    }
+
+    @GetMapping("/view-calendar/week")
+    public ResponseEntity<ResponseObject> getWeekCalendar(
+            @RequestParam(name = "startDate") String startDate,
+            @RequestParam(name = "endDate") String endDate
+    ) throws ParseException {
+        Date start = new SimpleDateFormat("yyyy-MM-dd").parse(startDate);
+        Date end = new SimpleDateFormat("yyyy-MM-dd").parse(endDate);
+        return classService.getWeekCalendar(start, end);
     }
 }

@@ -211,6 +211,7 @@ public class FamsApplication {
                             .modifiedDate(new Date())
                             .userID(userDAO.findById(1).orElse(null))
                             .courseObjective("IDK")
+                            .numberOfDay(3)
                             .build());
                     syllabusList.add(Syllabus.builder()
                             .topicCode("TOPIC002")
@@ -229,6 +230,7 @@ public class FamsApplication {
                             .modifiedDate(new Date())
                             .userID(userDAO.findById(2).orElse(null))
                             .courseObjective("IDK")
+                            .numberOfDay(3)
                             .build());
                     syllabusDAO.saveAll(syllabusList);
                 }

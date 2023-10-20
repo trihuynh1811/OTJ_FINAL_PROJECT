@@ -1,6 +1,9 @@
 package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.dto.requests.UpdateClassRequest;
+import com.example.FAMS.dto.responses.CalendarDayResponse;
+import com.example.FAMS.dto.responses.CalendarWeekResponse;
+import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateClassResponse;
 import com.example.FAMS.models.Class;
 import com.example.FAMS.models.ClassLearningDay; // Thêm ClassLearningDay
@@ -11,6 +14,8 @@ import com.example.FAMS.repositories.TrainingProgramDAO;
 import com.example.FAMS.services.ClassService;
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -26,6 +31,9 @@ public class ClassServiceImpl implements ClassService {
 
   @Autowired ClassDAO classDAO;
   TrainingProgramDAO trainingProgramDAO;
+
+  List<CalendarDayResponse> dayCalendars;
+  List<CalendarWeekResponse> weekCalendars;
 
   @Override
   public List<Class> getClasses() {
@@ -141,6 +149,26 @@ public class ClassServiceImpl implements ClassService {
   @Override
   public List<Class> getAll() {
     return classDAO.getAll();
+  }
+
+  @Override
+  public ResponseEntity<ResponseObject> getDayCalendar(java.util.Date currentDate) {
+    try {
+      dayCalendars = classDAO.getCalendarByDay(currentDate);
+      return ResponseEntity.ok(new ResponseObject("Successful", "List of classroom", dayCalendars));
+    } catch(Exception e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't found the list", e.getMessage()));
+    }
+  }
+
+  @Override
+  public ResponseEntity<ResponseObject> getWeekCalendar(java.util.Date startDate, java.util.Date endDate) {
+    try {
+      weekCalendars = classDAO.getCalendarByWeek(startDate, endDate);
+      return ResponseEntity.ok(new ResponseObject("Successful", "List of classroom", weekCalendars));
+    } catch(Exception e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't found the list", e.getMessage()));
+    }
   }
 
   public List<Class> searchClass(String createdDate, String searchValue, String orderBy) {
