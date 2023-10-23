@@ -298,7 +298,7 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
-    public Syllabus updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest,String topicCode) {
+    public UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest,String topicCode) {
         Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
         Syllabus syllabusexits = optionalSyllabus.orElse(null);
         if (syllabusexits != null) {
@@ -322,14 +322,14 @@ public class SyllabusServiceImpl implements SyllabusService {
                 return UpdateSyllabusResponse.builder()
                         .status("Update Syllbus successful")
                         .updateSyllabus(syllabusUpdate)
-                        .build().getUpdateSyllabus();
+                        .build();
 
 
             } else {
                 return UpdateSyllabusResponse.builder()
                         .status("Update Syllbus failed")
                         .updateSyllabus(null)
-                        .build().getUpdateSyllabus();
+                        .build();
 
             }
 
@@ -338,7 +338,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             return UpdateSyllabusResponse.builder()
                     .status("Syllabus not found")
                     .updateSyllabus(null)
-                    .build().getUpdateSyllabus();
+                    .build();
 
         }
 

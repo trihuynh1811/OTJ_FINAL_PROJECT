@@ -3,6 +3,7 @@ package com.example.FAMS.controllers;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
+import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.repositories.SyllabusDAO;
 import com.example.FAMS.repositories.UserDAO;
@@ -118,8 +119,10 @@ public class SyllabusController {
 
     @PutMapping("/update/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
-    public ResponseEntity<Syllabus> updateSyllabusRequest(@PathVariable String topicCode, @RequestBody UpdateSyllabusRequest updateSyllabusRequest) {
-        Syllabus updatedSyllabus = syllabusService.updateSyllabus(updateSyllabusRequest,topicCode);
+    public ResponseEntity<UpdateSyllabusResponse> updateSyllabusRequest(
+            @PathVariable String topicCode,
+            @RequestBody UpdateSyllabusRequest updateSyllabusRequest) {
+        UpdateSyllabusResponse updatedSyllabus = syllabusService.updateSyllabus(updateSyllabusRequest,topicCode);
         if (updatedSyllabus != null) {
             return ResponseEntity.ok(updatedSyllabus);
         } else {

@@ -3,6 +3,7 @@ package com.example.FAMS.services;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
+import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
@@ -20,7 +21,7 @@ public interface SyllabusService {
     public void createSyllabusOther(CreateSyllabusGeneralRequest request);
     List<Syllabus> getDetailSyllabus();
 
-    Syllabus updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest, String topicCode);
+    UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest, String topicCode);
 
     Syllabus getSyllabusById(String topicCode);
 
