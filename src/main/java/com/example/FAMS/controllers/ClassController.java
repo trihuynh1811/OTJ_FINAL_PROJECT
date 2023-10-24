@@ -93,6 +93,12 @@ public class ClassController {
 
     }
 
+    @GetMapping("/sortCalendar")
+    public ResponseEntity<?> sortCalendar(){
+        return ResponseEntity.ok(classService.CalendarSort());
+
+    }
+
     @GetMapping("/view-calendar/day")
     public ResponseEntity<ResponseObject> getDayCalendar(@RequestParam(name = "currentDate") String currentDate) throws ParseException {
         Date current = new SimpleDateFormat("yyyy-MM-dd").parse(currentDate);

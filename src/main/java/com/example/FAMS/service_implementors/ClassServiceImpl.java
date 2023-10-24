@@ -5,10 +5,8 @@ import com.example.FAMS.dto.responses.CalendarDayResponse;
 import com.example.FAMS.dto.responses.CalendarWeekResponse;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateClassResponse;
+import com.example.FAMS.models.*;
 import com.example.FAMS.models.Class;
-import com.example.FAMS.models.ClassLearningDay; // Thêm ClassLearningDay
-import com.example.FAMS.models.ClassUser;
-import com.example.FAMS.models.User;
 import com.example.FAMS.repositories.ClassDAO;
 import com.example.FAMS.repositories.TrainingProgramDAO;
 import com.example.FAMS.services.ClassService;
@@ -20,10 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -144,6 +139,11 @@ public class ClassServiceImpl implements ClassService {
   public Class getClassById(int classId) {
     Optional<Class> optionalClass = classDAO.findById(classId);
     return optionalClass.orElse(null);
+  }
+
+  @Override
+  public List<Class> CalendarSort(){
+    return classDAO.getCalendarSort();
   }
 
   @Override

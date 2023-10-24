@@ -32,7 +32,9 @@ public interface ClassService {
 
   Class getClassById(int classId);
 
-  List<Class> getAll();
+    List<Class> CalendarSort();
+
+    List<Class> getAll();
 
   ResponseEntity<ResponseObject> getDayCalendar(java.util.Date currentDate);
 

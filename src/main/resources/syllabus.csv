@@ -1,2 +1,3 @@
-TOPIC001, User1,10/3/2023, User1, 01/10/2023,High, Published,Technical Group 1,Huy bo,Topic Outline 1,1,Training Materials 1,Training Principles 1,1
-TOPIC002, User2, 02/10/2023, User2, 02/10/2023,Low, Published,Technical Group 2,Binh bo,Topic Outline 2,2,Training Materials 2,Training Principles 2,2
+topic_code,created_date,Modified Date,priority,publishStatus,technicalGroup,topic_name,topicOutline,TrainingAudience,TrainingMaterials,TrainingPrinciples,Version,CourseObjective
+TOPIC003,10/3/2023, 01/10/2023,High, Published,Technical Group 1,Huy bo,Topic Outline 1,1,Training Materials 1,Training Principles 1,1,IDK
+TOPIC004, 02/10/2023, 02/10/2023,Low, Published,Technical Group 2,Binh bo,Topic Outline 2,2,Training Materials 2,Training Principles 2,2,IDK

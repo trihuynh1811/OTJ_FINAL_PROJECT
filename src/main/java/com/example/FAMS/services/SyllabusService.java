@@ -1,5 +1,6 @@
 package com.example.FAMS.services;
 
+import com.example.FAMS.dto.requests.CsvRequest;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
@@ -26,7 +27,7 @@ public interface SyllabusService {
     Syllabus getSyllabusById(String topicCode);
 
 
-    List<Syllabus> processDataFromCSV(MultipartFile file) throws IOException;
+    List<Syllabus> processDataFromCSV(MultipartFile file, Authentication authentication) throws IOException;
 
     Syllabus duplicateSyllabus(String topicCode);
 }

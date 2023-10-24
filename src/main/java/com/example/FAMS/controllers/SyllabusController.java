@@ -1,8 +1,10 @@
 package com.example.FAMS.controllers;
 
+import com.example.FAMS.dto.requests.CsvRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
+import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.repositories.SyllabusDAO;
@@ -48,21 +50,28 @@ public class SyllabusController {
         return ResponseEntity.status(200).body(syllabusList);
     }
 
-    @GetMapping("/detail")
+    @GetMapping("/detail/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:read')")
-    public ResponseEntity<List<Syllabus>> getDetail() {
-        return ResponseEntity.ok(syllabusService.getDetailSyllabus());
+    public ResponseEntity<?> getDetail(@PathVariable String topicCode) {
+        Syllabus syllabus = syllabusService.getSyllabusById(topicCode);
+        if (syllabus != null) {
+            return ResponseEntity.ok(syllabus);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("/importCSV")
-    public ResponseEntity<?> loadDataInFile(@RequestParam("file") MultipartFile file) throws IOException {
-        if (!file.isEmpty()) {
-            List<Syllabus> syllabus = syllabusService.processDataFromCSV(file);
-            return ResponseEntity.ok(syllabus);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded.");
+    public ResponseEntity<ResponseObject> loadDataInFile(@ModelAttribute CsvRequest csvRequest, Authentication authentication) throws IOException {
+        MultipartFile file = csvRequest.getFile();  // Access the MultipartFile from the CsvRequest
+        try {
+            List<Syllabus> syllabus = syllabusService.processDataFromCSV(file, authentication);
+            return ResponseEntity.ok(new ResponseObject("Successful", "List of CSV", syllabus));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't find the list", e.getMessage()));
         }
     }
+
 
     @PostMapping("/downloadCSV")
     public ResponseEntity<byte[]> downloadFile() throws IOException {
@@ -122,7 +131,7 @@ public class SyllabusController {
     public ResponseEntity<UpdateSyllabusResponse> updateSyllabusRequest(
             @PathVariable String topicCode,
             @RequestBody UpdateSyllabusRequest updateSyllabusRequest) {
-        UpdateSyllabusResponse updatedSyllabus = syllabusService.updateSyllabus(updateSyllabusRequest,topicCode);
+        UpdateSyllabusResponse updatedSyllabus = syllabusService.updateSyllabus(updateSyllabusRequest, topicCode);
         if (updatedSyllabus != null) {
             return ResponseEntity.ok(updatedSyllabus);
         } else {
