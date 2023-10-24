@@ -1,13 +1,16 @@
 package com.example.FAMS.services;
 
+import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
 import com.example.FAMS.dto.requests.UpdateClassRequest;
 import com.example.FAMS.dto.responses.ResponseObject;
+import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.dto.responses.UpdateClassResponse;
 import com.example.FAMS.models.*;
 import com.example.FAMS.models.Class;
 import org.springframework.http.ResponseEntity;
 
-import java.sql.Date;
+import java.util.Date;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Set;
 
@@ -39,4 +42,7 @@ public interface ClassService {
   ResponseEntity<ResponseObject> getDayCalendar(java.util.Date currentDate);
 
   ResponseEntity<ResponseObject> getWeekCalendar(java.util.Date startDate, java.util.Date endDate);
+
+  UpdateCalendarResponse updateClassLearningDay(UpdateCalendarRequest request) throws ParseException;
+
 }

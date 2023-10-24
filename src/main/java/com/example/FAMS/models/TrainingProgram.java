@@ -1,5 +1,6 @@
 package com.example.FAMS.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -29,10 +30,11 @@ public class TrainingProgram {
     private String name;
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(optional = false, cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
-    @JsonManagedReference
+    @JsonBackReference
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User userID;
 
     @Column(nullable = false, name = "start_date")

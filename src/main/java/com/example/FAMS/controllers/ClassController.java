@@ -1,7 +1,9 @@
 package com.example.FAMS.controllers;
 
+import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
 import com.example.FAMS.dto.requests.UpdateClassRequest;
 import com.example.FAMS.dto.responses.ResponseObject;
+import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.dto.responses.UpdateClassResponse;
 import com.example.FAMS.models.Class;
 import com.example.FAMS.service_implementors.ClassServiceImpl;
@@ -113,5 +115,10 @@ public class ClassController {
         Date start = new SimpleDateFormat("yyyy-MM-dd").parse(startDate);
         Date end = new SimpleDateFormat("yyyy-MM-dd").parse(endDate);
         return classService.getWeekCalendar(start, end);
+    }
+
+    @PutMapping("/update-calendar")
+    public UpdateCalendarResponse updateClassLearningDay(@RequestBody UpdateCalendarRequest request) throws ParseException {
+        return classService.updateClassLearningDay(request);
     }
 }
