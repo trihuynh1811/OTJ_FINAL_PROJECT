@@ -61,14 +61,24 @@ public class SyllabusController {
         }
     }
 
+//    @PostMapping("/importCSV")
+//    public ResponseEntity<ResponseObject> loadDataInFile(@ModelAttribute CsvRequest csvRequest, Authentication authentication) throws IOException {
+//        MultipartFile file = csvRequest.getFile();  // Access the MultipartFile from the CsvRequest
+//        try {
+//            List<Syllabus> syllabus = syllabusService.processDataFromCSV(file, authentication);
+//            return ResponseEntity.ok(new ResponseObject("Successful", "List of CSV", syllabus));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't find the list", e.getMessage()));
+//        }
+//    }
+
     @PostMapping("/importCSV")
-    public ResponseEntity<ResponseObject> loadDataInFile(@ModelAttribute CsvRequest csvRequest, Authentication authentication) throws IOException {
-        MultipartFile file = csvRequest.getFile();  // Access the MultipartFile from the CsvRequest
+    public ResponseEntity<ResponseObject> loadDataInFile(@RequestParam("file") MultipartFile file, Authentication authentication) throws IOException {
         try {
             List<Syllabus> syllabus = syllabusService.processDataFromCSV(file, authentication);
             return ResponseEntity.ok(new ResponseObject("Successful", "List of CSV", syllabus));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't find the list", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't found the list", e.getMessage()));
         }
     }
 
