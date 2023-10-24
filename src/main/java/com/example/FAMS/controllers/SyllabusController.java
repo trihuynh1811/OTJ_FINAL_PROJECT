@@ -153,39 +153,9 @@ public class SyllabusController {
     @GetMapping("/duplicate/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
     public ResponseEntity<?> duplicateTopicCode(@PathVariable String topicCode) {
-        Syllabus updatesyllabusRequest = syllabusService.duplicateSyllabus(topicCode + "_[0-9]");
-        boolean check = true;
-        if (updatesyllabusRequest == null) {
-            updatesyllabusRequest = syllabusService.getSyllabusById(topicCode);
-            check = false;
-        }
-        Syllabus syllabusexits = new Syllabus();
-        syllabusexits.setTopicName(updatesyllabusRequest.getTopicName());
-//        syllabusexits.setLearningObjectives(updatesyllabusRequest.getLearningObjectives());
-        syllabusexits.setUserID(updatesyllabusRequest.getUserID());
-        syllabusexits.setTrainingPrinciples(updatesyllabusRequest.getTrainingPrinciples());
-        syllabusexits.setVersion(updatesyllabusRequest.getVersion());
-        syllabusexits.setTechnicalGroup(updatesyllabusRequest.getTechnicalGroup());
-        syllabusexits.setVersion(updatesyllabusRequest.getVersion());
-        syllabusexits.setTrainingAudience(updatesyllabusRequest.getTrainingAudience());
-        syllabusexits.setTopicOutline(updatesyllabusRequest.getTopicOutline());
-        syllabusexits.setTrainingMaterials(updatesyllabusRequest.getTrainingMaterials());
-        syllabusexits.setPriority(updatesyllabusRequest.getPriority());
-        syllabusexits.setPublishStatus(updatesyllabusRequest.getPublishStatus());
-        syllabusexits.setCreatedBy(updatesyllabusRequest.getCreatedBy());
-        syllabusexits.setCreatedDate(new Date());
-        syllabusexits.setModifiedBy(updatesyllabusRequest.getModifiedBy());
-        syllabusexits.setModifiedDate(new Date());
-        topicCode = updatesyllabusRequest.getTopicCode();
-        String topicCodeClone = "";
-        if (check) {
-            int index = topicCode.lastIndexOf('_');
-            topicCodeClone = topicCode.substring(0, index + 1) + (Integer.parseInt(topicCode.substring(index + 1)) + 1);
-        } else {
-            topicCodeClone += topicCode + "_1";
-        }
-        syllabusexits.setTopicCode(topicCodeClone);
-        return ResponseEntity.ok(syllabusService.saveSyllabus(syllabusexits));
+        Syllabus duplicatedSyllabus = syllabusService.duplicateSyllabus(topicCode);
+
+        return ResponseEntity.ok(duplicatedSyllabus);
     }
 
     @GetMapping("/search")

@@ -414,7 +414,35 @@ public class SyllabusServiceImpl implements SyllabusService {
 
     @Override
     public Syllabus duplicateSyllabus(String topicCode) {
-        return syllabusDAO.getLastSyllabusByTopicCode(topicCode);
+        int tuanSoiMapDit = syllabusDAO.countByTopicCodeLike(topicCode + "%");
+        Syllabus originalSyllabus = syllabusDAO.findById(topicCode).get();
+
+        topicCode = originalSyllabus.getTopicCode();
+        String topicCodeClone = topicCode + "_" + tuanSoiMapDit;
+
+
+        Syllabus duplicatedSyllabus = Syllabus.builder()
+                .topicName(originalSyllabus.getTopicName())
+                .userID(originalSyllabus.getUserID())
+                .trainingPrinciples(originalSyllabus.getTrainingPrinciples())
+                .version(originalSyllabus.getVersion())
+                .technicalGroup(originalSyllabus.getTechnicalGroup())
+                .trainingAudience(originalSyllabus.getTrainingAudience())
+                .topicOutline(originalSyllabus.getTopicOutline())
+                .trainingMaterials(originalSyllabus.getTrainingMaterials())
+                .priority(originalSyllabus.getPriority())
+                .publishStatus(originalSyllabus.getPublishStatus())
+                .createdBy(originalSyllabus.getCreatedBy())
+                .createdDate(new Date())
+                .modifiedBy(originalSyllabus.getModifiedBy())
+                .modifiedDate(new Date())
+                .courseObjective(originalSyllabus.getCourseObjective())
+                .topicCode(topicCodeClone)
+                .build();
+
+        syllabusDAO.save(duplicatedSyllabus);
+
+        return duplicatedSyllabus;
     }
     public Syllabus saveSyllabus(Syllabus syllabus) {
         return syllabusDAO.save(syllabus);
