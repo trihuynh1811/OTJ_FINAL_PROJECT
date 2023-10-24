@@ -69,11 +69,11 @@ public class Class {
     @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
-    @OneToMany(mappedBy = "classID")
+    @OneToMany(mappedBy = "classID", cascade =  CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private Set<ClassUser> classUsers = new HashSet<>();
 
-    @OneToMany(mappedBy = "classes")
+    @OneToMany(mappedBy = "classId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ClassLearningDay> classLearningDays = new HashSet<>();
 
     public static ClassBuilder builder() {

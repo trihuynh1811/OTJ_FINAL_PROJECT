@@ -1,13 +1,12 @@
 package com.example.FAMS.service_implementors;
 
+import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
 import com.example.FAMS.dto.requests.UpdateClassRequest;
-import com.example.FAMS.dto.responses.CalendarDayResponse;
-import com.example.FAMS.dto.responses.CalendarWeekResponse;
-import com.example.FAMS.dto.responses.ResponseObject;
-import com.example.FAMS.dto.responses.UpdateClassResponse;
+import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.models.*;
 import com.example.FAMS.models.Class;
 import com.example.FAMS.repositories.ClassDAO;
+import com.example.FAMS.repositories.ClassLearningDayDAO;
 import com.example.FAMS.repositories.TrainingProgramDAO;
 import com.example.FAMS.services.ClassService;
 import com.google.common.base.Strings;
@@ -16,7 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
+import java.sql.Time;
+import java.text.ParseException;
+import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +27,8 @@ public class ClassServiceImpl implements ClassService {
 
   @Autowired ClassDAO classDAO;
   TrainingProgramDAO trainingProgramDAO;
+  @Autowired
+  ClassLearningDayDAO classLearningDayDAO;
 
   List<CalendarDayResponse> dayCalendars;
   List<CalendarWeekResponse> weekCalendars;
@@ -170,6 +173,53 @@ public class ClassServiceImpl implements ClassService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't found the list", e.getMessage()));
     }
   }
+
+  @Override
+  public UpdateCalendarResponse updateClassLearningDay(UpdateCalendarRequest request) throws ParseException {
+    int id = request.getId();
+    String enrollDate = request.getEnrollDate();
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    Date eDate = dateFormat.parse(enrollDate);
+    Time timeFrom = request.getTimeFrom();
+    Time timeTo = request.getTimeTo();
+    String value = request.getValue();
+
+    ClassLearningDay classLearningDay = classLearningDayDAO.findByClassId_ClassIdAndEnrollDate(id, eDate);
+
+
+    if (classLearningDay != null) {
+      if ("Only".equals(value)) {
+        classLearningDay.setTimeFrom(timeFrom);
+        classLearningDay.setTimeTo(timeTo);
+        classLearningDay = classLearningDayDAO.save(classLearningDay);
+      } else if ("All".equals(value)) {
+        List<ClassLearningDay> classLearningDays = classLearningDayDAO.findByClassId_ClassId(id);
+        for (ClassLearningDay day : classLearningDays) {
+          day.setTimeFrom(timeFrom);
+          day.setTimeTo(timeTo);
+        }
+        classLearningDayDAO.saveAll(classLearningDays);
+      }
+
+      if (classLearningDay != null) {
+        return UpdateCalendarResponse.builder()
+                .status("Update Calendar successful")
+                .updateClassLearningDay(classLearningDay)
+                .build();
+      } else {
+        return UpdateCalendarResponse.builder()
+                .status("Update Calendar failed")
+                .updateClassLearningDay(classLearningDay)
+                .build();
+      }
+    } else {
+      return UpdateCalendarResponse.builder()
+              .status("Calendar not found")
+              .updateClassLearningDay(null)
+              .build();
+    }
+  }
+
 
   public List<Class> searchClass(String createdDate, String searchValue, String orderBy) {
     List<Class> classList = classDAO.findAll();
