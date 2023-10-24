@@ -4,19 +4,25 @@ import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.models.Syllabus;
+import com.example.FAMS.models.UserSyllabus;
+import com.example.FAMS.models.composite_key.UserSyllabusCompositeKey;
 import com.example.FAMS.repositories.SyllabusDAO;
 import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.service_implementors.SyllabusServiceImpl;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Date;
 import java.util.List;
 
@@ -50,13 +56,32 @@ public class SyllabusController {
     }
 
     @PostMapping("/importCSV")
-    @PreAuthorize("hasAuthority('syllabus:import')")
     public ResponseEntity<?> loadDataInFile(@RequestParam("file") MultipartFile file) throws IOException {
         if (!file.isEmpty()) {
             List<Syllabus> syllabus = syllabusService.processDataFromCSV(file);
             return ResponseEntity.ok(syllabus);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded.");
+        }
+    }
+
+    @PostMapping("/downloadCSV")
+    public ResponseEntity<byte[]> downloadFile() throws IOException {
+        syllabusService.downloadCSV();
+
+        String computerAccountName = System.getProperty("user.name");
+        File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/Template.csv");
+
+        if (csvFile.exists()) {
+            byte[] data = Files.readAllBytes(csvFile.toPath());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType("text/csv"));
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Template.csv");
+
+            return ResponseEntity.ok().headers(headers).body(data);
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to read CSV file.".getBytes());
         }
     }
 
@@ -74,6 +99,7 @@ public class SyllabusController {
                 }
                 return ResponseEntity.status(200).body("syllabus created.");
             case "other":
+
                 break;
         }
         return ResponseEntity.status(404).body(null);
@@ -117,40 +143,9 @@ public class SyllabusController {
 
     @GetMapping("/duplicate/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
-    public ResponseEntity<?> duplicateTopicCode(@PathVariable String topicCode) {
-        Syllabus updatesyllabusRequest = syllabusService.duplicateSyllabus(topicCode + "_[0-9]");
-        boolean check = true;
-        if (updatesyllabusRequest == null) {
-            updatesyllabusRequest = syllabusService.getSyllabusById(topicCode);
-            check = false;
-        }
-        Syllabus syllabusexits = new Syllabus();
-        syllabusexits.setTopicName(updatesyllabusRequest.getTopicName());
-//        syllabusexits.setLearningObjectives(updatesyllabusRequest.getLearningObjectives());
-        syllabusexits.setUserID(updatesyllabusRequest.getUserID());
-        syllabusexits.setTrainingPrinciples(updatesyllabusRequest.getTrainingPrinciples());
-        syllabusexits.setVersion(updatesyllabusRequest.getVersion());
-        syllabusexits.setTechnicalGroup(updatesyllabusRequest.getTechnicalGroup());
-        syllabusexits.setVersion(updatesyllabusRequest.getVersion());
-        syllabusexits.setTrainingAudience(updatesyllabusRequest.getTrainingAudience());
-        syllabusexits.setTopicOutline(updatesyllabusRequest.getTopicOutline());
-        syllabusexits.setTrainingMaterials(updatesyllabusRequest.getTrainingMaterials());
-        syllabusexits.setPriority(updatesyllabusRequest.getPriority());
-        syllabusexits.setPublishStatus(updatesyllabusRequest.getPublishStatus());
-        syllabusexits.setCreatedBy(updatesyllabusRequest.getCreatedBy());
-        syllabusexits.setCreatedDate(new Date());
-        syllabusexits.setModifiedBy(updatesyllabusRequest.getModifiedBy());
-        syllabusexits.setModifiedDate(new Date());
-        topicCode = updatesyllabusRequest.getTopicCode();
-        String topicCodeClone = "";
-        if (check) {
-            int index = topicCode.lastIndexOf('_');
-            topicCodeClone = topicCode.substring(0, index + 1) + (Integer.parseInt(topicCode.substring(index + 1)) + 1);
-        } else {
-            topicCodeClone += topicCode + "_1";
-        }
-        syllabusexits.setTopicCode(topicCodeClone);
-        return ResponseEntity.ok(syllabusService.saveSyllabus(syllabusexits));
+    public ResponseEntity<?> duplicateTopicCode(@PathVariable String topicCode, Authentication authentication) {
+        Syllabus syllabus = syllabusService.duplicateSyllabus(topicCode + "_[0-9]", authentication);
+        return ResponseEntity.ok(syllabus);
     }
 
     @GetMapping("/search")

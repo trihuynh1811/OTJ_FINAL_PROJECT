@@ -1,19 +1,22 @@
 package com.example.FAMS.service_implementors;
 
+
+import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import com.example.FAMS.dto.requests.UpdateClassRequest;
 import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.models.*;
 import com.example.FAMS.models.Class;
-import com.example.FAMS.repositories.ClassDAO;
-import com.example.FAMS.repositories.TrainingProgramDAO;
-import com.example.FAMS.repositories.UserDAO;
+import com.example.FAMS.models.TrainingProgram;
+import com.example.FAMS.repositories.*;
 import com.example.FAMS.services.ClassService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,25 +37,52 @@ public class ClassServiceImpl implements ClassService {
     @Autowired
     TrainingProgramDAO trainingProgramDAO;
 
+    @Autowired
+    FsuDAO fsuDAO;
+
     @Override
     public List<Class> getClasses() {
         return classDAO.findTop1000ByOrderByCreatedDateDesc();
     }
 
     @Override
-    public Class createClass(String className, String classCode, int duration, String location, Date startDate, Date endDate, String createdBy) {
-        Class classInfo = Class.builder()
-                .className(className)
-                .classId(classCode)
-                .duration(duration)
-                .location(location)
-                .startDate(startDate)
-                .endDate(endDate)
-                .createdBy(createdBy)
-                .build();
+    public Class createClass(CreateClassDTO request, Authentication authentication) {
+        try {
+            Class classInfo = null;
+            Fsu fsu = fsuDAO.findById(request.getFsu()).get();
+            classInfo = Class.builder()
+                    .className(request.getClassName())
+                    .classId(request.getClassId())
+                    .duration(request.getDuration())
+                    .location(request.getLocation())
+                    .startDate(Date.valueOf(request.getStartDate()))
+                    .endDate(Date.valueOf(request.getEndDate()))
+                    .createdBy(getCreator(authentication).getCreatedBy())
+                    .attendeeActual(request.getAttendeeActual())
+                    .attendee(request.getAttendee())
+                    .attendeePlanned(request.getAttendeePlanned())
+                    .attendeeAccepted(request.getAttendeeAccepted())
+                    .timeFrom(Time.valueOf(request.getTimeFrom()))
+                    .timeTo(Time.valueOf(request.getTimeTo()))
+                    .fsu(fsu)
+                    .status(request.getStatus())
+                    .trainingProgram(trainingProgramDAO.findById(request.getTrainingProgram()).get())
+                    .createdDate(new java.util.Date())
+                    .build();
 
-        classDAO.save(classInfo);
-        return classInfo;
+//        classDAO.save(classInfo);
+
+            CreateClassResponse res = CreateClassResponse.builder()
+                    .createdClass(classInfo)
+                    .message("create class successfully.")
+                    .build();
+            return classInfo;
+
+        } catch (Exception err) {
+            err.printStackTrace();
+            return null;
+        }
+
     }
 
 
@@ -114,9 +144,10 @@ public class ClassServiceImpl implements ClassService {
     public ResponseEntity<ClassDetailResponse> getClassDetail(String classCode) throws InterruptedException {
         Class c = classDAO.findById(classCode).isPresent() ? classDAO.findById(classCode).get() : null;
         if (c != null) {
+            log.info(c.getTrainingProgram().getTrainingProgramSyllabus().size());
             List<UserDTO> trainerList = new ArrayList<>();
             List<UserDTO> adminList = new ArrayList<>();
-            List<SyllabusDTO> syllabusList;
+            List<SyllabusDTO> syllabusList = new ArrayList<>();
             List<ClassUser> classUsers = c.getClassUsers().stream().toList();
             User user = null;
 
@@ -138,12 +169,14 @@ public class ClassServiceImpl implements ClassService {
                             .build());
                 }
             }
-            syllabusList = getAllSyllabusInTrainingProgram(c.getTrainingProgram().getTrainingProgramSyllabus().stream().toList());
+            if (!c.getTrainingProgram().getTrainingProgramSyllabus().isEmpty()) {
+                syllabusList = getAllSyllabusInTrainingProgram(c.getTrainingProgram().getTrainingProgramSyllabus().stream().toList());
+            }
 
             ClassDetailResponse res = ClassDetailResponse.builder()
                     .classId(classCode)
                     .className(c.getClassName())
-                    .fsu(c.getFsu())
+//                    .fsu(c.getFsu())
                     .createdBy(c.getCreatedBy())
                     .createdDate(c.getCreatedDate())
                     .deactivated(c.isDeactivated())
@@ -156,6 +189,8 @@ public class ClassServiceImpl implements ClassService {
                     .status(c.getStatus())
                     .adminList(adminList)
                     .trainerList(trainerList)
+                    .timeFrom(c.getTimeFrom())
+                    .timeTo(c.getTimeTo())
                     .trainingProgram(TrainingProgramDTO.builder()
                             .trainingProgramCode(c.getTrainingProgram().getTrainingProgramCode())
                             .trainingProgramName(c.getTrainingProgram().getName())
@@ -180,6 +215,12 @@ public class ClassServiceImpl implements ClassService {
         return optionalClass.orElse(null);
     }
 
+    @Override
+    public List<Class> getAll() {
+        return classDAO.getAll();
+    }
+
+
     public List<SyllabusDTO> getAllSyllabusInTrainingProgram(
             List<TrainingProgramSyllabus> trainingProgramSyllabusList
     ) throws InterruptedException {
@@ -191,13 +232,13 @@ public class ClassServiceImpl implements ClassService {
         int batchSize = (int) Math.ceil((double) trainingProgramSyllabusList.size() / numThreads);
         int fromIndex = 0;
 
-        for(int i = 0; i < numThreads; i++){
+        for (int i = 0; i < numThreads; i++) {
             int toIndex = Math.min(fromIndex + batchSize, trainingProgramSyllabusList.size());
 
             List<TrainingProgramSyllabus> tps = trainingProgramSyllabusList.subList(fromIndex, toIndex);
 
             executorService.submit(() -> {
-                for(int j = 0; j < tps.size(); j++){
+                for (int j = 0; j < tps.size(); j++) {
                     Syllabus syllabus = tps.get(j).getTopicCode();
                     SyllabusDTO syllabusDTO = SyllabusDTO.builder()
                             .topicCode(syllabus.getTopicCode())
@@ -225,6 +266,14 @@ public class ClassServiceImpl implements ClassService {
     private int calculateNumThreads(int numRecords) {
         final int maxThreads = 10;
         return Math.min(maxThreads, (int) Math.ceil((double) numRecords / 10));
+    }
+
+    public User getCreator(Authentication authentication) {
+        Object creator = authentication.getPrincipal();
+        if (creator instanceof User) {
+            return (User) creator;
+        }
+        return null;
     }
 
 }

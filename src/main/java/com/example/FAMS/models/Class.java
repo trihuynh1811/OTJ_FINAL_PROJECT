@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Time;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,14 +35,24 @@ public class Class {
     @Column(name = "duration", nullable = false)
     private int duration;
 
+    @Column(name = "time_from")
+    private Time timeFrom;
+
+    @Column(name = "time_to")
+    private Time timeTo;
+
     @Column(name = "status", nullable = false)
     private String status;
 
     @Column(name = "location", nullable = false)
     private String location;
 
-    @Column(name = "fsu", nullable = false)
-    private String fsu;
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "fsu_id", referencedColumnName = "fsu_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
+    private Fsu fsu;
 
     @Column(name = "start_date", nullable = false)
     private Date startDate;
@@ -63,18 +74,25 @@ public class Class {
 
     private boolean deactivated = false;
 
-//    @Column(name = "attendee_planned")
-//    private int attendeePlanned = 0;
-//
-//    @Column(name = "attendee_accepted")
-//    private int attendeeAccepted = 0;
-//
-//    @Column(name = "attendee_actual")
-//    private int attendeeActual = 0;
+    @Column(name = "attendee")
+    private String attendee;
+
+    @Column(name = "attendee_planned")
+    private int attendeePlanned = 0;
+
+    @Column(name = "attendee_accepted")
+    private int attendeeAccepted = 0;
+
+    @Column(name = "attendee_actual")
+    private int attendeeActual = 0;
 
     @OneToMany(mappedBy = "classID", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private Set<ClassUser> classUsers = new HashSet<>();
+
+    @OneToMany(mappedBy = "classId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private Set<TrainingCalendar> trainingCalendars = new HashSet<>();
 
 //    public static ClassBuilder builder() {
 //        return new ClassBuilder();

@@ -1,12 +1,15 @@
 package com.example.FAMS.controllers;
 
+import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import com.example.FAMS.dto.requests.UpdateClassRequest;
 import com.example.FAMS.dto.responses.Class.ClassDetailResponse;
+import com.example.FAMS.dto.responses.Class.CreateClassResponse;
 import com.example.FAMS.dto.responses.Class.DeactivateClassResponse;
 import com.example.FAMS.dto.responses.Class.UpdateClassResponse;
 import com.example.FAMS.models.Class;
 import com.example.FAMS.service_implementors.ClassServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/class")
 @PreAuthorize("hasRole('CLASS_ADMIN') or hasRole('SUPER_ADMIN') or hasRole('TRAINER')")
+@Log4j2
 public class ClassController {
 
     @Autowired
@@ -38,16 +42,19 @@ public class ClassController {
 
     @PostMapping("/create/{type}")
     @PreAuthorize("hasAuthority('class:create')")
-    public ResponseEntity<List<Class>> createClass(
-            @PathVariable("type") String type,
-            @RequestBody JsonNode request,
+    public ResponseEntity<CreateClassResponse> createClass(
+            @PathVariable(name = "type", required = false) String type,
+            @RequestBody CreateClassDTO createClassDTO,
             Authentication authentication) {
+
         switch (type) {
             case "general":
                 // Xử lý tạo lớp học dựa trên thông tin từ request
-                Object creator = authentication.getPrincipal();
-                System.out.println(creator);
-                break;
+                Class result = classService.createClass(createClassDTO, authentication);
+                if(result == null){
+                    return ResponseEntity.status(400).body(new CreateClassResponse(null, "successfully create class."));
+                }
+                return ResponseEntity.status(200).body(new CreateClassResponse(result, "successfully create class."));
             case "schedule":
                 // Xử lý tạo lịch trình cho lớp học
                 break;
@@ -55,7 +62,7 @@ public class ClassController {
                 // Xử lý tạo thông tin khác cho lớp học
                 break;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(classService.getClasses());
+        return ResponseEntity.status(400).body(new CreateClassResponse(null, "fail to create class."));
     }
 
     @GetMapping("/draft/create/{type}")
@@ -93,5 +100,10 @@ public class ClassController {
     @GetMapping("/detail/{id}")
     public ResponseEntity<ClassDetailResponse> getClassDetail(@PathVariable("id") String classCode) throws InterruptedException {
         return classService.getClassDetail(classCode);
+    }
+
+    @GetMapping("/listClass")
+    public ResponseEntity<?> getall(){
+        return ResponseEntity.ok(classService.getAll());
     }
 }

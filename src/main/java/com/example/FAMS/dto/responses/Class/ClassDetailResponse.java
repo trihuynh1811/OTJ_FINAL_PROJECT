@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +22,8 @@ public class ClassDetailResponse {
     private String className;
     private int duration;
     private String status;
+    private Time timeFrom;
+    private Time timeTo;
     private String location;
     private String fsu;
     private Date startDate;

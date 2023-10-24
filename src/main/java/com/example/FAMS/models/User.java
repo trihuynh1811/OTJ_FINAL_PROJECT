@@ -82,15 +82,22 @@ public class User implements UserDetails {
     @JsonIgnore
     private final Set<TrainingProgram> trainingPrograms = new HashSet<>();
 
-    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     @JsonIgnore
-    private final Set<Syllabus> syllabusList = new HashSet<>();
+    private final Set<UserSyllabus> userSyllabus = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonBackReference
     @ToString.Exclude
     private final Set<Token> tokens = new HashSet<>();
+
+    @ManyToOne(cascade = CascadeType.MERGE, optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "fsu_id", referencedColumnName = "fsu_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
+    private Fsu fsu;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
