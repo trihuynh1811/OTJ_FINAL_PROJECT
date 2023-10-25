@@ -192,48 +192,48 @@ public class FamsApplication {
                                     .password("1")
                                     .build()).getToken());
                 }
-                if (syllabusDAO.findAll().size() == 0) {
-                    List<Syllabus> syllabusList = new ArrayList<>();
-                    syllabusList.add(Syllabus.builder()
-                            .topicCode("TOPIC001")
-                            .topicName("OOP")
-                            .technicalGroup("Team1")
-                            .version("1.0")
-                            .trainingAudience(1)
-                            .topicOutline("Topic Outline 1")
-                            .trainingMaterials("Training Materials 1")
-                            .trainingPrinciples("Training Principles 1")
-                            .priority("High")
-                            .publishStatus("Published")
-                            .createdBy("User1")
-                            .createdDate(new Date())
-                            .modifiedBy("User1")
-                            .modifiedDate(new Date())
-                            .userID(userDAO.findById(1).orElse(null))
-                            .courseObjective("IDK")
-                            .numberOfDay(3)
-                            .build());
-                    syllabusList.add(Syllabus.builder()
-                            .topicCode("TOPIC002")
-                            .topicName("LAB")
-                            .technicalGroup("Team2")
-                            .version("1.0")
-                            .trainingAudience(1)
-                            .topicOutline("Topic Outline 2")
-                            .trainingMaterials("Training Materials 2")
-                            .trainingPrinciples("Training Principles 2")
-                            .priority("High")
-                            .publishStatus("Published")
-                            .createdBy("User1")
-                            .createdDate(new Date())
-                            .modifiedBy("User1")
-                            .modifiedDate(new Date())
-                            .userID(userDAO.findById(2).orElse(null))
-                            .courseObjective("IDK")
-                            .numberOfDay(3)
-                            .build());
-                    syllabusDAO.saveAll(syllabusList);
-                }
+//                if (syllabusDAO.findAll().size() == 0) {
+//                    List<Syllabus> syllabusList = new ArrayList<>();
+//                    syllabusList.add(Syllabus.builder()
+//                            .topicCode("TOPIC001")
+//                            .topicName("OOP")
+//                            .technicalGroup("Team1")
+//                            .version("1.0")
+//                            .trainingAudience(1)
+//                            .topicOutline("Topic Outline 1")
+//                            .trainingMaterials("Training Materials 1")
+//                            .trainingPrinciples("Training Principles 1")
+//                            .priority("High")
+//                            .publishStatus("Published")
+//                            .createdBy("User1")
+//                            .createdDate(new Date())
+//                            .modifiedBy("User1")
+//                            .modifiedDate(new Date())
+//                            .userID(userDAO.findById(1).orElse(null))
+//                            .courseObjective("IDK")
+//                            .numberOfDay(3)
+//                            .build());
+//                    syllabusList.add(Syllabus.builder()
+//                            .topicCode("TOPIC002")
+//                            .topicName("LAB")
+//                            .technicalGroup("Team2")
+//                            .version("1.0")
+//                            .trainingAudience(1)
+//                            .topicOutline("Topic Outline 2")
+//                            .trainingMaterials("Training Materials 2")
+//                            .trainingPrinciples("Training Principles 2")
+//                            .priority("High")
+//                            .publishStatus("Published")
+//                            .createdBy("User1")
+//                            .createdDate(new Date())
+//                            .modifiedBy("User1")
+//                            .modifiedDate(new Date())
+//                            .userID(userDAO.findById(2).orElse(null))
+//                            .courseObjective("IDK")
+//                            .numberOfDay(3)
+//                            .build());
+//                    syllabusDAO.saveAll(syllabusList);
+//                }
             }
         };
     }

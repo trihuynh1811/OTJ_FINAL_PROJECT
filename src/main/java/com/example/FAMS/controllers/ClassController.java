@@ -36,16 +36,16 @@ public class ClassController {
         return ResponseEntity.status(HttpStatus.OK).body(classes);
     }
 
-    @GetMapping("/detail")
+    @GetMapping("/detail/{classId}")
     @PreAuthorize("hasAuthority('class:read')")
-    public ResponseEntity<GetClassDetail> getDetailClasses() {
-        return ResponseEntity.ok(detailOfClass());
+    public ResponseEntity<GetClassDetail> getDetailClasses(@PathVariable String classId) {
+        return ResponseEntity.ok(detailOfClass(classId));
     }
 
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('class:create')")
     public ResponseEntity<GetClassDetail> createClass(){
-        return ResponseEntity.status(HttpStatus.OK).body(detailOfClass());
+        return ResponseEntity.status(HttpStatus.OK).body(detailOfClass("mock class"));
     }
 
     @PutMapping("/update/{classId}")
@@ -115,7 +115,7 @@ public class ClassController {
         return classes;
     }
 
-    public GetClassDetail detailOfClass(){
+    public GetClassDetail detailOfClass(String classId){
         List<Syllabus> syllabusList = new ArrayList<>();
 
         for(int i = 0; i < 5; i++){
@@ -142,8 +142,8 @@ public class ClassController {
         }
 
         GetClassDetail class_ = GetClassDetail.builder()
-                .className("class " + 0)
-                .classCode(Integer.toString(0))
+                .className("class " + classId)
+                .classCode(classId)
                 .createdOn(new Date().getTime())
                 .fsu("fhcm")
                 .status("planing")
