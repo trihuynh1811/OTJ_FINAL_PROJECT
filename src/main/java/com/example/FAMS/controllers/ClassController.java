@@ -30,53 +30,26 @@ public class ClassController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('class:read')")
-    public ResponseEntity<List<Class>> getClasses() {
-        return ResponseEntity.status(HttpStatus.OK).body(classService.getClasses());
+    public ResponseEntity<String> getClasses() {
+        return ResponseEntity.status(HttpStatus.OK).body("a list of class have been returned.");
     }
 
     @GetMapping("/detail")
     @PreAuthorize("hasAuthority('class:read')")
-    public ResponseEntity<List<Class>> getDetailClasses() {
-        return ResponseEntity.ok(classService.getDetailClasses());
+    public ResponseEntity<String> getDetailClasses() {
+        return ResponseEntity.ok("details of a class have been returned.");
     }
 
-    @PostMapping("/create/{type}")
+    @PostMapping("/create")
     @PreAuthorize("hasAuthority('class:create')")
-    public ResponseEntity<List<Class>> createClass(
-            @PathVariable("type") String type,
-            @RequestBody JsonNode request,
-            Authentication authentication) {
-        switch (type) {
-            case "general":
-                // Xử lý tạo lớp học dựa trên thông tin từ request
-                Object creator = authentication.getPrincipal();
-                System.out.println(creator);
-                break;
-            case "schedule":
-                // Xử lý tạo lịch trình cho lớp học
-                break;
-            case "other":
-                // Xử lý tạo thông tin khác cho lớp học
-                break;
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(classService.getClasses());
-    }
+    public ResponseEntity<String> createClass(){
 
-    @GetMapping("/draft/create/{type}")
-    @PreAuthorize("hasAuthority('class:create')")
-    public ResponseEntity<List<Class>> draftCreateClass(@PathVariable("type") String type) {
-        return ResponseEntity.status(HttpStatus.OK).body(classService.getDetailClasses());
+        return ResponseEntity.status(HttpStatus.OK).body("successfully create a class.");
     }
 
     @PutMapping("/update/{classId}")
-    public ResponseEntity<UpdateClassResponse> updateClass(
-            @PathVariable int classId, @RequestBody UpdateClassRequest updateClassRequest) {
-        UpdateClassResponse updatedClass = classService.updateClass(updateClassRequest);
-        if (updatedClass != null) {
-            return ResponseEntity.ok(updatedClass);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<String> updateClass(@PathVariable String classId) {
+        return ResponseEntity.status(200).body("successfully update class with id: " + classId);
     }
 
     @GetMapping("/search/{classId}")
