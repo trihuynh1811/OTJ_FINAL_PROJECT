@@ -22,7 +22,7 @@ import java.util.Set;
 public class TrainingProgram {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "training_program_code")
     private int trainingProgramCode;
 
