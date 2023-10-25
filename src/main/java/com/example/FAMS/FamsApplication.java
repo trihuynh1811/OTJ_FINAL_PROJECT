@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -64,20 +63,20 @@ public class FamsApplication {
         return new CommandLineRunner() {
             @Override
             public void run(String... args) throws Exception {
-                if (standardOutputDAO.findAll().size() == 0) {
-                    List<StandardOutput> standardOutputList = new ArrayList<>();
-                    String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
-                    for (int i = 0; i < objectiveCode.length; i++) {
-                        StandardOutput standardOutput = StandardOutput.builder()
-                                .outputCode(objectiveCode[i].toUpperCase())
-                                .outputName(objectiveCode[i])
-                                .description("some bs description.")
-                                .build();
-
-                        standardOutputList.add(standardOutput);
-                    }
-                    standardOutputDAO.saveAll(standardOutputList);
-                }
+//                if (standardOutputDAO.findAll().size() == 0) {
+//                    List<StandardOutput> standardOutputList = new ArrayList<>();
+//                    String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
+//                    for (int i = 0; i < objectiveCode.length; i++) {
+//                        StandardOutput standardOutput = StandardOutput.builder()
+//                                .outputCode(objectiveCode[i].toUpperCase())
+//                                .outputName(objectiveCode[i])
+//                                .description("some bs description.")
+//                                .build();
+//
+//                        standardOutputList.add(standardOutput);
+//                    }
+//                    standardOutputDAO.saveAll(standardOutputList);
+//                }
                 if (userPermissionDAO.findAll().size() == 0) {
                     List<UserPermission> permissionList = new ArrayList<>();
                     permissionList.add(UserPermission.builder()
@@ -243,40 +242,7 @@ public class FamsApplication {
                             .createdDate(new Date())
                             .modifiedBy("Hoang Anh")
                             .modifiedDate(new Date())
-                            .fsu(fsuDAO.findById("FHN").get())
                             .build());
-                    userList.add(User.builder()
-                            .email("fdncontacter1@gmail.com")
-                            .password(passwordEncoder.encode("1"))
-                            .name("User")
-                            .phone("0977545453")
-                            .dob(new Date())
-                            .gender("male")
-                            .role(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null))
-                            .status(true)
-                            .createdBy("Hoang Anh")
-                            .createdDate(new Date())
-                            .modifiedBy("Hoang Anh")
-                            .modifiedDate(new Date())
-                            .fsu(fsuDAO.findById("FDN").get())
-                            .build());
-                    userList.add(User.builder()
-                            .email("fdncontacter2@gmail.com")
-                            .password(passwordEncoder.encode("1"))
-                            .name("User")
-                            .phone("0977545453")
-                            .dob(new Date())
-                            .gender("male")
-                            .role(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null))
-                            .status(true)
-                            .createdBy("Hoang Anh")
-                            .createdDate(new Date())
-                            .modifiedBy("Hoang Anh")
-                            .modifiedDate(new Date())
-                            .fsu(fsuDAO.findById("FDN").get())
-                            .build());
-
-
                     userDAO.saveAll(userList);
 //                    System.out.println("SUPER_ADMIN Token: " + authenticationService.login(
 //                            LoginRequest.builder()

@@ -20,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.google.common.base.Strings;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 import java.text.ParseException;
@@ -305,8 +304,8 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
-    public Syllabus updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest) {
-        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(updatesyllabusRequest.getTopicCode());
+    public UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest,String topicCode) {
+        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
         Syllabus syllabusexits = optionalSyllabus.orElse(null);
         if (syllabusexits != null) {
             syllabusexits.setTopicName(updatesyllabusRequest.getTopicName());
@@ -329,14 +328,14 @@ public class SyllabusServiceImpl implements SyllabusService {
                 return UpdateSyllabusResponse.builder()
                         .status("Update Syllbus successful")
                         .updateSyllabus(syllabusUpdate)
-                        .build().getUpdateSyllabus();
+                        .build();
 
 
             } else {
                 return UpdateSyllabusResponse.builder()
                         .status("Update Syllbus failed")
                         .updateSyllabus(null)
-                        .build().getUpdateSyllabus();
+                        .build();
 
             }
 
@@ -345,7 +344,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             return UpdateSyllabusResponse.builder()
                     .status("Syllabus not found")
                     .updateSyllabus(null)
-                    .build().getUpdateSyllabus();
+                    .build();
 
         }
 
@@ -358,7 +357,8 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
-    public List<Syllabus> processDataFromCSV(MultipartFile file) throws IOException {
+    public List<Syllabus> processDataFromCSV(MultipartFile file, Authentication authentication) throws IOException {
+
         List<Syllabus> syllabusList = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
@@ -374,25 +374,27 @@ public class SyllabusServiceImpl implements SyllabusService {
                 Syllabus c = new Syllabus();
 
                 c.setTopicCode(data[0]);
-                c.setCreatedBy(data[1]);
-
+                c.setCreatedBy(getCreator(authentication).getName());
                 // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
-                Date parsedDate = dateFormat.parse(data[2]);
+                Date parsedDate = dateFormat.parse(data[1]);
                 c.setCreatedDate(new java.sql.Date(parsedDate.getTime()));
-
-                c.setModifiedBy(data[3]);
-                c.setModifiedDate(new java.sql.Date(dateFormat.parse(data[4]).getTime()));
-                c.setPriority(data[5]);
-                c.setPublishStatus(data[6]);
-                c.setTechnicalGroup(data[7]);
-                c.setTopicName(data[8]);
-                c.setTopicOutline(data[9]);
-                c.setTrainingAudience(Integer.parseInt(data[10]));
-                c.setTrainingMaterials(data[11]);
-                c.setTrainingPrinciples(data[12]);
-                c.setVersion(data[13]);
-//                c.setUserID(data[14]);
+                c.setModifiedBy(getCreator(authentication).getName());
+                c.setModifiedDate(new java.sql.Date(dateFormat.parse(data[2]).getTime()));
+                c.setPriority(data[3]);
+                c.setPublishStatus(data[4]);
+                c.setTechnicalGroup(data[5]);
+                c.setTopicName(data[6]);
+                c.setTopicOutline(data[7]);
+                c.setTrainingAudience(Integer.parseInt(data[8]));
+                c.setTrainingMaterials(data[9]);
+                c.setTrainingPrinciples(data[10]);
+                c.setVersion(data[11]);
+                c.setCourseObjective(data[12]);
+//                c.setUserID(getCreator(authentication));
                 syllabusList.add(c);
+                for (Syllabus syllabus : syllabusList) {
+                    syllabusDAO.save(syllabus);
+                }
             }
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -412,7 +414,7 @@ public class SyllabusServiceImpl implements SyllabusService {
         BufferedWriter out = new BufferedWriter(fileWriter);
 
         // Thêm nội dung vào tệp
-        out.write("Sysllabus Name, Code, Created on, Created by, Duration, Output standard, Status");
+        out.write("topic_code, created_date, Modified Date, priority, publishStatus, technicalGroup, topic_name, topicOutline, TrainingAudience, TrainingMaterials, TrainingPrinciples, Version, CourseObjective");
         out.newLine(); // Xuống dòng
         // Đóng BufferedWriter
         out.close();
@@ -420,56 +422,35 @@ public class SyllabusServiceImpl implements SyllabusService {
 
     @Override
     public Syllabus duplicateSyllabus(String topicCode, Authentication authentication) {
-//        Syllabus updatesyllabusRequest = syllabusService.duplicateSyllabus();
-        Syllabus updatesyllabusRequest = syllabusDAO.getLastSyllabusByTopicCode(topicCode);
-        boolean check = true;
-        if (updatesyllabusRequest == null) {
-            updatesyllabusRequest = getSyllabusById(topicCode);
-            check = false;
-        }
-        Syllabus syllabusexits = new Syllabus();
-        syllabusexits.setTopicName(updatesyllabusRequest.getTopicName());
-//        syllabusexits.setLearningObjectives(updatesyllabusRequest.getLearningObjectives());
-//        syllabusexits.setUserID(updatesyllabusRequest.getUserID());
-        syllabusexits.setTrainingPrinciples(updatesyllabusRequest.getTrainingPrinciples());
-        syllabusexits.setVersion(updatesyllabusRequest.getVersion());
-        syllabusexits.setTechnicalGroup(updatesyllabusRequest.getTechnicalGroup());
-        syllabusexits.setVersion(updatesyllabusRequest.getVersion());
-        syllabusexits.setTrainingAudience(updatesyllabusRequest.getTrainingAudience());
-        syllabusexits.setTopicOutline(updatesyllabusRequest.getTopicOutline());
-        syllabusexits.setTrainingMaterials(updatesyllabusRequest.getTrainingMaterials());
-        syllabusexits.setPriority(updatesyllabusRequest.getPriority());
-        syllabusexits.setPublishStatus(updatesyllabusRequest.getPublishStatus());
-        syllabusexits.setCreatedBy(updatesyllabusRequest.getCreatedBy());
-        syllabusexits.setCreatedDate(new Date());
-        syllabusexits.setModifiedBy(updatesyllabusRequest.getModifiedBy());
-        syllabusexits.setModifiedDate(new Date());
-        topicCode = updatesyllabusRequest.getTopicCode();
-        String topicCodeClone = "";
-        if (check) {
-            int index = topicCode.lastIndexOf('_');
-            topicCodeClone = topicCode.substring(0, index + 1) + (Integer.parseInt(topicCode.substring(index + 1)) + 1);
-        } else {
-            topicCodeClone += topicCode + "_1";
-        }
-        syllabusexits.setTopicCode(topicCodeClone);
+        int tuanSoiMapDit = syllabusDAO.countByTopicCodeLike(topicCode + "%");
+        Syllabus originalSyllabus = syllabusDAO.findById(topicCode).get();
 
-        User user = getCreator(authentication);
-        UserSyllabus userSyllabus = UserSyllabus.builder()
-                .id(UserSyllabusCompositeKey.builder()
-                        .userId(user.getUserId())
-                        .topicCode(syllabusexits.getTopicCode())
-                        .build())
-                .userType(user.getRole().getRole().name())
-                .userId(user)
-                .topicCode(syllabusexits)
+        topicCode = originalSyllabus.getTopicCode();
+        String topicCodeClone = topicCode + "_" + tuanSoiMapDit;
+
+
+        Syllabus duplicatedSyllabus = Syllabus.builder()
+                .topicName(originalSyllabus.getTopicName())
+                .trainingPrinciples(originalSyllabus.getTrainingPrinciples())
+                .version(originalSyllabus.getVersion())
+                .technicalGroup(originalSyllabus.getTechnicalGroup())
+                .trainingAudience(originalSyllabus.getTrainingAudience())
+                .topicOutline(originalSyllabus.getTopicOutline())
+                .trainingMaterials(originalSyllabus.getTrainingMaterials())
+                .priority(originalSyllabus.getPriority())
+                .publishStatus(originalSyllabus.getPublishStatus())
+                .createdBy(originalSyllabus.getCreatedBy())
+                .createdDate(new Date())
+                .modifiedBy(originalSyllabus.getModifiedBy())
+                .modifiedDate(new Date())
+                .courseObjective(originalSyllabus.getCourseObjective())
+                .topicCode(topicCodeClone)
                 .build();
 
-        syllabusDAO.save(syllabusexits);
-        userSyllabusDAO.save(userSyllabus);
-        return syllabusexits;
-    }
+        syllabusDAO.save(duplicatedSyllabus);
 
+        return duplicatedSyllabus;
+    }
     public Syllabus saveSyllabus(Syllabus syllabus) {
         return syllabusDAO.save(syllabus);
     }
