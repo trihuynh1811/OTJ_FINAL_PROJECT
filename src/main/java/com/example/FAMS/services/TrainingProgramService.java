@@ -18,7 +18,9 @@ public interface TrainingProgramService {
 
     UpdateTrainingProgramResponse updateTrainingProgram(int trainingProgramCode, int  userId, UpdateTrainingProgramRequest updateTrainingProgramRequest);
 
-    TrainingProgram duplicateTrainingProgram(int trainingProramCode);
+    TrainingProgram duplicateTrainingProgram(int trainingProgramCode);
 
     List<TrainingProgram> processDataFromCSV(MultipartFile file, Authentication authentication);
+
+    ResponseEntity<?> changeTrainingProgramStatus(int trainingProgramCode, String value);
 }

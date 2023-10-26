@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,219 +40,267 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class TrainingProgramImpl implements TrainingProgramService {
-  private final JWTService jwtService;
-  private final SyllabusDAO syllabusDAO;
-  private final TrainingProgramDAO trainingProgramDAO;
-  private final UserDAO userDAO;
-  private final TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
-  private List<TrainingProgramModified> userList;
+    private final JWTService jwtService;
+    private final SyllabusDAO syllabusDAO;
+    private final TrainingProgramDAO trainingProgramDAO;
+    private final UserDAO userDAO;
+    private final TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
+    private List<TrainingProgramModified> userList;
 
-  @Override
-  public ResponseEntity<ResponseObject> createTrainingProgram(
-          TrainingProgramDTO trainingProgramDTO, int trainerID, String topicCode) {
-    TrainingProgram trainingProgram = new TrainingProgram();
-    Date date = new Date();
-    String token =
-            ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                    .getRequest()
-                    .getHeader("Authorization")
-                    .substring(7);
-    String userEmail = jwtService.extractUserEmail(token);
-    var requester = userDAO.findUserByEmail(userEmail).orElse(null);
-    var person = userDAO.findById(trainerID).orElse(null);
-    var syllabus = syllabusDAO.findById(topicCode).orElse(null);
-
-    trainingProgram.setName(trainingProgramDTO.getName());
-    if (!trainingProgramDTO.getStartDate().before(date)
-            && date != trainingProgramDTO.getStartDate()) {
-      trainingProgram.setStartDate(trainingProgramDTO.getStartDate());
-    } else {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(
-                      new ResponseObject(
-                              "Failed", "The start day cannot below or equal current day", null));
-    }
-    if (trainingProgramDTO.getDuration() > 0) {
-      trainingProgram.setDuration(trainingProgramDTO.getDuration());
-    } else {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseObject("Failed", "The duration cannot be negative", null));
-    }
-    if (trainingProgramDTO.getStatus().contains("Active")
-            || trainingProgramDTO.getStatus().contains("Inactive")
-            || trainingProgramDTO.getStatus().contains("Drafting")) {
-      trainingProgram.setStatus(trainingProgramDTO.getStatus());
-    } else {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(
-                      new ResponseObject(
-                              "Failed", "The status must be Active or Drafting or Inactive", null));
-    }
-    if (person != null && person.getRole().getRole() == Role.TRAINER) {
-      trainingProgram.setUserID(person);
-    } else {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseObject("Failed", "The person is not a trainer or not found", null));
-    }
-    if (requester != null && syllabus != null) {
-      trainingProgram.setCreatedBy(requester.getName());
-      trainingProgram.setCreatedDate(date);
-      trainingProgram.setModifiedBy(requester.getName());
-      trainingProgram.setModifiedDate(date);
-      var result = trainingProgramDAO.save(trainingProgram);
-
-      createTrainingSyllabus(result, syllabus);
-      return ResponseEntity.ok(new ResponseObject("Successful", "Added training program", result));
-    } else {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseObject("Failed", "Cannot found the user", null));
-    }
-
-  }
-
-  public void createTrainingSyllabus(TrainingProgram trainingProgram, Syllabus syllabus) {
-    TrainingProgramSyllabus trainingProgramSyllabus =
-            TrainingProgramSyllabus.builder()
-                    .id(
-                            SyllabusTrainingProgramCompositeKey.builder()
-                                    .topicCode(syllabus.getTopicCode())
-                                    .trainingProgramCode(trainingProgram.getTrainingProgramCode())
-                                    .build())
-                    .topicCode(syllabus)
-                    .trainingProgramCode(trainingProgram)
-                    .sequence("high")
-                    .build();
-    trainingProgramSyllabusDAO.save(trainingProgramSyllabus);
-  }
-
-  @Override
-  public ResponseEntity<ResponseObject> getAll() {
-    try {
-      userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
-      return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
-    } catch (Exception e) {
-      userList = Collections.emptyList();
-      return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
-    }
-  }
-
-  @Override
-  public UpdateTrainingProgramResponse updateTrainingProgram(int trainingProgramCode, int userId, UpdateTrainingProgramRequest updateTrainingProgramRequest) {
-    var trainingProgramExisted = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
-    var userExisted = userDAO.findById(userId);
-
-    if (userExisted == null) {
-      return UpdateTrainingProgramResponse.builder()
-              .messager("User not found")
-              .build();
-    }
-
-    if (trainingProgramExisted != null) {
-      trainingProgramExisted.setName(updateTrainingProgramRequest.getName());
-      trainingProgramExisted.setStartDate(updateTrainingProgramRequest.getStartDate());
-      trainingProgramExisted.setDuration(updateTrainingProgramRequest.getDuration());
-      trainingProgramExisted.setStatus(updateTrainingProgramRequest.getStatus());
-
-      // Check the status condition
-      String status = trainingProgramExisted.getStatus();
-      if (status != null && (status.contains("Active") || status.contains("Inactive") || status.contains("Drafting"))) {
-        trainingProgramExisted.setCreatedBy(updateTrainingProgramRequest.getCreatedBy());
-      }
-
-      trainingProgramExisted.setCreatedDate(updateTrainingProgramRequest.getCreatedDate());
-      trainingProgramExisted.setModifiedBy(updateTrainingProgramRequest.getModifiedBy());
-      trainingProgramExisted.setModifiedDate(new Date());
-      TrainingProgram updatedTrainingProgram = trainingProgramDAO.save(trainingProgramExisted);
-      List<Syllabus> syllabusList = syllabusDAO.findAll();
-
-      if (!syllabusList.isEmpty()) {
-        return UpdateTrainingProgramResponse.builder()
-                .messager("Update training program success")
-                .updateTrainingProgram(updatedTrainingProgram)
-                .Syllabuslist(syllabusList)
-                .build();
-      } else {
-        return UpdateTrainingProgramResponse.builder()
-                .messager("Not found Syllabus")
-                .updateTrainingProgram(updatedTrainingProgram)
-                .build();
-      }
-    } else {
-      return UpdateTrainingProgramResponse.builder()
-              .messager("Not found training program")
-              .updateTrainingProgram(null)
-              .build();
-    }
-  }
-
-
-  @Override
-  public TrainingProgram duplicateTrainingProgram(int trainingProgramCode) {
-    TrainingProgram originalTraining = trainingProgramDAO.findById(trainingProgramCode).orElseThrow(null);
-    TrainingProgram newTrainingProgram = TrainingProgram.builder()
-            .name(originalTraining.getName())
-            .duration(originalTraining.getDuration())
-            .userID(originalTraining.getUserID())
-            .startDate(originalTraining.getStartDate())
-            .createdBy(originalTraining.getCreatedBy())
-            .createdDate(originalTraining.getCreatedDate())
-            .modifiedDate(originalTraining.getModifiedDate())
-            .modifiedBy(originalTraining.getModifiedBy())
-            .status(originalTraining.getStatus())
-            .build();
-    TrainingProgram savedTrainingProgram = trainingProgramDAO.save(newTrainingProgram);
-    if (savedTrainingProgram != null) {
-      return savedTrainingProgram;
-    } else {
-      throw new RuntimeException("Not duplicate");
-    }
-  }
-
-  @Override
-  public List<TrainingProgram> processDataFromCSV(MultipartFile file, Authentication authentication) {
-    List<TrainingProgram> trainingProgramList = new ArrayList<>();
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-      String line;
-      boolean firstLine = true;
-      SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-      while ((line = reader.readLine()) != null) {
-        if (firstLine) {
-          firstLine = false;
-          continue;
-        }
-        String[] data = line.split(",");
+    @Override
+    public ResponseEntity<ResponseObject> createTrainingProgram(
+            TrainingProgramDTO trainingProgramDTO, int trainerID, String topicCode) {
         TrainingProgram trainingProgram = new TrainingProgram();
+        Date date = new Date();
+        String token =
+                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                        .getRequest()
+                        .getHeader("Authorization")
+                        .substring(7);
+        String userEmail = jwtService.extractUserEmail(token);
+        var requester = userDAO.findUserByEmail(userEmail).orElse(null);
+        var person = userDAO.findById(trainerID).orElse(null);
+        var syllabus = syllabusDAO.findById(topicCode).orElse(null);
 
+        trainingProgram.setName(trainingProgramDTO.getName());
+        if (!trainingProgramDTO.getStartDate().before(date)
+                && date != trainingProgramDTO.getStartDate()) {
+            trainingProgram.setStartDate(trainingProgramDTO.getStartDate());
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(
+                            new ResponseObject(
+                                    "Failed", "The start day cannot below or equal current day", null));
+        }
+        if (trainingProgramDTO.getDuration() > 0) {
+            trainingProgram.setDuration(trainingProgramDTO.getDuration());
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseObject("Failed", "The duration cannot be negative", null));
+        }
+        if (trainingProgramDTO.getStatus().contains("Active")
+                || trainingProgramDTO.getStatus().contains("Inactive")
+                || trainingProgramDTO.getStatus().contains("Drafting")) {
+            trainingProgram.setStatus(trainingProgramDTO.getStatus());
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(
+                            new ResponseObject(
+                                    "Failed", "The status must be Active or Drafting or Inactive", null));
+        }
+        if (person != null && person.getRole().getRole() == Role.TRAINER) {
+            trainingProgram.setUserID(person);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseObject("Failed", "The person is not a trainer or not found", null));
+        }
+        if (requester != null && syllabus != null) {
+            trainingProgram.setCreatedBy(requester.getName());
+            trainingProgram.setCreatedDate(date);
+            trainingProgram.setModifiedBy(requester.getName());
+            trainingProgram.setModifiedDate(date);
+            var result = trainingProgramDAO.save(trainingProgram);
 
-        trainingProgram.setName(data[0]);
-        trainingProgram.setUserID(getCreator(authentication));
-        Date parsedDate = dateFormat.parse(data[2]);
-        trainingProgram.setStartDate(new java.sql.Date(parsedDate.getTime()));
-        trainingProgram.setDuration(Integer.parseInt(data[3]));
-        trainingProgram.setStatus(data[4]);
-        trainingProgram.setCreatedBy(data[5]);
-        trainingProgram.setCreatedDate(new java.sql.Date(dateFormat.parse(data[6]).getTime()));
-        trainingProgram.setModifiedDate(new java.sql.Date(dateFormat.parse(data[7]).getTime()));
-        trainingProgram.setModifiedBy(getCreator(authentication).getName());
-        trainingProgram.setTrainingProgramCode(Integer.parseInt(data[8]));
+            createTrainingSyllabus(result, syllabus);
+            return ResponseEntity.ok(new ResponseObject("Successful", "Added training program", result));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseObject("Failed", "Cannot found the user", null));
+        }
 
-        trainingProgramList.add(trainingProgram);
-      }
-      trainingProgramDAO.saveAll(trainingProgramList);
-
-    } catch (IOException | ParseException e) {
-      e.printStackTrace();
     }
-    return trainingProgramList;
-  }
 
-  public User getCreator(Authentication authentication) {
-    Object principal = authentication.getPrincipal();
-    if (principal instanceof User) {
-      return (User) principal;
+    public void createTrainingSyllabus(TrainingProgram trainingProgram, Syllabus syllabus) {
+        TrainingProgramSyllabus trainingProgramSyllabus =
+                TrainingProgramSyllabus.builder()
+                        .id(
+                                SyllabusTrainingProgramCompositeKey.builder()
+                                        .topicCode(syllabus.getTopicCode())
+                                        .trainingProgramCode(trainingProgram.getTrainingProgramCode())
+                                        .build())
+                        .topicCode(syllabus)
+                        .trainingProgramCode(trainingProgram)
+                        .sequence("high")
+                        .build();
+        trainingProgramSyllabusDAO.save(trainingProgramSyllabus);
     }
-    return null;
-  }
+
+    @Override
+    public ResponseEntity<ResponseObject> getAll() {
+        try {
+            userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
+            return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
+        } catch (Exception e) {
+            userList = Collections.emptyList();
+            return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
+        }
+    }
+
+    @Override
+    public UpdateTrainingProgramResponse updateTrainingProgram(int trainingProgramCode, int userId, UpdateTrainingProgramRequest updateTrainingProgramRequest) {
+        var trainingProgramExisted = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
+        var userExisted = userDAO.findById(userId);
+
+        if (userExisted == null) {
+            return UpdateTrainingProgramResponse.builder()
+                    .messager("User not found")
+                    .build();
+        }
+
+        if (trainingProgramExisted != null) {
+            trainingProgramExisted.setName(updateTrainingProgramRequest.getName());
+            trainingProgramExisted.setStartDate(updateTrainingProgramRequest.getStartDate());
+            trainingProgramExisted.setDuration(updateTrainingProgramRequest.getDuration());
+            trainingProgramExisted.setStatus(updateTrainingProgramRequest.getStatus());
+
+            // Check the status condition
+            String status = trainingProgramExisted.getStatus();
+            if (status != null && (status.contains("Active") || status.contains("Inactive") || status.contains("Drafting"))) {
+                trainingProgramExisted.setCreatedBy(updateTrainingProgramRequest.getCreatedBy());
+            }
+
+            trainingProgramExisted.setCreatedDate(updateTrainingProgramRequest.getCreatedDate());
+            trainingProgramExisted.setModifiedBy(updateTrainingProgramRequest.getModifiedBy());
+            trainingProgramExisted.setModifiedDate(new Date());
+            TrainingProgram updatedTrainingProgram = trainingProgramDAO.save(trainingProgramExisted);
+            List<Syllabus> syllabusList = syllabusDAO.findAll();
+
+            if (!syllabusList.isEmpty()) {
+                return UpdateTrainingProgramResponse.builder()
+                        .messager("Update training program success")
+                        .updateTrainingProgram(updatedTrainingProgram)
+                        .Syllabuslist(syllabusList)
+                        .build();
+            } else {
+                return UpdateTrainingProgramResponse.builder()
+                        .messager("Not found Syllabus")
+                        .updateTrainingProgram(updatedTrainingProgram)
+                        .build();
+            }
+        } else {
+            return UpdateTrainingProgramResponse.builder()
+                    .messager("Not found training program")
+                    .updateTrainingProgram(null)
+                    .build();
+        }
+    }
+
+
+    @Override
+    public TrainingProgram duplicateTrainingProgram(int trainingProgramCode) {
+        TrainingProgram originalTraining = trainingProgramDAO.findById(trainingProgramCode).orElseThrow(null);
+        TrainingProgram newTrainingProgram = TrainingProgram.builder()
+                .name(originalTraining.getName())
+                .duration(originalTraining.getDuration())
+                .userID(originalTraining.getUserID())
+                .startDate(originalTraining.getStartDate())
+                .createdBy(originalTraining.getCreatedBy())
+                .createdDate(originalTraining.getCreatedDate())
+                .modifiedDate(originalTraining.getModifiedDate())
+                .modifiedBy(originalTraining.getModifiedBy())
+                .status(originalTraining.getStatus())
+                .build();
+        TrainingProgram savedTrainingProgram = trainingProgramDAO.save(newTrainingProgram);
+        if (savedTrainingProgram != null) {
+            return savedTrainingProgram;
+        } else {
+            throw new RuntimeException("Not duplicate");
+        }
+    }
+
+    @Override
+    public List<TrainingProgram> processDataFromCSV(MultipartFile file, Authentication authentication) {
+        List<TrainingProgram> trainingProgramList = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            String line;
+            boolean firstLine = true;
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            while ((line = reader.readLine()) != null) {
+                if (firstLine) {
+                    firstLine = false;
+                    continue;
+                }
+                String[] data = line.split(",");
+                TrainingProgram trainingProgram = new TrainingProgram();
+
+
+                trainingProgram.setName(data[0]);
+                trainingProgram.setUserID(getCreator(authentication));
+                Date parsedDate = dateFormat.parse(data[2]);
+                trainingProgram.setStartDate(new java.sql.Date(parsedDate.getTime()));
+                trainingProgram.setDuration(Integer.parseInt(data[3]));
+                trainingProgram.setStatus(data[4]);
+                trainingProgram.setCreatedBy(data[5]);
+                trainingProgram.setCreatedDate(new java.sql.Date(dateFormat.parse(data[6]).getTime()));
+                trainingProgram.setModifiedDate(new java.sql.Date(dateFormat.parse(data[7]).getTime()));
+                trainingProgram.setModifiedBy(getCreator(authentication).getName());
+                trainingProgram.setTrainingProgramCode(Integer.parseInt(data[8]));
+
+                trainingProgramList.add(trainingProgram);
+            }
+            trainingProgramDAO.saveAll(trainingProgramList);
+
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+        return trainingProgramList;
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> changeTrainingProgramStatus(int trainingProgramCode, String value) {
+        if (checkExisted(trainingProgramCode)) {
+            switch (value) {
+                case "Activate":
+                    activateProgram(trainingProgramCode);
+                    break;
+                case "De-activate":
+                    deactivateProgram(trainingProgramCode);
+                    break;
+            }
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ResponseObject(
+                            value + " training program successfully",
+                            "Training program with code " + trainingProgramCode + " is now " + value.toLowerCase(),
+                            trainingProgramDAO.findById(trainingProgramCode).orElse(null)
+                    ));
+        }
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ResponseObject(
+                        value + " training program failed",
+                        "Training program with code " + trainingProgramCode + " is not found",
+                        "No data"
+                ));
+    }
+
+    private void activateProgram(int trainingProgramCode) {
+        TrainingProgram trainingProgram = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
+        if (trainingProgram != null) {
+            trainingProgram.setStatus("activate");
+            trainingProgramDAO.save(trainingProgram);
+        }
+    }
+
+    private void deactivateProgram(int trainingProgramCode) {
+        TrainingProgram trainingProgram = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
+        if (trainingProgram != null) {
+            trainingProgram.setStatus("deactivate");
+            trainingProgramDAO.save(trainingProgram);
+        }
+    }
+
+    private boolean checkExisted(int trainingProgramCode) {
+        return trainingProgramDAO.existsById(trainingProgramCode);
+    }
+
+    public User getCreator(Authentication authentication) {
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof User) {
+            return (User) principal;
+        }
+        return null;
+    }
 }
 
 
