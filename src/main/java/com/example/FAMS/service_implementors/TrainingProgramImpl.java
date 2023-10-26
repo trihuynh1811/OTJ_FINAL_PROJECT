@@ -75,15 +75,15 @@ public class TrainingProgramImpl implements TrainingProgramService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ResponseObject("Failed", "The duration cannot be negative", null));
         }
-        if (trainingProgramDTO.getStatus().contains("Active")
-                || trainingProgramDTO.getStatus().contains("Inactive")
-                || trainingProgramDTO.getStatus().contains("Drafting")) {
+        if (trainingProgramDTO.getStatus().contains("active")
+                || trainingProgramDTO.getStatus().contains("inactive")
+                || trainingProgramDTO.getStatus().contains("drafting")) {
             trainingProgram.setStatus(trainingProgramDTO.getStatus());
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(
                             new ResponseObject(
-                                    "Failed", "The status must be Active or Drafting or Inactive", null));
+                                    "Failed", "The status must be active or drafting or inactive", null));
         }
         if (person != null && person.getRole().getRole() == Role.TRAINER) {
             trainingProgram.setUserID(person);
@@ -136,7 +136,7 @@ public class TrainingProgramImpl implements TrainingProgramService {
     @Override
     public UpdateTrainingProgramResponse updateTrainingProgram(int trainingProgramCode, int userId, UpdateTrainingProgramRequest updateTrainingProgramRequest) {
         var trainingProgramExisted = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
-        var userExisted = userDAO.findById(userId);
+        var userExisted = userDAO.findById(userId).orElse(null);
 
         if (userExisted == null) {
             return UpdateTrainingProgramResponse.builder()
@@ -316,7 +316,7 @@ public class TrainingProgramImpl implements TrainingProgramService {
     private void activateProgram(int trainingProgramCode) {
         TrainingProgram trainingProgram = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
         if (trainingProgram != null) {
-            trainingProgram.setStatus("activate");
+            trainingProgram.setStatus("active");
             trainingProgramDAO.save(trainingProgram);
         }
     }
@@ -324,7 +324,7 @@ public class TrainingProgramImpl implements TrainingProgramService {
     private void deactivateProgram(int trainingProgramCode) {
         TrainingProgram trainingProgram = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
         if (trainingProgram != null) {
-            trainingProgram.setStatus("deactivate");
+            trainingProgram.setStatus("inactive");
             trainingProgramDAO.save(trainingProgram);
         }
     }

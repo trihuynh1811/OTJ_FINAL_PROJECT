@@ -28,7 +28,7 @@ public class TrainingProgramController {
 
 
     @PostMapping("/create")
-    @PreAuthorize("hasAuthority('user:create')")
+    @PreAuthorize("hasAuthority('training:create')")
     public ResponseEntity<ResponseObject> createTrainingProgram(
             @RequestBody TrainingProgramDTO trainingProgramDTO,
             @RequestParam(name = "trainerID") int trainerID,
@@ -38,7 +38,7 @@ public class TrainingProgramController {
     }
 
     @GetMapping("/get-all")
-    @PreAuthorize("hasAuthority('user:read')")
+    @PreAuthorize("hasAuthority('training:read')")
     public ResponseEntity<ResponseObject> getAllTrainingProgram() {
         return trainingProgram.getAll();
     }
