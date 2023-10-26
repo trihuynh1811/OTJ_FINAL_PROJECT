@@ -1,16 +1,15 @@
 package com.example.FAMS.models;
 
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import java.sql.Time;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Data
@@ -36,6 +35,12 @@ public class Class {
 
     @Column(name = "duration", nullable = false)
     private String duration;
+
+    @Column(name = "time_from", nullable = false)
+    private Time timeFrom;
+
+    @Column(name = "time_to", nullable = false)
+    private Time timeTo;
 
     @Column(name = "status", nullable = false)
     private String status;
@@ -64,9 +69,12 @@ public class Class {
     @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
-    @OneToMany(mappedBy = "classID")
+    @OneToMany(mappedBy = "classID", cascade =  CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private Set<ClassUser> classUsers = new HashSet<>();
+
+    @OneToMany(mappedBy = "classId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<ClassLearningDay> classLearningDays = new HashSet<>();
 
     public static ClassBuilder builder() {
         return new ClassBuilder();
@@ -88,6 +96,9 @@ public class Class {
         private String modifiedBy;
         private Date modifiedDate;
         private Set<ClassUser> classUsers = new HashSet<>();
+
+        // Thêm Set để biểu diễn ngày học
+        private Set<ClassLearningDay> classLearningDays = new HashSet<>();
 
         ClassBuilder() {
         }
@@ -167,8 +178,10 @@ public class Class {
             return this;
         }
 
-        public Class build() {
-            return new Class(classId, trainingProgram, className, classCode, duration, status, location, fsu, startDate, endDate, createdBy, createdDate, modifiedBy, modifiedDate, classUsers);
+        // Thêm phương thức để thiết lập danh sách ngày học
+        public ClassBuilder classLearningDays(Set<ClassLearningDay> classLearningDays) {
+            this.classLearningDays = classLearningDays;
+            return this;
         }
     }
 }
