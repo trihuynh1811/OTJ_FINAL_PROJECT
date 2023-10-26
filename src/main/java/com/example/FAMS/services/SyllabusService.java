@@ -16,11 +16,13 @@ public interface SyllabusService {
 
     public List<Syllabus> getSyllabuses();
 
+    Syllabus getDetailSyllabus(String topicCode);
+
     public int createSyllabusGeneral(CreateSyllabusGeneralRequest request, Authentication authentication);
     public void createSyllabusOutline(CreateSyllabusOutlineRequest request, Authentication authentication);
 
     public void createSyllabusOther(CreateSyllabusGeneralRequest request);
-    List<Syllabus> getDetailSyllabus();
+
 
     UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest, String topicCode);
 

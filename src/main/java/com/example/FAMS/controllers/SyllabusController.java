@@ -53,7 +53,7 @@ public class SyllabusController {
     @GetMapping("/detail/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:read')")
     public ResponseEntity<?> getDetail(@PathVariable String topicCode) {
-        Syllabus syllabus = syllabusService.getSyllabusById(topicCode);
+        Syllabus syllabus = syllabusService.getDetailSyllabus(topicCode);
         if (syllabus != null) {
             return ResponseEntity.ok(syllabus);
         } else {
@@ -99,7 +99,7 @@ public class SyllabusController {
 
             return ResponseEntity.ok().headers(headers).body(data);
         } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to read CSV file.".getBytes());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("CSV file has exist.".getBytes());
         }
     }
 

@@ -64,8 +64,9 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
-    public List<Syllabus> getDetailSyllabus() {
-        return syllabusDAO.findAll();
+    public Syllabus getDetailSyllabus(String topicCode) {
+        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
+        return optionalSyllabus.orElse(null);
     }
 
 
@@ -363,9 +364,10 @@ public class SyllabusServiceImpl implements SyllabusService {
                     continue;
                 }
                 String[] data = line.split(",");
+                Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(data[0]);
+                Syllabus syllabusexits = optionalSyllabus.orElse(null);
                 if (choice.equals("Replace")) {
-                    Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(data[0]);
-                    Syllabus syllabusexits = optionalSyllabus.orElse(null);
+
                     if (syllabusexits != null) {
                         syllabusexits.setCreatedBy(getCreator(authentication).getName());
                         // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
@@ -409,12 +411,10 @@ public class SyllabusServiceImpl implements SyllabusService {
                         syllabusList.add(c);
                         syllabusDAO.saveAll(syllabusList);
                     }
-                }else {
-                    Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(data[0]);
-                    Syllabus syllabusexits = optionalSyllabus.orElse(null);
-                    if (syllabusexits != null){
+                } else if (choice.equals("Skip")){
+                    if (syllabusexits != null) {
 
-                    }else {
+                    } else {
                         Syllabus c = new Syllabus();
 
                         c.setTopicCode(data[0]);
