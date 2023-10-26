@@ -15,19 +15,19 @@ import java.util.Date;
 @NoArgsConstructor
 public class CreateClassDTO {
 
-    private String classId;
-    private String className;
-    private int duration;
-    private String timeFrom;
-    private String timeTo;
-    private String status;
-    private String location;
-    private String fsu;
-    private String startDate;
-    private String endDate;
-    private String attendee;
-    private int attendeePlanned;
-    private int attendeeAccepted;
-    private int attendeeActual;
-    private int TrainingProgram;
+     String classId;
+     String className;
+     int duration;
+     String timeFrom;
+     String timeTo;
+     String status;
+     String location;
+     String fsu;
+     String startDate;
+     String endDate;
+     String attendee;
+     int attendeePlanned;
+     int attendeeAccepted;
+     int attendeeActual;
+     int TrainingProgram;
 }

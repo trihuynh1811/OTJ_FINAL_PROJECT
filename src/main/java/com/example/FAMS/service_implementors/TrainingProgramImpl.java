@@ -1,5 +1,6 @@
 package com.example.FAMS.service_implementors;
 
+import com.example.FAMS.dto.responses.Class.TrainingProgramDTO;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.TrainingProgramModified;
 import com.example.FAMS.enums.Role;
@@ -36,7 +37,7 @@ public class TrainingProgramImpl implements TrainingProgramService {
 
   @Override
   public ResponseEntity<ResponseObject> createTrainingProgram(
-      TrainingProgramDTO trainingProgramDTO, int trainerID, String topicCode) {
+          TrainingProgramDTO trainingProgramDTO, int trainerID, String topicCode) {
     TrainingProgram trainingProgram = new TrainingProgram();
     Date date = new Date();
     String token =
@@ -49,8 +50,8 @@ public class TrainingProgramImpl implements TrainingProgramService {
     var person = userDAO.findById(trainerID).orElse(null);
     var syllabus = syllabusDAO.findById(topicCode).orElse(null);
 
-    trainingProgram.setName(trainingProgramDTO.getName());
-    if (!trainingProgramDTO.getStartDate().before(date)
+    trainingProgram.setName(trainingProgramDTO.getTrainingProgramName());
+    if (!trainingProgramDTO.g().before(date)
         && date != trainingProgramDTO.getStartDate()) {
       trainingProgram.setStartDate(trainingProgramDTO.getStartDate());
     } else {

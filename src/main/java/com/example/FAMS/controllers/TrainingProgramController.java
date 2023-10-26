@@ -1,5 +1,6 @@
 package com.example.FAMS.controllers;
 
+import com.example.FAMS.dto.responses.Class.TrainingProgramDTO;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.service_implementors.TrainingProgramImpl;
 import lombok.RequiredArgsConstructor;

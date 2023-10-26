@@ -1,5 +1,6 @@
 package com.example.FAMS.services;
 
+import com.example.FAMS.dto.responses.Class.TrainingProgramDTO;
 import com.example.FAMS.dto.responses.ResponseObject;
 import org.springframework.http.ResponseEntity;
 
