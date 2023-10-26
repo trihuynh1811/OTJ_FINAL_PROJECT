@@ -27,7 +27,9 @@ public interface SyllabusService {
     Syllabus getSyllabusById(String topicCode);
 
 
-    List<Syllabus> processDataFromCSV(MultipartFile file, Authentication authentication) throws IOException;
+
+
+    List<Syllabus> processDataFromCSV(MultipartFile file, String choice, Authentication authentication) throws IOException;
 
     Syllabus duplicateSyllabus(String topicCode);
 }
