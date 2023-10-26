@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
 public class TrainingProgramController {
+
     private final TrainingProgramImpl trainingProgram;
 
     @PostMapping("/create")
