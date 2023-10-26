@@ -18,9 +18,8 @@ public interface TrainingProgramService {
 
     UpdateTrainingProgramResponse updateTrainingProgram(int trainingProgramCode, int  userId, UpdateTrainingProgramRequest updateTrainingProgramRequest);
 
-    TrainingProgram duplicateTrainingProgram(int trainingProgramCode);
-
-    List<TrainingProgram> processDataFromCSV(MultipartFile file, Authentication authentication);
+    TrainingProgram duplicateTrainingProgram(int trainingProramCode);
 
     ResponseEntity<?> changeTrainingProgramStatus(int trainingProgramCode, String value);
+    ResponseEntity<ResponseObject> processDataFromCSV(MultipartFile file, String choice, Authentication authentication) throws Exception;
 }

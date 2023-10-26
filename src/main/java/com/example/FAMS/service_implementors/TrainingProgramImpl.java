@@ -23,10 +23,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -151,7 +148,6 @@ public class TrainingProgramImpl implements TrainingProgramService {
             trainingProgramExisted.setName(updateTrainingProgramRequest.getName());
             trainingProgramExisted.setStartDate(updateTrainingProgramRequest.getStartDate());
             trainingProgramExisted.setDuration(updateTrainingProgramRequest.getDuration());
-            trainingProgramExisted.setStatus(updateTrainingProgramRequest.getStatus());
 
             // Check the status condition
             String status = trainingProgramExisted.getStatus();
@@ -209,41 +205,84 @@ public class TrainingProgramImpl implements TrainingProgramService {
     }
 
     @Override
-    public List<TrainingProgram> processDataFromCSV(MultipartFile file, Authentication authentication) {
-        List<TrainingProgram> trainingProgramList = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-            String line;
-            boolean firstLine = true;
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-            while ((line = reader.readLine()) != null) {
-                if (firstLine) {
-                    firstLine = false;
-                    continue;
-                }
-                String[] data = line.split(",");
-                TrainingProgram trainingProgram = new TrainingProgram();
-
-
-                trainingProgram.setName(data[0]);
-                trainingProgram.setUserID(getCreator(authentication));
-                Date parsedDate = dateFormat.parse(data[2]);
-                trainingProgram.setStartDate(new java.sql.Date(parsedDate.getTime()));
-                trainingProgram.setDuration(Integer.parseInt(data[3]));
-                trainingProgram.setStatus(data[4]);
-                trainingProgram.setCreatedBy(data[5]);
-                trainingProgram.setCreatedDate(new java.sql.Date(dateFormat.parse(data[6]).getTime()));
-                trainingProgram.setModifiedDate(new java.sql.Date(dateFormat.parse(data[7]).getTime()));
-                trainingProgram.setModifiedBy(getCreator(authentication).getName());
-                trainingProgram.setTrainingProgramCode(Integer.parseInt(data[8]));
-
-                trainingProgramList.add(trainingProgram);
+    public ResponseEntity<ResponseObject> processDataFromCSV(MultipartFile file, String choice, Authentication authentication) throws Exception {
+        int count = 0;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+        String line;
+        boolean firstLine = true;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        while ((line = reader.readLine()) != null) {
+            if (firstLine) {
+                firstLine = false;
+                continue;
             }
-            trainingProgramDAO.saveAll(trainingProgramList);
+            String[] data = line.split(",");
+            TrainingProgram trainingProgramOption = trainingProgramDAO.findById(Integer.parseInt(data[6])).orElse(null);
+            if (data.length == 7) {
+                if (choice.equalsIgnoreCase("Replace")) {
+                    if (trainingProgramOption != null) {
+                        trainingProgramDAO.deleteById(trainingProgramOption.getTrainingProgramCode());
+                    }
+                    count++;
+                    trainingProgramDAO.save(
+                            TrainingProgram
+                                    .builder()
+                                    .name(data[0])
+                                    .userID(getCreator(authentication))
+                                    .startDate(new java.sql.Date(
+                                            dateFormat.parse(data[1]).getTime()
+                                    ))
+                                    .duration(Integer.parseInt(data[2]))
+                                    .status(data[3])
+                                    .createdBy(getCreator(authentication).getName())
+                                    .createdDate(new java.sql.Date(dateFormat.parse(data[4]).getTime()))
+                                    .modifiedBy(getCreator(authentication).getName())
+                                    .modifiedDate(new java.sql.Date(dateFormat.parse(data[5]).getTime()))
+                                    .trainingProgramCode(Integer.parseInt(data[6]))
+                                    .build()
+                    );
+                }
 
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
+            } else {
+                if (trainingProgramOption == null) {
+                    count++;
+                    trainingProgramDAO.save(
+                            TrainingProgram
+                                    .builder()
+                                    .name(data[0])
+                                    .userID(getCreator(authentication))
+                                    .startDate(new java.sql.Date(
+                                            dateFormat.parse(data[1]).getTime()
+                                    ))
+                                    .duration(Integer.parseInt(data[2]))
+                                    .status(data[3])
+                                    .createdBy(getCreator(authentication).getName())
+                                    .createdDate(new java.sql.Date(dateFormat.parse(data[4]).getTime()))
+                                    .modifiedBy(getCreator(authentication).getName())
+                                    .modifiedDate(new java.sql.Date(dateFormat.parse(data[5]).getTime()))
+                                    .trainingProgramCode(Integer.parseInt(data[6]))
+                                    .build()
+                    );
+                }
+            }
         }
-        return trainingProgramList;
+        if (count > 0) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(ResponseObject
+                            .builder()
+                            .status("Success")
+                            .message("Import successfully")
+                            .payload(null)
+                            .build());
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ResponseObject
+                        .builder()
+                        .status("Fail")
+                        .message("Import failed")
+                        .payload(null)
+                        .build());
     }
 
     @Override
