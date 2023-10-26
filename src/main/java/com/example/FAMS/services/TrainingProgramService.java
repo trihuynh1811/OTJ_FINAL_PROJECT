@@ -20,5 +20,5 @@ public interface TrainingProgramService {
 
     TrainingProgram duplicateTrainingProgram(int trainingProramCode);
 
-    List<TrainingProgram> processDataFromCSV(MultipartFile file, Authentication authentication);
+    List<TrainingProgram> processDataFromCSV(MultipartFile file, String choice, Authentication authentication);
 }

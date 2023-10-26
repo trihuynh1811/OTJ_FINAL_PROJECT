@@ -23,10 +23,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -208,7 +206,7 @@ public class TrainingProgramImpl implements TrainingProgramService {
   }
 
   @Override
-  public List<TrainingProgram> processDataFromCSV(MultipartFile file, Authentication authentication) {
+  public List<TrainingProgram> processDataFromCSV(MultipartFile file, String choice, Authentication authentication) {
     List<TrainingProgram> trainingProgramList = new ArrayList<>();
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
       String line;
@@ -220,29 +218,70 @@ public class TrainingProgramImpl implements TrainingProgramService {
           continue;
         }
         String[] data = line.split(",");
+        Optional<TrainingProgram> optionalTrainingProgram = trainingProgramDAO.findById(Integer.parseInt(data[6]));
+        TrainingProgram trainingProgramOption = optionalTrainingProgram.orElse(null);
         TrainingProgram trainingProgram = new TrainingProgram();
+        if (choice.equals("Replace")) {
 
+          if (trainingProgramOption != null) {
+            trainingProgramOption.setName(data[0]);
+            trainingProgramOption.setUserID(getCreator(authentication));
+            Date parsedDate = dateFormat.parse(data[1]);
+            trainingProgramOption.setStartDate(new java.sql.Date(parsedDate.getTime()));
+            trainingProgramOption.setDuration(Integer.parseInt(data[2]));
+            trainingProgramOption.setStatus(data[3]);
+            trainingProgramOption.setCreatedBy(getCreator(authentication).getName());
+            trainingProgramOption.setCreatedDate(new java.sql.Date(dateFormat.parse(data[4]).getTime()));
+            trainingProgramOption.setModifiedBy(getCreator(authentication).getName());
+            trainingProgramOption.setModifiedDate(new java.sql.Date(dateFormat.parse(data[5]).getTime()));
+            trainingProgramOption.setTrainingProgramCode(Integer.parseInt(data[6]));
+            trainingProgramDAO.save(trainingProgramOption);
+          } else {
 
-        trainingProgram.setName(data[0]);
-        trainingProgram.setUserID(getCreator(authentication));
-        Date parsedDate = dateFormat.parse(data[2]);
-        trainingProgram.setStartDate(new java.sql.Date(parsedDate.getTime()));
-        trainingProgram.setDuration(Integer.parseInt(data[3]));
-        trainingProgram.setStatus(data[4]);
-        trainingProgram.setCreatedBy(data[5]);
-        trainingProgram.setCreatedDate(new java.sql.Date(dateFormat.parse(data[6]).getTime()));
-        trainingProgram.setModifiedDate(new java.sql.Date(dateFormat.parse(data[7]).getTime()));
-        trainingProgram.setModifiedBy(getCreator(authentication).getName());
-        trainingProgram.setTrainingProgramCode(Integer.parseInt(data[8]));
+            trainingProgram.setName(data[0]);
+            trainingProgram.setUserID(getCreator(authentication));
+            Date parsedDate = dateFormat.parse(data[1]);
+            trainingProgram.setStartDate(new java.sql.Date(parsedDate.getTime()));
+            trainingProgram.setDuration(Integer.parseInt(data[2]));
+            trainingProgram.setStatus(data[3]);
+            trainingProgram.setCreatedBy(getCreator(authentication).getName());
+            trainingProgram.setCreatedDate(new java.sql.Date(dateFormat.parse(data[4]).getTime()));
+            trainingProgram.setModifiedBy(getCreator(authentication).getName());
+            trainingProgram.setModifiedDate(new java.sql.Date(dateFormat.parse(data[5]).getTime()));
+            trainingProgram.setTrainingProgramCode(Integer.parseInt(data[6]));
+            trainingProgramList.add(trainingProgram);
+            trainingProgramDAO.saveAll(trainingProgramList);
+          }
+        }else {
+          if (trainingProgramOption != null) {
 
-        trainingProgramList.add(trainingProgram);
+          } else {
+
+            trainingProgram.setName(data[0]);
+            trainingProgram.setUserID(getCreator(authentication));
+            Date parsedDate = dateFormat.parse(data[1]);
+            trainingProgram.setStartDate(new java.sql.Date(parsedDate.getTime()));
+            trainingProgram.setDuration(Integer.parseInt(data[2]));
+            trainingProgram.setStatus(data[3]);
+            trainingProgram.setCreatedBy(getCreator(authentication).getName());
+            trainingProgram.setCreatedDate(new java.sql.Date(dateFormat.parse(data[4]).getTime()));
+            trainingProgram.setModifiedBy(getCreator(authentication).getName());
+            trainingProgram.setModifiedDate(new java.sql.Date(dateFormat.parse(data[5]).getTime()));
+            trainingProgram.setTrainingProgramCode(Integer.parseInt(data[6]));
+            trainingProgramList.add(trainingProgram);
+            trainingProgramDAO.saveAll(trainingProgramList);
+          }
+
+        }
       }
-      trainingProgramDAO.saveAll(trainingProgramList);
 
-    } catch (IOException | ParseException e) {
-      e.printStackTrace();
+
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
     }
-    return trainingProgramList;
+
+
+      return trainingProgramList;
   }
 
   public User getCreator(Authentication authentication) {

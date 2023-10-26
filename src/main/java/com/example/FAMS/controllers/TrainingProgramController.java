@@ -61,12 +61,13 @@ public class TrainingProgramController {
 
     @PostMapping("/importCSV")
     @PreAuthorize("hasAuthority('training:import')")
-    public ResponseEntity<?> loadDataInFile(@RequestParam("file") MultipartFile file, Authentication authentication) throws IOException {
+    public ResponseEntity<?> loadDataInFile(@RequestParam("file") MultipartFile file,
+                                            @RequestParam("choice") String choice, Authentication authentication) throws IOException {
         if (file.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded.");
         }
         try {
-            List<TrainingProgram> trainingProgramList = trainingProgram.processDataFromCSV(file, authentication);
+            List<TrainingProgram> trainingProgramList = trainingProgram.processDataFromCSV(file,choice, authentication);
             return ResponseEntity.ok(trainingProgramList);
         } catch (Exception e) {
             e.printStackTrace();
