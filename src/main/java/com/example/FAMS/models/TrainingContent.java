@@ -44,10 +44,10 @@ public class TrainingContent {
     private int duration;
 
     @Column(nullable = false, name = "training_format")
-    private String trainingFormat;
+    private boolean trainingFormat;
 
-    @Column(name = "content")
-    private String content;
+    @Column(name = "content_name")
+    private String content_name;
 
     @Column(name = "note")
     private String note;

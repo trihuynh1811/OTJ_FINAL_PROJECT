@@ -94,6 +94,7 @@ public class User implements UserDetails {
     @ToString.Exclude
     private final Set<Token> tokens = new HashSet<>();
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.getAuthorities();

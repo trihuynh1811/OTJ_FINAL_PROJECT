@@ -23,56 +23,56 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
 public class TrainingProgramController {
-    private final TrainingProgramImpl trainingProgram;
+  private final TrainingProgramImpl trainingProgram;
 
+  @PostMapping("/create")
+  @PreAuthorize("hasAuthority('user:create')")
+  public ResponseEntity<ResponseObject> createTrainingProgram(
+      @RequestBody TrainingProgramDTO trainingProgramDTO,
+      @RequestParam(name = "trainerID") int trainerID,
+      @RequestParam(name = "topicCode") String topicCode) {
+    return trainingProgram.createTrainingProgram(trainingProgramDTO, trainerID, topicCode);
+  }
 
+  @GetMapping("/get-all")
+  @PreAuthorize("hasAuthority('user:read')")
+  public ResponseEntity<ResponseObject> getAllTrainingProgram() {
+    return trainingProgram.getAll();
+  }
 
-    @PostMapping("/create")
-    @PreAuthorize("hasAuthority('user:create')")
-    public ResponseEntity<ResponseObject> createTrainingProgram(
-            @RequestBody TrainingProgramDTO trainingProgramDTO,
-            @RequestParam(name = "trainerID") int trainerID,
-            @RequestParam(name = "topicCode") String topicCode
-    ) {
-        return trainingProgram.createTrainingProgram(trainingProgramDTO, trainerID, topicCode);
+  @PutMapping("/update-program/{trainingProgramCode}/{userId}")
+  @PreAuthorize("hasAnyAuthority('training:update')")
+  public ResponseEntity<UpdateTrainingProgramResponse> updateTrainingProgramRequest(
+      @PathVariable int trainingProgramCode,
+      @PathVariable int userId,
+      @RequestBody UpdateTrainingProgramRequest updateTrainingProgramRequest) {
+    return ResponseEntity.ok(
+        trainingProgram.updateTrainingProgram(
+            trainingProgramCode, userId, updateTrainingProgramRequest));
+  }
+
+  @GetMapping("/duplicate/{trainingProramCode}")
+  @PreAuthorize("hasAuthority('training:read')")
+  public ResponseEntity<TrainingProgram> duplicateTrainingProgram(
+      @PathVariable int trainingProramCode) {
+    return ResponseEntity.ok(trainingProgram.duplicateTrainingProgram(trainingProramCode));
+  }
+
+  @PostMapping("/importCSV")
+  @PreAuthorize("hasAuthority('training:import')")
+  public ResponseEntity<?> loadDataInFile(
+      @RequestParam("file") MultipartFile file, Authentication authentication) throws IOException {
+    if (file.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded.");
     }
-
-    @GetMapping("/get-all")
-    @PreAuthorize("hasAuthority('user:read')")
-    public ResponseEntity<ResponseObject> getAllTrainingProgram() {
-        return trainingProgram.getAll();
+    try {
+      List<TrainingProgram> trainingProgramList =
+          trainingProgram.processDataFromCSV(file, authentication);
+      return ResponseEntity.ok(trainingProgramList);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("An error occurred while processing the file.");
     }
-
-    @PutMapping("/update-program/{trainingProgramCode}/{userId}")
-    @PreAuthorize("hasAnyAuthority('training:update')")
-    public ResponseEntity<UpdateTrainingProgramResponse> updateTrainingProgramRequest(
-            @PathVariable int trainingProgramCode,
-            @PathVariable int userId,
-            @RequestBody UpdateTrainingProgramRequest updateTrainingProgramRequest
-    ) {
-        return ResponseEntity.ok(trainingProgram.updateTrainingProgram(trainingProgramCode, userId, updateTrainingProgramRequest));
-    }
-
-    @GetMapping("/duplicate/{trainingProramCode}")
-    @PreAuthorize("hasAuthority('training:read')")
-    public ResponseEntity<TrainingProgram> duplicateTrainingProgram(@PathVariable int trainingProramCode){
-        return ResponseEntity.ok(trainingProgram.duplicateTrainingProgram(trainingProramCode));
-    }
-
-    @PostMapping("/importCSV")
-    @PreAuthorize("hasAuthority('training:import')")
-    public ResponseEntity<?> loadDataInFile(@RequestParam("file") MultipartFile file, Authentication authentication) throws IOException {
-        if (file.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded.");
-        }
-        try {
-            List<TrainingProgram> trainingProgramList = trainingProgram.processDataFromCSV(file, authentication);
-            return ResponseEntity.ok(trainingProgramList);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the file.");
-        }
-    }
-
-
+  }
 }

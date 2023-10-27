@@ -48,14 +48,14 @@ public class TrainingProgramImpl implements TrainingProgramService {
 
   @Override
   public ResponseEntity<ResponseObject> createTrainingProgram(
-          TrainingProgramDTO trainingProgramDTO, int trainerID, String topicCode) {
+      TrainingProgramDTO trainingProgramDTO, int trainerID, String topicCode) {
     TrainingProgram trainingProgram = new TrainingProgram();
     Date date = new Date();
     String token =
-            ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                    .getRequest()
-                    .getHeader("Authorization")
-                    .substring(7);
+        ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+            .getRequest()
+            .getHeader("Authorization")
+            .substring(7);
     String userEmail = jwtService.extractUserEmail(token);
     var requester = userDAO.findUserByEmail(userEmail).orElse(null);
     var person = userDAO.findById(trainerID).orElse(null);
@@ -63,35 +63,35 @@ public class TrainingProgramImpl implements TrainingProgramService {
 
     trainingProgram.setName(trainingProgramDTO.getName());
     if (!trainingProgramDTO.getStartDate().before(date)
-            && date != trainingProgramDTO.getStartDate()) {
+        && date != trainingProgramDTO.getStartDate()) {
       trainingProgram.setStartDate(trainingProgramDTO.getStartDate());
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(
-                      new ResponseObject(
-                              "Failed", "The start day cannot below or equal current day", null));
+          .body(
+              new ResponseObject(
+                  "Failed", "The start day cannot below or equal current day", null));
     }
     if (trainingProgramDTO.getDuration() > 0) {
       trainingProgram.setDuration(trainingProgramDTO.getDuration());
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseObject("Failed", "The duration cannot be negative", null));
+          .body(new ResponseObject("Failed", "The duration cannot be negative", null));
     }
     if (trainingProgramDTO.getStatus().contains("Active")
-            || trainingProgramDTO.getStatus().contains("Inactive")
-            || trainingProgramDTO.getStatus().contains("Drafting")) {
+        || trainingProgramDTO.getStatus().contains("Inactive")
+        || trainingProgramDTO.getStatus().contains("Drafting")) {
       trainingProgram.setStatus(trainingProgramDTO.getStatus());
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(
-                      new ResponseObject(
-                              "Failed", "The status must be Active or Drafting or Inactive", null));
+          .body(
+              new ResponseObject(
+                  "Failed", "The status must be Active or Drafting or Inactive", null));
     }
     if (person != null && person.getRole().getRole() == Role.TRAINER) {
       trainingProgram.setUserID(person);
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseObject("Failed", "The person is not a trainer or not found", null));
+          .body(new ResponseObject("Failed", "The person is not a trainer or not found", null));
     }
     if (requester != null && syllabus != null) {
       trainingProgram.setCreatedBy(requester.getName());
@@ -104,23 +104,22 @@ public class TrainingProgramImpl implements TrainingProgramService {
       return ResponseEntity.ok(new ResponseObject("Successful", "Added training program", result));
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseObject("Failed", "Cannot found the user", null));
+          .body(new ResponseObject("Failed", "Cannot found the user", null));
     }
-
   }
 
   public void createTrainingSyllabus(TrainingProgram trainingProgram, Syllabus syllabus) {
     TrainingProgramSyllabus trainingProgramSyllabus =
-            TrainingProgramSyllabus.builder()
-                    .id(
-                            SyllabusTrainingProgramCompositeKey.builder()
-                                    .topicCode(syllabus.getTopicCode())
-                                    .trainingProgramCode(trainingProgram.getTrainingProgramCode())
-                                    .build())
-                    .topicCode(syllabus)
-                    .trainingProgramCode(trainingProgram)
-                    .sequence("high")
-                    .build();
+        TrainingProgramSyllabus.builder()
+            .id(
+                SyllabusTrainingProgramCompositeKey.builder()
+                    .topicCode(syllabus.getTopicCode())
+                    .trainingProgramCode(trainingProgram.getTrainingProgramCode())
+                    .build())
+            .topicCode(syllabus)
+            .trainingProgramCode(trainingProgram)
+            .sequence("high")
+            .build();
     trainingProgramSyllabusDAO.save(trainingProgramSyllabus);
   }
 
@@ -136,14 +135,15 @@ public class TrainingProgramImpl implements TrainingProgramService {
   }
 
   @Override
-  public UpdateTrainingProgramResponse updateTrainingProgram(int trainingProgramCode, int userId, UpdateTrainingProgramRequest updateTrainingProgramRequest) {
+  public UpdateTrainingProgramResponse updateTrainingProgram(
+      int trainingProgramCode,
+      int userId,
+      UpdateTrainingProgramRequest updateTrainingProgramRequest) {
     var trainingProgramExisted = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
     var userExisted = userDAO.findById(userId);
 
     if (userExisted == null) {
-      return UpdateTrainingProgramResponse.builder()
-              .messager("User not found")
-              .build();
+      return UpdateTrainingProgramResponse.builder().messager("User not found").build();
     }
 
     if (trainingProgramExisted != null) {
@@ -154,7 +154,10 @@ public class TrainingProgramImpl implements TrainingProgramService {
 
       // Check the status condition
       String status = trainingProgramExisted.getStatus();
-      if (status != null && (status.contains("Active") || status.contains("Inactive") || status.contains("Drafting"))) {
+      if (status != null
+          && (status.contains("Active")
+              || status.contains("Inactive")
+              || status.contains("Drafting"))) {
         trainingProgramExisted.setCreatedBy(updateTrainingProgramRequest.getCreatedBy());
       }
 
@@ -166,29 +169,30 @@ public class TrainingProgramImpl implements TrainingProgramService {
 
       if (!syllabusList.isEmpty()) {
         return UpdateTrainingProgramResponse.builder()
-                .messager("Update training program success")
-                .updateTrainingProgram(updatedTrainingProgram)
-                .Syllabuslist(syllabusList)
-                .build();
+            .messager("Update training program success")
+            .updateTrainingProgram(updatedTrainingProgram)
+            .Syllabuslist(syllabusList)
+            .build();
       } else {
         return UpdateTrainingProgramResponse.builder()
-                .messager("Not found Syllabus")
-                .updateTrainingProgram(updatedTrainingProgram)
-                .build();
+            .messager("Not found Syllabus")
+            .updateTrainingProgram(updatedTrainingProgram)
+            .build();
       }
     } else {
       return UpdateTrainingProgramResponse.builder()
-              .messager("Not found training program")
-              .updateTrainingProgram(null)
-              .build();
+          .messager("Not found training program")
+          .updateTrainingProgram(null)
+          .build();
     }
   }
 
-
   @Override
   public TrainingProgram duplicateTrainingProgram(int trainingProgramCode) {
-    TrainingProgram originalTraining = trainingProgramDAO.findById(trainingProgramCode).orElseThrow(null);
-    TrainingProgram newTrainingProgram = TrainingProgram.builder()
+    TrainingProgram originalTraining =
+        trainingProgramDAO.findById(trainingProgramCode).orElseThrow(null);
+    TrainingProgram newTrainingProgram =
+        TrainingProgram.builder()
             .name(originalTraining.getName())
             .duration(originalTraining.getDuration())
             .userID(originalTraining.getUserID())
@@ -208,7 +212,8 @@ public class TrainingProgramImpl implements TrainingProgramService {
   }
 
   @Override
-  public List<TrainingProgram> processDataFromCSV(MultipartFile file, Authentication authentication) {
+  public List<TrainingProgram> processDataFromCSV(
+      MultipartFile file, Authentication authentication) {
     List<TrainingProgram> trainingProgramList = new ArrayList<>();
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
       String line;
@@ -221,7 +226,6 @@ public class TrainingProgramImpl implements TrainingProgramService {
         }
         String[] data = line.split(",");
         TrainingProgram trainingProgram = new TrainingProgram();
-
 
         trainingProgram.setName(data[0]);
         trainingProgram.setUserID(getCreator(authentication));
@@ -253,8 +257,3 @@ public class TrainingProgramImpl implements TrainingProgramService {
     return null;
   }
 }
-
-
-
-
-

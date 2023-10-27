@@ -155,8 +155,8 @@ public class SyllabusServiceImpl implements SyllabusService {
                             .unitCode(trainingUnit)
                             .deliveryType(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getDeliveryType())
                             .note(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getNote())
-                            .content(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getContent())
-                            .trainingFormat(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getTrainingFormat())
+                            .content_name(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getContent())
+                            .trainingFormat(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).isOnline())
                             .duration(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getDuration())
                             .build();
 

@@ -18,12 +18,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -141,6 +143,43 @@ public class UserServiceImpl implements UserService {
             }
         }
         return responseObject;
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> getAllTrainersByRole() {
+        try {
+            var list = userDAO.findUsersByRole(userPermissionDAO.findById(2).orElse(null));
+            logger.info("Return list of user");
+            return ResponseEntity.ok(new ResponseObject("Successful", "Found user", list));
+        } catch (Exception e) {
+            var list = Collections.emptyList();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Failed", "Not found user", list));
+        }
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> getAllAdminsByRole() {
+        try {
+            var list = userDAO.findUsersByRole(userPermissionDAO.findById(4).orElse(null));
+            logger.info("Return list of user");
+            return ResponseEntity.ok(new ResponseObject("Successful", "Found user", list));
+        } catch (Exception e) {
+            var list = Collections.emptyList();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Failed", "Not found user", list));
+        }
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> getAllAdminAndSuperAdminByRole() {
+        try {
+            var class_Admin = userDAO.findUsersByRole(userPermissionDAO.findById(4).orElse(null));
+            var super_Admin = userDAO.findUsersByRole(userPermissionDAO.findById(1).orElse(null));
+            logger.info("Return list of user");
+      return ResponseEntity.ok(new ResponseObject("Successful", "Found user", Arrays.asList(class_Admin,super_Admin)));
+        } catch (Exception e) {
+            var list = Collections.emptyList();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Failed", "Not found user", list));
+        }
     }
 
     private ResponseObject disableUser(String performUserEmail, String deletedUserEmail, Role role) {

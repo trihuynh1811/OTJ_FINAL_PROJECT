@@ -34,212 +34,278 @@ import static com.example.FAMS.enums.Permission.*;
 @RequestMapping(path = "/")
 public class FamsApplication {
 
-    private final UserDAO userDAO;
-    private final UserPermissionDAO userPermissionDAO;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationService authenticationService;
-    private final StandardOutputDAO standardOutputDAO;
-    private final SyllabusDAO syllabusDAO;
+  private final UserDAO userDAO;
+  private final UserPermissionDAO userPermissionDAO;
+  private final PasswordEncoder passwordEncoder;
+  private final AuthenticationService authenticationService;
+  private final StandardOutputDAO standardOutputDAO;
+  private final SyllabusDAO syllabusDAO;
 
-    public static void main(String[] args) {
-        SpringApplication.run(FamsApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(FamsApplication.class, args);
+  }
 
-    @Bean
-    public CommandLineRunner initData() {
-        return new CommandLineRunner() {
-            @Override
-            public void run(String... args) throws Exception {
-                if (standardOutputDAO.findAll().size() == 0) {
-                    List<StandardOutput> standardOutputList = new ArrayList<>();
-                    String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
-                    for (int i = 0; i < objectiveCode.length; i++) {
-                        StandardOutput standardOutput = StandardOutput.builder()
-                                .outputCode(objectiveCode[i].toUpperCase())
-                                .outputName(objectiveCode[i])
-                                .description("some bs description.")
-                                .build();
+  @Bean
+  public CommandLineRunner initData() {
+    return new CommandLineRunner() {
+      @Override
+      public void run(String... args) throws Exception {
+        if (standardOutputDAO.findAll().size() == 0) {
+          List<StandardOutput> standardOutputList = new ArrayList<>();
+          String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
+          for (int i = 0; i < objectiveCode.length; i++) {
+            StandardOutput standardOutput =
+                StandardOutput.builder()
+                    .outputCode(objectiveCode[i].toUpperCase())
+                    .outputName(objectiveCode[i])
+                    .description("some bs description.")
+                    .build();
 
-                        standardOutputList.add(standardOutput);
-                    }
-                    standardOutputDAO.saveAll(standardOutputList);
-                }
-                if (userPermissionDAO.findAll().size() == 0) {
-                    List<UserPermission> permissionList = new ArrayList<>();
-                    permissionList.add(UserPermission.builder()
-                            .role(Role.SUPER_ADMIN)
-                            .syllabus(
-                                    List.of(
-                                            SYLLABUS_CREATE, SYLLABUS_VIEW, SYLLABUS_MODIFY, SYLLABUS_DELETE, SYLLABUS_IMPORT))
-                            .trainingProgram(
-                                    List.of(
-                                            TRAINING_CREATE, TRAINING_VIEW, TRAINING_MODIFY, TRAINING_DELETE, TRAINING_IMPORT))
-                            .userClass(
-                                    List.of(CLASS_CREATE, CLASS_VIEW, CLASS_MODIFY, CLASS_DELETE, CLASS_IMPORT))
-                            .userManagement(
-                                    List.of(USER_CREATE, USER_VIEW, USER_MODIFY, USER_DELETE, USER_IMPORT))
-                            .learningMaterial(List.of())
-                            .build());
-                    permissionList.add(UserPermission.builder()
-                            .role(Role.TRAINER)
-                            .syllabus(List.of(SYLLABUS_CREATE, SYLLABUS_VIEW, SYLLABUS_MODIFY, SYLLABUS_DELETE, SYLLABUS_IMPORT))
-                            .trainingProgram(List.of(TRAINING_VIEW))
-                            .userClass(List.of(CLASS_VIEW))
-                            .userManagement(List.of())
-                            .learningMaterial(List.of())
-                            .build());
-                    permissionList.add(UserPermission.builder()
-                            .role(Role.USER)
-                            .syllabus(List.of())
-                            .trainingProgram(List.of())
-                            .userClass(List.of())
-                            .userManagement(List.of())
-                            .learningMaterial(List.of())
-                            .build());
-                    permissionList.add(UserPermission.builder()
-                            .role(Role.CLASS_ADMIN)
-                            .syllabus(
-                                    List.of(
-                                            SYLLABUS_CREATE, SYLLABUS_VIEW, SYLLABUS_MODIFY, SYLLABUS_DELETE, SYLLABUS_IMPORT))
-                            .trainingProgram(
-                                    List.of(
-                                            TRAINING_CREATE, TRAINING_VIEW, TRAINING_MODIFY, TRAINING_DELETE, TRAINING_IMPORT))
-                            .userClass(
-                                    List.of(CLASS_CREATE, CLASS_VIEW, CLASS_MODIFY, CLASS_DELETE, CLASS_IMPORT))
-                            .userManagement(
-                                    List.of(USER_CREATE, USER_VIEW, USER_MODIFY, USER_DELETE, USER_IMPORT))
-                            .learningMaterial(List.of())
-                            .build());
-                    userPermissionDAO.saveAll(permissionList);
-                }
-                if (userDAO.findAll().size() == 0) {
-                    List<User> userList = new ArrayList<>();
-                    userList.add(User.builder()
-                            .email("admin@gmail.com")
-                            .password(passwordEncoder.encode("1"))
-                            .name("Admin")
-                            .phone("0977545450")
-                            .dob(new Date())
-                            .gender("male")
-                            .role(userPermissionDAO.findUserPermissionByRole(Role.SUPER_ADMIN).orElse(null))
-                            .status(true)
-                            .createdBy("Hoang Anh")
-                            .createdDate(new Date())
-                            .modifiedBy("Hoang Anh")
-                            .modifiedDate(new Date())
-                            .build());
-                    userList.add(User.builder()
-                            .email("classadmin@gmail.com")
-                            .password(passwordEncoder.encode("1"))
-                            .name("Class Admin")
-                            .phone("0977545451")
-                            .dob(new Date())
-                            .gender("male")
-                            .role(userPermissionDAO.findUserPermissionByRole(Role.CLASS_ADMIN).orElse(null))
-                            .status(true)
-                            .createdBy("Hoang Anh")
-                            .createdDate(new Date())
-                            .modifiedBy("Hoang Anh")
-                            .modifiedDate(new Date())
-                            .build());
-                    userList.add(User.builder()
-                            .email("trainer@gmail.com")
-                            .password(passwordEncoder.encode("1"))
-                            .name("Trainer")
-                            .phone("0977545452")
-                            .dob(new Date())
-                            .gender("male")
-                            .role(userPermissionDAO.findUserPermissionByRole(Role.TRAINER).orElse(null))
-                            .status(true)
-                            .createdBy("Hoang Anh")
-                            .createdDate(new Date())
-                            .modifiedBy("Hoang Anh")
-                            .modifiedDate(new Date())
-                            .build());
-                    userList.add(User.builder()
-                            .email("user@gmail.com")
-                            .password(passwordEncoder.encode("1"))
-                            .name("User")
-                            .phone("0977545453")
-                            .dob(new Date())
-                            .gender("male")
-                            .role(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null))
-                            .status(true)
-                            .createdBy("Hoang Anh")
-                            .createdDate(new Date())
-                            .modifiedBy("Hoang Anh")
-                            .modifiedDate(new Date())
-                            .build());
-                    userDAO.saveAll(userList);
-                    System.out.println("SUPER_ADMIN Token: " + authenticationService.login(
-                            LoginRequest.builder()
-                                    .email(userList.get(0).getEmail())
-                                    .password("1")
-                                    .build()).getToken());
-                    System.out.println("CLASS_ADMIN Token: " + authenticationService.login(
-                            LoginRequest.builder()
-                                    .email(userList.get(1).getEmail())
-                                    .password("1")
-                                    .build()).getToken());
-                    System.out.println("TRAINER Token: " + authenticationService.login(
-                            LoginRequest.builder()
-                                    .email(userList.get(2).getEmail())
-                                    .password("1")
-                                    .build()).getToken());
-                    System.out.println("USER Token: " + authenticationService.login(
-                            LoginRequest.builder()
-                                    .email(userList.get(3).getEmail())
-                                    .password("1")
-                                    .build()).getToken());
-                }
-                if (syllabusDAO.findAll().size() == 0) {
-                    List<Syllabus> syllabusList = new ArrayList<>();
-                    syllabusList.add(Syllabus.builder()
-                            .topicCode("TOPIC001")
-                            .topicName("OOP")
-                            .technicalGroup("Team1")
-                            .version("1.0")
-                            .trainingAudience(1)
-                            .topicOutline("Topic Outline 1")
-                            .trainingMaterials("Training Materials 1")
-                            .trainingPrinciples("Training Principles 1")
-                            .priority("High")
-                            .publishStatus("Published")
-                            .createdBy("User1")
-                            .createdDate(new Date())
-                            .modifiedBy("User1")
-                            .modifiedDate(new Date())
-                            .userID(userDAO.findById(1).orElse(null))
-                            .courseObjective("IDK")
-                            .build());
-                    syllabusList.add(Syllabus.builder()
-                            .topicCode("TOPIC002")
-                            .topicName("LAB")
-                            .technicalGroup("Team2")
-                            .version("1.0")
-                            .trainingAudience(1)
-                            .topicOutline("Topic Outline 2")
-                            .trainingMaterials("Training Materials 2")
-                            .trainingPrinciples("Training Principles 2")
-                            .priority("High")
-                            .publishStatus("Published")
-                            .createdBy("User1")
-                            .createdDate(new Date())
-                            .modifiedBy("User1")
-                            .modifiedDate(new Date())
-                            .userID(userDAO.findById(2).orElse(null))
-                            .courseObjective("IDK")
-                            .build());
-                    syllabusDAO.saveAll(syllabusList);
-                }
+            standardOutputList.add(standardOutput);
+          }
+          standardOutputDAO.saveAll(standardOutputList);
+        }
+        if (userPermissionDAO.findAll().size() == 0) {
+          List<UserPermission> permissionList = new ArrayList<>();
+          permissionList.add(
+              UserPermission.builder()
+                  .role(Role.SUPER_ADMIN)
+                  .syllabus(
+                      List.of(
+                          SYLLABUS_CREATE,
+                          SYLLABUS_VIEW,
+                          SYLLABUS_MODIFY,
+                          SYLLABUS_DELETE,
+                          SYLLABUS_IMPORT))
+                  .trainingProgram(
+                      List.of(
+                          TRAINING_CREATE,
+                          TRAINING_VIEW,
+                          TRAINING_MODIFY,
+                          TRAINING_DELETE,
+                          TRAINING_IMPORT))
+                  .userClass(
+                      List.of(CLASS_CREATE, CLASS_VIEW, CLASS_MODIFY, CLASS_DELETE, CLASS_IMPORT))
+                  .userManagement(
+                      List.of(USER_CREATE, USER_VIEW, USER_MODIFY, USER_DELETE, USER_IMPORT))
+                  .learningMaterial(List.of())
+                  .build());
+          permissionList.add(
+              UserPermission.builder()
+                  .role(Role.TRAINER)
+                  .syllabus(
+                      List.of(
+                          SYLLABUS_CREATE,
+                          SYLLABUS_VIEW,
+                          SYLLABUS_MODIFY,
+                          SYLLABUS_DELETE,
+                          SYLLABUS_IMPORT))
+                  .trainingProgram(List.of(TRAINING_VIEW))
+                  .userClass(List.of(CLASS_VIEW))
+                  .userManagement(List.of())
+                  .learningMaterial(List.of())
+                  .build());
+          permissionList.add(
+              UserPermission.builder()
+                  .role(Role.USER)
+                  .syllabus(List.of())
+                  .trainingProgram(List.of())
+                  .userClass(List.of())
+                  .userManagement(List.of())
+                  .learningMaterial(List.of())
+                  .build());
+          permissionList.add(
+              UserPermission.builder()
+                  .role(Role.CLASS_ADMIN)
+                  .syllabus(
+                      List.of(
+                          SYLLABUS_CREATE,
+                          SYLLABUS_VIEW,
+                          SYLLABUS_MODIFY,
+                          SYLLABUS_DELETE,
+                          SYLLABUS_IMPORT))
+                  .trainingProgram(
+                      List.of(
+                          TRAINING_CREATE,
+                          TRAINING_VIEW,
+                          TRAINING_MODIFY,
+                          TRAINING_DELETE,
+                          TRAINING_IMPORT))
+                  .userClass(
+                      List.of(CLASS_CREATE, CLASS_VIEW, CLASS_MODIFY, CLASS_DELETE, CLASS_IMPORT))
+                  .userManagement(
+                      List.of(USER_CREATE, USER_VIEW, USER_MODIFY, USER_DELETE, USER_IMPORT))
+                  .learningMaterial(List.of())
+                  .build());
+          userPermissionDAO.saveAll(permissionList);
+        }
+        if (userDAO.findAll().size() == 0) {
+          List<User> userList = new ArrayList<>();
+          userList.add(
+              User.builder()
+                  .email("admin@gmail.com")
+                  .password(passwordEncoder.encode("1"))
+                  .name("Admin")
+                  .phone("0977545450")
+                  .dob(new Date())
+                  .gender("male")
+                  .role(userPermissionDAO.findUserPermissionByRole(Role.SUPER_ADMIN).orElse(null))
+                  .status(true)
+                  .createdBy("Hoang Anh")
+                  .createdDate(new Date())
+                  .modifiedBy("Hoang Anh")
+                  .modifiedDate(new Date())
+                  .build());
+          userList.add(
+              User.builder()
+                  .email("classadmin@gmail.com")
+                  .password(passwordEncoder.encode("1"))
+                  .name("Class Admin")
+                  .phone("0977545451")
+                  .dob(new Date())
+                  .gender("male")
+                  .role(userPermissionDAO.findUserPermissionByRole(Role.CLASS_ADMIN).orElse(null))
+                  .status(true)
+                  .createdBy("Hoang Anh")
+                  .createdDate(new Date())
+                  .modifiedBy("Hoang Anh")
+                  .modifiedDate(new Date())
+                  .build());
+          userList.add(
+              User.builder()
+                  .email("trainer@gmail.com")
+                  .password(passwordEncoder.encode("1"))
+                  .name("Trainer")
+                  .phone("0977545452")
+                  .dob(new Date())
+                  .gender("male")
+                  .role(userPermissionDAO.findUserPermissionByRole(Role.TRAINER).orElse(null))
+                  .status(true)
+                  .createdBy("Hoang Anh")
+                  .createdDate(new Date())
+                  .modifiedBy("Hoang Anh")
+                  .modifiedDate(new Date())
+                  .build());
+          userList.add(
+              User.builder()
+                  .email("user@gmail.com")
+                  .password(passwordEncoder.encode("1"))
+                  .name("User")
+                  .phone("0977545453")
+                  .dob(new Date())
+                  .gender("male")
+                  .role(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null))
+                  .status(true)
+                  .createdBy("Hoang Anh")
+                  .createdDate(new Date())
+                  .modifiedBy("Hoang Anh")
+                  .modifiedDate(new Date())
+                  .build());
+          userDAO.saveAll(userList);
+          System.out.println(
+              "SUPER_ADMIN Token: "
+                  + authenticationService
+                      .login(
+                          LoginRequest.builder()
+                              .email(userList.get(0).getEmail())
+                              .password("1")
+                              .build())
+                      .getToken());
+          System.out.println(
+              "CLASS_ADMIN Token: "
+                  + authenticationService
+                      .login(
+                          LoginRequest.builder()
+                              .email(userList.get(1).getEmail())
+                              .password("1")
+                              .build())
+                      .getToken());
+          System.out.println(
+              "TRAINER Token: "
+                  + authenticationService
+                      .login(
+                          LoginRequest.builder()
+                              .email(userList.get(2).getEmail())
+                              .password("1")
+                              .build())
+                      .getToken());
+          System.out.println(
+              "USER Token: "
+                  + authenticationService
+                      .login(
+                          LoginRequest.builder()
+                              .email(userList.get(3).getEmail())
+                              .password("1")
+                              .build())
+                      .getToken());
+        }
+        if (syllabusDAO.findAll().size() == 0) {
+          List<Syllabus> syllabusList = new ArrayList<>();
+          syllabusList.add(
+              Syllabus.builder()
+                  .topicCode("TOPIC001")
+                  .topicName("OOP")
+                  .technicalGroup("Team1")
+                  .version("1.0")
+                  .trainingAudience(1)
+                  .topicOutline("Topic Outline 1")
+                  .trainingMaterials("Training Materials 1")
+                  .trainingPrinciples("Training Principles 1")
+                  .priority("High")
+                  .publishStatus("Published")
+                  .createdBy("User1")
+                  .createdDate(new Date())
+                  .modifiedBy("User1")
+                  .modifiedDate(new Date())
+                  .userID(userDAO.findById(1).orElse(null))
+                  .courseObjective("IDK")
+                  .build());
+          syllabusList.add(
+              Syllabus.builder()
+                  .topicCode("TOPIC002")
+                  .topicName("LAB")
+                  .technicalGroup("Team2")
+                  .version("1.0")
+                  .trainingAudience(1)
+                  .topicOutline("Topic Outline 2")
+                  .trainingMaterials("Training Materials 2")
+                  .trainingPrinciples("Training Principles 2")
+                  .priority("High")
+                  .publishStatus("Published")
+                  .createdBy("User1")
+                  .createdDate(new Date())
+                  .modifiedBy("User1")
+                  .modifiedDate(new Date())
+                  .userID(userDAO.findById(2).orElse(null))
+                  .courseObjective("IDK")
+                  .build());
+          syllabusList.add(
+              Syllabus.builder()
+                  .topicCode("TOPIC003")
+                  .topicName("OOP")
+                  .technicalGroup("Team3")
+                  .version("1.0")
+                  .trainingAudience(1)
+                  .topicOutline("Topic Outline 3")
+                  .trainingMaterials("Training Materials 3")
+                  .trainingPrinciples("Training Principles 3")
+                  .priority("High")
+                  .publishStatus("Published")
+                  .createdBy("User3")
+                  .createdDate(new Date())
+                  .modifiedBy("User3")
+                  .modifiedDate(new Date())
+                  .userID(userDAO.findById(3).orElse(null))
+                  .courseObjective("IDK")
+                  .build());
+          syllabusDAO.saveAll(syllabusList);
+        }
+      }
+    };
+  }
 
-
-            }
-        };
-    }
-
-    @GetMapping("")
-    public String greeting() {
-        return "Hello from FAMS Application made from GROUP 1 WITH LOVE";
-    }
+  @GetMapping("")
+  public String greeting() {
+    return "Hello from FAMS Application made from GROUP 1 WITH LOVE";
+  }
 }
