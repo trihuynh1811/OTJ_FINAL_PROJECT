@@ -17,6 +17,8 @@ public interface SyllabusService {
 
     public List<GetAllSyllabusResponse> getSyllabuses();
 
+    Syllabus getDetailSyllabus(String topicCode);
+
     public int createSyllabusGeneral(CreateSyllabusGeneralRequest request, Authentication authentication);
     public void createSyllabusOutline(CreateSyllabusOutlineRequest request, Authentication authentication);
 
@@ -28,7 +30,9 @@ public interface SyllabusService {
     Syllabus getSyllabusById(String topicCode);
 
 
-    List<Syllabus> processDataFromCSV(MultipartFile file, Authentication authentication) throws IOException;
+
+
+    List<Syllabus> processDataFromCSV(MultipartFile file, String choice, Authentication authentication) throws IOException;
 
     Syllabus duplicateSyllabus(String topicCode, Authentication authentication);
 }

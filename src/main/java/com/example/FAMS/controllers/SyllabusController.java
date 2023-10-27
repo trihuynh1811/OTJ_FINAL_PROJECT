@@ -57,7 +57,7 @@ public class SyllabusController {
     @GetMapping("/detail/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:read')")
     public ResponseEntity<?> getDetail(@PathVariable String topicCode) {
-        Syllabus syllabus = syllabusService.getSyllabusById(topicCode);
+        Syllabus syllabus = syllabusService.getDetailSyllabus(topicCode);
         if (syllabus != null) {
             return ResponseEntity.ok(syllabus);
         } else {
@@ -77,9 +77,9 @@ public class SyllabusController {
 //    }
 
     @PostMapping("/importCSV")
-    public ResponseEntity<ResponseObject> loadDataInFile(@RequestParam("file") MultipartFile file, Authentication authentication) throws IOException {
+    public ResponseEntity<ResponseObject> loadDataInFile(@RequestParam("file") MultipartFile file,@RequestParam("choice") String choice, Authentication authentication) throws IOException {
         try {
-            List<Syllabus> syllabus = syllabusService.processDataFromCSV(file, authentication);
+            List<Syllabus> syllabus = syllabusService.processDataFromCSV(file,choice, authentication);
             return ResponseEntity.ok(new ResponseObject("Successful", "List of CSV", syllabus));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't found the list", e.getMessage()));
@@ -103,7 +103,7 @@ public class SyllabusController {
 
             return ResponseEntity.ok().headers(headers).body(data);
         } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to read CSV file.".getBytes());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("CSV file has exist.".getBytes());
         }
     }
 
