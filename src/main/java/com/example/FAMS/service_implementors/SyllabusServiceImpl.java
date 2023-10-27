@@ -6,7 +6,6 @@ import com.example.FAMS.dto.requests.SyllbusRequest.StandardOutputDTO;
 import com.example.FAMS.models.*;
 import com.example.FAMS.models.composite_key.SyllabusStandardOutputCompositeKey;
 import com.example.FAMS.models.composite_key.SyllabusTrainingUnitCompositeKey;
-import com.example.FAMS.models.composite_key.TrainingContentLearningObjectiveCompositeKey;
 import com.example.FAMS.repositories.*;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
@@ -19,11 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.google.common.base.Strings;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -300,8 +296,8 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
-    public Syllabus updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest) {
-        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(updatesyllabusRequest.getTopicCode());
+    public UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest,String topicCode) {
+        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
         Syllabus syllabusexits = optionalSyllabus.orElse(null);
         if (syllabusexits != null) {
             syllabusexits.setTopicName(updatesyllabusRequest.getTopicName());
@@ -324,14 +320,14 @@ public class SyllabusServiceImpl implements SyllabusService {
                 return UpdateSyllabusResponse.builder()
                         .status("Update Syllbus successful")
                         .updateSyllabus(syllabusUpdate)
-                        .build().getUpdateSyllabus();
+                        .build();
 
 
             } else {
                 return UpdateSyllabusResponse.builder()
                         .status("Update Syllbus failed")
                         .updateSyllabus(null)
-                        .build().getUpdateSyllabus();
+                        .build();
 
             }
 
@@ -340,7 +336,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             return UpdateSyllabusResponse.builder()
                     .status("Syllabus not found")
                     .updateSyllabus(null)
-                    .build().getUpdateSyllabus();
+                    .build();
 
         }
 
@@ -353,36 +349,44 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
-    public List<Syllabus> processDataFromCSV(MultipartFile file) throws IOException {
+    public List<Syllabus> processDataFromCSV(MultipartFile file, Authentication authentication) throws IOException {
+
         List<Syllabus> syllabusList = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
+            boolean firstLine = true;
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
             while ((line = reader.readLine()) != null) {
+                if (firstLine) {
+                    firstLine = false; // Đây là dòng đầu tiên, bỏ qua nó
+                    continue;
+                }
                 String[] data = line.split(",");
                 Syllabus c = new Syllabus();
 
                 c.setTopicCode(data[0]);
-                c.setCreatedBy(data[1]);
-
+                c.setCreatedBy(getCreator(authentication).getName());
                 // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
-                Date parsedDate = dateFormat.parse(data[2]);
+                Date parsedDate = dateFormat.parse(data[1]);
                 c.setCreatedDate(new java.sql.Date(parsedDate.getTime()));
-
-                c.setModifiedBy(data[3]);
-                c.setModifiedDate(new java.sql.Date(dateFormat.parse(data[4]).getTime()));
-                c.setPriority(data[5]);
-                c.setPublishStatus(data[6]);
-                c.setTechnicalGroup(data[7]);
-                c.setTopicName(data[8]);
-                c.setTopicOutline(data[9]);
-                c.setTrainingAudience(Integer.parseInt(data[10]));
-                c.setTrainingMaterials(data[11]);
-                c.setTrainingPrinciples(data[12]);
-                c.setVersion(data[13]);
-//                c.setUserID(data[14]);
+                c.setModifiedBy(getCreator(authentication).getName());
+                c.setModifiedDate(new java.sql.Date(dateFormat.parse(data[2]).getTime()));
+                c.setPriority(data[3]);
+                c.setPublishStatus(data[4]);
+                c.setTechnicalGroup(data[5]);
+                c.setTopicName(data[6]);
+                c.setTopicOutline(data[7]);
+                c.setTrainingAudience(Integer.parseInt(data[8]));
+                c.setTrainingMaterials(data[9]);
+                c.setTrainingPrinciples(data[10]);
+                c.setVersion(data[11]);
+                c.setCourseObjective(data[12]);
+                c.setUserID(getCreator(authentication));
                 syllabusList.add(c);
+                for (Syllabus syllabus : syllabusList) {
+                    syllabusDAO.save(syllabus);
+                }
             }
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -390,9 +394,55 @@ public class SyllabusServiceImpl implements SyllabusService {
         return syllabusList;
     }
 
+    public void downloadCSV() throws IOException {
+        String computerAccountName = System.getProperty("user.name");
+
+        File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/Template.csv");
+
+        // Sử dụng FileWriter để ghi vào tệp CSV
+        FileWriter fileWriter = new FileWriter(csvFile, false); // Use false to overwrite the file
+
+        // Sử dụng BufferedWriter để ghi dữ liệu vào tệp CSV
+        BufferedWriter out = new BufferedWriter(fileWriter);
+
+        // Thêm nội dung vào tệp
+        out.write("topic_code, created_date, Modified Date, priority, publishStatus, technicalGroup, topic_name, topicOutline, TrainingAudience, TrainingMaterials, TrainingPrinciples, Version, CourseObjective");
+        out.newLine(); // Xuống dòng
+        // Đóng BufferedWriter
+        out.close();
+    }
+
     @Override
     public Syllabus duplicateSyllabus(String topicCode) {
-        return syllabusDAO.getLastSyllabusByTopicCode(topicCode);
+        int tuanSoiMapDit = syllabusDAO.countByTopicCodeLike(topicCode + "%");
+        Syllabus originalSyllabus = syllabusDAO.findById(topicCode).get();
+
+        topicCode = originalSyllabus.getTopicCode();
+        String topicCodeClone = topicCode + "_" + tuanSoiMapDit;
+
+
+        Syllabus duplicatedSyllabus = Syllabus.builder()
+                .topicName(originalSyllabus.getTopicName())
+                .userID(originalSyllabus.getUserID())
+                .trainingPrinciples(originalSyllabus.getTrainingPrinciples())
+                .version(originalSyllabus.getVersion())
+                .technicalGroup(originalSyllabus.getTechnicalGroup())
+                .trainingAudience(originalSyllabus.getTrainingAudience())
+                .topicOutline(originalSyllabus.getTopicOutline())
+                .trainingMaterials(originalSyllabus.getTrainingMaterials())
+                .priority(originalSyllabus.getPriority())
+                .publishStatus(originalSyllabus.getPublishStatus())
+                .createdBy(originalSyllabus.getCreatedBy())
+                .createdDate(new Date())
+                .modifiedBy(originalSyllabus.getModifiedBy())
+                .modifiedDate(new Date())
+                .courseObjective(originalSyllabus.getCourseObjective())
+                .topicCode(topicCodeClone)
+                .build();
+
+        syllabusDAO.save(duplicatedSyllabus);
+
+        return duplicatedSyllabus;
     }
     public Syllabus saveSyllabus(Syllabus syllabus) {
         return syllabusDAO.save(syllabus);

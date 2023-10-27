@@ -23,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
 public class TrainingProgramController {
+
     private final TrainingProgramImpl trainingProgram;
 
 
