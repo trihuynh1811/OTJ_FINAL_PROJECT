@@ -76,13 +76,14 @@ public class User implements UserDetails {
     @ManyToOne
     @JoinColumn(name = "role")
     @JsonIgnore
-    @JsonManagedReference
+    @JsonBackReference
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private UserPermission role;
 
-    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonBackReference
+    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @JsonIgnore
     private final Set<TrainingProgram> trainingPrograms = new HashSet<>();
 
     @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)

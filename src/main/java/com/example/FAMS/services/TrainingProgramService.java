@@ -9,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 public interface TrainingProgramService {
     ResponseEntity<ResponseObject> createTrainingProgram(TrainingProgramDTO trainingProgramDTO, int trainerID, String topicCode);
 
@@ -18,7 +16,8 @@ public interface TrainingProgramService {
 
     UpdateTrainingProgramResponse updateTrainingProgram(int trainingProgramCode, int  userId, UpdateTrainingProgramRequest updateTrainingProgramRequest);
 
-    TrainingProgram duplicateTrainingProgram(int trainingProramCode);
+    TrainingProgram duplicateTrainingProgram(int trainingProgramCode);
 
-    List<TrainingProgram> processDataFromCSV(MultipartFile file, Authentication authentication);
+    ResponseEntity<?> changeTrainingProgramStatus(int trainingProgramCode, String value);
+    ResponseEntity<ResponseObject> processDataFromCSV(MultipartFile file, String choice, Authentication authentication) throws Exception;
 }
