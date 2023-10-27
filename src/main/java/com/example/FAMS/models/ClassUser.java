@@ -24,7 +24,7 @@ public class ClassUser {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonBackReference
-    private Class classID;
+    private Class classId;
 
     @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
     @MapsId("userId")

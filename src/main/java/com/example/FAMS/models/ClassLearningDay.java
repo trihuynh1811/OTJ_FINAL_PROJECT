@@ -1,13 +1,12 @@
 package com.example.FAMS.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.sql.Time;
 import java.util.Date;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 
 @Entity
 @Data
@@ -35,8 +34,11 @@ public class ClassLearningDay {
     @Column(name = "time_to", nullable = false)
     private Time timeTo;
 
-    @ManyToOne
-    @JoinColumn(name = "class_id")
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "class_id", referencedColumnName = "class_code")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
     private Class classId;
 
 

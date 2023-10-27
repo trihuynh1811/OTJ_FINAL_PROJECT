@@ -13,6 +13,7 @@ import com.example.FAMS.models.*;
 import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.models.Class;
 import com.example.FAMS.models.TrainingProgram;
+import com.example.FAMS.models.composite_key.ClassUserCompositeKey;
 import com.example.FAMS.repositories.*;
 import com.example.FAMS.services.ClassService;
 import com.google.common.base.Strings;
@@ -67,7 +68,11 @@ public class ClassServiceImpl implements ClassService {
     public Class createClass(CreateClassDTO request, Authentication authentication) {
         try {
             Class classInfo = null;
+            List<User> trainerList = new ArrayList<>();
+            List<ClassUser> classUserList = new ArrayList<>();
+            List<UserSyllabus> userSyllabusList = new ArrayList<>();
             Fsu fsu = fsuDAO.findById(request.getFsu()).get();
+            List<TrainingProgramSyllabus> syllabusList = trainingProgramDAO.findById(request.getTrainingProgram()).get().getTrainingProgramSyllabus().stream().toList();
             classInfo = Class.builder()
                     .className(request.getClassName())
                     .classId(request.getClassId())
@@ -88,7 +93,22 @@ public class ClassServiceImpl implements ClassService {
                     .createdDate(new java.util.Date())
                     .build();
 
-//        classDAO.save(classInfo);
+            classDAO.save(classInfo);
+
+            for(int i = 0; i < request.getEmail().size(); i++){
+                User user = userDAO.findByEmail(request.getEmail().get(i)).get();
+                ClassUser classUser = ClassUser.builder()
+                        .id(ClassUserCompositeKey.builder()
+                                .userId(user.getUserId())
+                                .classId(classInfo.getClassId())
+                                .build())
+                        .userID(user)
+                        .classId(classInfo)
+                        .userType(user.getRole().getRole().name())
+                        .build();
+
+                classUserList.add(classUser);
+            }
 
             CreateClassResponse res = CreateClassResponse.builder()
                     .createdClass(classInfo)
@@ -266,7 +286,7 @@ public class ClassServiceImpl implements ClassService {
 
     @Override
     public UpdateCalendarResponse updateClassLearningDay(UpdateCalendarRequest request) throws ParseException {
-        int id = request.getId();
+        String id = request.getId();
         String enrollDate = request.getEnrollDate();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         java.util.Date eDate = dateFormat.parse(enrollDate);

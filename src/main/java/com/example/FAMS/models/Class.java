@@ -2,6 +2,7 @@ package com.example.FAMS.models;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -86,15 +87,14 @@ public class Class {
     @Column(name = "attendee_actual")
     private int attendeeActual = 0;
 
-    @OneToMany(mappedBy = "classID", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "classId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
+    @JsonIgnore
     private Set<ClassUser> classUsers = new HashSet<>();
 
     @OneToMany(mappedBy = "classId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<ClassLearningDay> classLearningDays = new HashSet<>();
 
-    @OneToMany(mappedBy = "classId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private Set<TrainingCalendar> trainingCalendars = new HashSet<>();
 
 }

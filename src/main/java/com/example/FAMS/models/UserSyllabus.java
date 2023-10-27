@@ -32,6 +32,8 @@ public class UserSyllabus {
     @JsonBackReference
     private Syllabus topicCode;
 
+
+
     @Column(name = "user_type")
     private String userType;
 

@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.sql.Time;
 import java.util.Date;
+import java.util.List;
 
 @Builder
 @Data
@@ -23,6 +24,9 @@ public class CreateClassDTO {
      String status;
      String location;
      String fsu;
+     String created;
+     String review;
+     String approve;
      String startDate;
      String endDate;
      String attendee;
@@ -30,4 +34,7 @@ public class CreateClassDTO {
      int attendeeAccepted;
      int attendeeActual;
      int TrainingProgram;
+     List<String> email;
+     List<String> enrollDate;
+     List<TrainerSyllabusDTO> trainer;
 }

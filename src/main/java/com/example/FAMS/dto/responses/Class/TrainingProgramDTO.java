@@ -17,5 +17,8 @@ public class TrainingProgramDTO {
     String trainingProgramName;
     Date modifyDate;
     String modifyBy;
+    Date startDate;
+    int duration;
+    String status;
 
 }

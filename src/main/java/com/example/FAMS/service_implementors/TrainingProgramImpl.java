@@ -51,7 +51,7 @@ public class TrainingProgramImpl implements TrainingProgramService {
     var syllabus = syllabusDAO.findById(topicCode).orElse(null);
 
     trainingProgram.setName(trainingProgramDTO.getTrainingProgramName());
-    if (!trainingProgramDTO.g().before(date)
+    if (!trainingProgramDTO.getStartDate().before(date)
         && date != trainingProgramDTO.getStartDate()) {
       trainingProgram.setStartDate(trainingProgramDTO.getStartDate());
     } else {
