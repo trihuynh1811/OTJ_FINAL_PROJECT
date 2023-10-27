@@ -233,7 +233,7 @@ public class TrainingProgramImpl implements TrainingProgramService {
                                             dateFormat.parse(data[1]).getTime()
                                     ))
                                     .duration(Integer.parseInt(data[2]))
-                                    .status(data[3])
+                                    .status(data[3].equalsIgnoreCase("1") ? "active" : "inactive")
                                     .createdBy(getCreator(authentication).getName())
                                     .createdDate(new java.sql.Date(dateFormat.parse(data[4]).getTime()))
                                     .modifiedBy(getCreator(authentication).getName())
