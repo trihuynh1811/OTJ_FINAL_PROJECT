@@ -1,5 +1,6 @@
 package com.example.FAMS.services;
 
+import com.example.FAMS.dto.requests.UpdatePasswordRequest;
 import com.example.FAMS.dto.requests.UpdateRequest;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateResponse;
@@ -13,4 +14,6 @@ public interface UserService {
     UpdateResponse updateUser(String userEmail, UpdateRequest updateRequest);
 
     ResponseObject deleteUser(String mail);
+
+    ResponseObject updatePassword(UpdatePasswordRequest updateRequest);
 }

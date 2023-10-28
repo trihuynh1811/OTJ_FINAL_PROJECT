@@ -1,6 +1,7 @@
 package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.controllers.UserController;
+import com.example.FAMS.dto.requests.UpdatePasswordRequest;
 import com.example.FAMS.dto.requests.UpdateRequest;
 import com.example.FAMS.dto.responses.ListUserResponse;
 import com.example.FAMS.dto.responses.ResponseObject;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -37,6 +39,8 @@ public class UserServiceImpl implements UserService {
     private final UserPermissionDAO userPermissionDAO;
     private final JWTService jwtService;
     private List<ListUserResponse> userList;
+    private final PasswordEncoder passwordEncoder;
+
 
     @Override
     public ResponseEntity<ResponseObject> getAll() {
@@ -141,6 +145,26 @@ public class UserServiceImpl implements UserService {
             }
         }
         return responseObject;
+    }
+
+    @Override
+    public ResponseObject updatePassword(UpdatePasswordRequest updateRequest) {
+        var existedUser = userDAO.findByEmail(updateRequest.getUserEmail()).orElse(null);
+        if (existedUser == null) {
+            throw new RuntimeException("User not found");
+        } else {
+            existedUser.setPassword(passwordEncoder.encode(updateRequest.getNewPassword()));
+            User savedUser = userDAO.save(existedUser);
+            return ResponseObject.builder()
+                    .status("Successful")
+                    .message("Update successfully")
+                    .payload(UpdatePasswordRequest.builder()
+                            .userEmail(savedUser.getEmail())
+                            .newPassword(updateRequest.getNewPassword())
+                            .build()
+                    )
+                    .build();
+        }
     }
 
     private ResponseObject disableUser(String performUserEmail, String deletedUserEmail, Role role) {
