@@ -13,6 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 public class TrainerSyllabusDTO {
 
-    String trainerEmail;
-    List<String> syllabusCode;
+    String gmail;
+    List<String> classCode;
 }

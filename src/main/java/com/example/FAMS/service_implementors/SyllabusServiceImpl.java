@@ -3,13 +3,10 @@ package com.example.FAMS.service_implementors;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.StandardOutputDTO;
-import com.example.FAMS.dto.responses.Syllabus.CreateSyllabusGeneralResponse;
 import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
 import com.example.FAMS.models.*;
 import com.example.FAMS.models.composite_key.SyllabusStandardOutputCompositeKey;
 import com.example.FAMS.models.composite_key.SyllabusTrainingUnitCompositeKey;
-import com.example.FAMS.models.composite_key.TrainingContentLearningObjectiveCompositeKey;
-import com.example.FAMS.models.composite_key.UserSyllabusCompositeKey;
 import com.example.FAMS.repositories.*;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
@@ -59,7 +56,7 @@ public class SyllabusServiceImpl implements SyllabusService {
     SyllabusObjectiveDAO syllabusObjectiveDAO;
 
     @Autowired
-            UserSyllabusDAO userSyllabusDAO;
+    UserClassSyllabusDAO userSyllabusDAO;
 
     String line = "";
 
@@ -75,7 +72,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                     .syllabusName(syllabusList.get(i).getTopicName())
                     .syllabusCode(syllabusList.get(i).getTopicCode())
                     .createdOn(syllabusList.get(i).getCreatedDate().getTime())
-                    .createdBy(syllabusList.get(i).getCreatedBy())
+                    .createdBy(syllabusList.get(i).getCreatedBy().getName())
                     .duration(syllabusList.get(i).getNumberOfDay())
                     .status(syllabusList.get(i).getPublishStatus())
                     .syllabusObjectiveList(syllabusList.get(i).getSyllabusObjectives().stream().toList())
@@ -130,26 +127,14 @@ public class SyllabusServiceImpl implements SyllabusService {
                     .publishStatus(request.getPublishStatus())
                     .priority(request.getPriority())
                     .version(request.getVersion())
-                    .createdBy(getCreator(authentication).getName())
+                    .createdBy(user)
                     .createdDate(new Date())
-//                .userID(getCreator(authentication))
                     .modifiedDate(new Date())
                     .modifiedBy(getCreator(authentication).getName())
                     .build();
 
             syllabusDAO.save(syllabus);
 
-            UserSyllabus userSyllabus = UserSyllabus.builder()
-                    .id(UserSyllabusCompositeKey.builder()
-                            .userId(user.getUserId())
-                            .topicCode(request.getTopicCode())
-                            .build())
-                    .userType(user.getRole().getRole().name())
-                    .userId(user)
-                    .topicCode(syllabusDAO.findById(request.getTopicCode()).get())
-                    .build();
-
-            userSyllabusDAO.save(userSyllabus);
             return 0;
         }
         catch (Exception err){
@@ -341,6 +326,7 @@ public class SyllabusServiceImpl implements SyllabusService {
     @Override
     public UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest, String topicCode) {
         Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
+        User user = userDAO.findByEmail(updatesyllabusRequest.getCreatedBy()).get();
         Syllabus syllabusexits = optionalSyllabus.orElse(null);
         if (syllabusexits != null) {
             syllabusexits.setTopicName(updatesyllabusRequest.getTopicName());
@@ -351,7 +337,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             syllabusexits.setTrainingMaterials(updatesyllabusRequest.getTrainingMaterials());
             syllabusexits.setPriority(updatesyllabusRequest.getPriority());
             syllabusexits.setPublishStatus(updatesyllabusRequest.getPublishStatus());
-            syllabusexits.setCreatedBy(updatesyllabusRequest.getCreatedBy());
+            syllabusexits.setCreatedBy(user);
             syllabusexits.setCreatedDate(updatesyllabusRequest.getCreatedDate());
             syllabusexits.setModifiedBy(updatesyllabusRequest.getModifiedBy());
             syllabusexits.setModifiedDate(updatesyllabusRequest.getModifiedDate());
@@ -411,7 +397,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                 if (choice.equals("Replace")) {
 
                     if (syllabusexits != null) {
-                        syllabusexits.setCreatedBy(getCreator(authentication).getName());
+                        syllabusexits.setCreatedBy(getCreator(authentication));
                         // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
                         Date parsedDate = dateFormat.parse(data[1]);
                         syllabusexits.setCreatedDate(new java.sql.Date(parsedDate.getTime()));
@@ -433,7 +419,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                         Syllabus c = new Syllabus();
 
                         c.setTopicCode(data[0]);
-                        c.setCreatedBy(getCreator(authentication).getName());
+                        c.setCreatedBy(getCreator(authentication));
                         // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
                         Date parsedDate = dateFormat.parse(data[1]);
                         c.setCreatedDate(new java.sql.Date(parsedDate.getTime()));
@@ -460,7 +446,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                         Syllabus c = new Syllabus();
 
                         c.setTopicCode(data[0]);
-                        c.setCreatedBy(getCreator(authentication).getName());
+                        c.setCreatedBy(getCreator(authentication));
                         // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
                         Date parsedDate = dateFormat.parse(data[1]);
                         c.setCreatedDate(new java.sql.Date(parsedDate.getTime()));

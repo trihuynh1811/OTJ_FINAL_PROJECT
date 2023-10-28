@@ -85,19 +85,19 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     @JsonIgnore
-    private final Set<UserSyllabus> userSyllabus = new HashSet<>();
+    private final Set<UserClassSyllabus> userSyllabus = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonBackReference
     @ToString.Exclude
     private final Set<Token> tokens = new HashSet<>();
 
-    @ManyToOne(cascade = CascadeType.MERGE, optional = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "fsu_id", referencedColumnName = "fsu_id")
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @JsonBackReference
-    private Fsu fsu;
+//    @ManyToOne(cascade = CascadeType.MERGE, optional = true, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "fsu_id", referencedColumnName = "fsu_id")
+//    @EqualsAndHashCode.Exclude
+//    @ToString.Exclude
+//    @JsonBackReference
+//    private Fsu fsu;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

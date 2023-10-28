@@ -57,7 +57,7 @@ public class ClassController {
                 // Xử lý tạo lớp học dựa trên thông tin từ request
                 Class result = classService.createClass(createClassDTO, authentication);
                 if(result == null){
-                    return ResponseEntity.status(400).body(new CreateClassResponse(null, "successfully create class."));
+                    return ResponseEntity.status(400).body(new CreateClassResponse(null, "fail create class."));
                 }
                 return ResponseEntity.status(200).body(new CreateClassResponse(result, "successfully create class."));
             case "schedule":

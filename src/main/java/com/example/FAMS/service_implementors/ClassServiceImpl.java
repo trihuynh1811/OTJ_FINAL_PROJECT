@@ -2,7 +2,6 @@ package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
 import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
-import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
 import com.example.FAMS.dto.requests.UpdateClassRequest;
 import com.example.FAMS.dto.responses.CalendarDayResponse;
 import com.example.FAMS.dto.responses.CalendarWeekResponse;
@@ -12,8 +11,9 @@ import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.models.*;
 import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.models.Class;
-import com.example.FAMS.models.TrainingProgram;
+import com.example.FAMS.models.composite_key.ClassLocationCompositeKey;
 import com.example.FAMS.models.composite_key.ClassUserCompositeKey;
+import com.example.FAMS.models.composite_key.UserClassSyllabusCompositeKey;
 import com.example.FAMS.repositories.*;
 import com.example.FAMS.services.ClassService;
 import com.google.common.base.Strings;
@@ -24,7 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
+import java.util.Date;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,10 +51,25 @@ public class ClassServiceImpl implements ClassService {
     TrainingProgramDAO trainingProgramDAO;
 
     @Autowired
-    FsuDAO fsuDAO;
+    SyllabusDAO syllabusDAO;
+
+//    @Autowired
+//    FsuDAO fsuDAO;
 
     @Autowired
     ClassLearningDayDAO classLearningDayDAO;
+
+    @Autowired
+    ClassUserDAO classUserDAO;
+
+    @Autowired
+    LocationDAO locationDAO;
+
+//    @Autowired
+//    ClassLocationDAO classLocationDAO;
+
+    @Autowired
+    UserClassSyllabusDAO userClassSyllabusDAO;
 
     List<CalendarDayResponse> dayCalendars;
     List<CalendarWeekResponse> weekCalendars;
@@ -67,36 +82,59 @@ public class ClassServiceImpl implements ClassService {
     @Override
     public Class createClass(CreateClassDTO request, Authentication authentication) {
         try {
+            log.info(request);
             Class classInfo = null;
-            List<User> trainerList = new ArrayList<>();
             List<ClassUser> classUserList = new ArrayList<>();
-            List<UserSyllabus> userSyllabusList = new ArrayList<>();
-            Fsu fsu = fsuDAO.findById(request.getFsu()).get();
-            List<TrainingProgramSyllabus> syllabusList = trainingProgramDAO.findById(request.getTrainingProgram()).get().getTrainingProgramSyllabus().stream().toList();
+            List<UserClassSyllabus> userSyllabusList = new ArrayList<>();
+            List<ClassLearningDay> classLearningDayList = new ArrayList<>();
+//            List<ClassLocation> classLocationList = new ArrayList<>();
+//            Fsu fsu = fsuDAO.findById(request.getFsu().toUpperCase()).get();
+            List<Location> locationList = new ArrayList<>();
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+            User user = userDAO.findByEmail(request.getCreated()).get();
+            String timeFromStr = request.getClassTimeFrom().split(":").length == 3 ? request.getClassTimeFrom() : request.getClassTimeFrom() + ":00";
+            String timeToStr = request.getClassTimeTo().split(":").length == 3 ? request.getClassTimeTo() : request.getClassTimeTo() + ":00";
             classInfo = Class.builder()
-                    .className(request.getClassName())
-                    .classId(request.getClassId())
-                    .duration(request.getDuration())
-                    .location(request.getLocation())
-                    .startDate(Date.valueOf(request.getStartDate()))
-                    .endDate(Date.valueOf(request.getEndDate()))
-                    .createdBy(getCreator(authentication).getCreatedBy())
-                    .attendeeActual(request.getAttendeeActual())
+                    .className(request.getNameClass())
+                    .classId(request.getClassCode())
+                    .duration(request.getTotalTimeLearning())
+                    .startDate(sdf.parse(request.getStartDate()))
+                    .endDate(sdf.parse(request.getEndDate()))
+                    .createdBy(user.getName())
+                    .review(request.getReview())
+                    .approve(request.getApprove())
+                    .attendeeActual(Integer.parseInt(request.getAttendeeActual()))
                     .attendee(request.getAttendee())
-                    .attendeePlanned(request.getAttendeePlanned())
-                    .attendeeAccepted(request.getAttendeeAccepted())
-                    .timeFrom(Time.valueOf(request.getTimeFrom()))
-                    .timeTo(Time.valueOf(request.getTimeTo()))
-                    .fsu(fsu)
+                    .attendeePlanned(Integer.parseInt(request.getAttendeePlanned()))
+                    .attendeeAccepted(Integer.parseInt(request.getAttendeeAccepted()))
+                    .timeFrom(Time.valueOf(timeFromStr))
+                    .timeTo(Time.valueOf(timeToStr))
+                    .fsu(request.getFsu())
                     .status(request.getStatus())
-                    .trainingProgram(trainingProgramDAO.findById(request.getTrainingProgram()).get())
+                    .trainingProgram(trainingProgramDAO.findById(Integer.parseInt(request.getTrainingProgram())).get())
                     .createdDate(new java.util.Date())
                     .build();
 
             classDAO.save(classInfo);
 
-            for(int i = 0; i < request.getEmail().size(); i++){
-                User user = userDAO.findByEmail(request.getEmail().get(i)).get();
+            for (int i = 0; i < request.getListDay().size(); i++) {
+                Date date = sdf.parse(request.getListDay().get(i));
+                String[] getDate = request.getListDay().get(i).split("/");
+                ClassLearningDay learningDay = ClassLearningDay.builder()
+                        .classId(classInfo)
+                        .date(Integer.parseInt(getDate[1]))
+                        .month(Integer.parseInt(getDate[0]))
+                        .year(Integer.parseInt(getDate[2]))
+                        .enrollDate(date)
+                        .timeFrom(classInfo.getTimeFrom())
+                        .timeTo(classInfo.getTimeTo())
+                        .build();
+
+                classLearningDayList.add(learningDay);
+            }
+
+            for (int i = 0; i < request.getAttendeeList().size(); i++) {
+                user = userDAO.findByEmail(request.getAttendeeList().get(i)).get();
                 ClassUser classUser = ClassUser.builder()
                         .id(ClassUserCompositeKey.builder()
                                 .userId(user.getUserId())
@@ -109,6 +147,53 @@ public class ClassServiceImpl implements ClassService {
 
                 classUserList.add(classUser);
             }
+
+            for (int i = 0; i < request.getTrainer().size(); i++) {
+                user = userDAO.findByEmail(request.getTrainer().get(i).getGmail()).get();
+                for (int j = 0; j < request.getTrainer().get(i).getClassCode().size(); j++) {
+                    Syllabus s = syllabusDAO.findById(request.getTrainer().get(i).getClassCode().get(j)).get();
+
+                    UserClassSyllabus userClassSyllabus = UserClassSyllabus.builder()
+                            .id(UserClassSyllabusCompositeKey.builder()
+                                    .classCode(classInfo.getClassId())
+                                    .userId(user.getUserId())
+                                    .topicCode(s.getTopicCode())
+                                    .build())
+                            .classCode(classInfo)
+                            .topicCode(s)
+                            .userId(user)
+                            .userType(user.getRole().getRole().name())
+                            .build();
+
+                    userSyllabusList.add(userClassSyllabus);
+                }
+            }
+
+            for (int i = 0; i < request.getLocation().size(); i++) {
+//                Location location = locationDAO.findById(Long.parseLong(request.getLocation().get(i))).get();
+//                ClassLocation cl = ClassLocation.builder()
+//                        .id(ClassLocationCompositeKey.builder()
+//                                .classCode(classInfo.getClassId())
+//                                .locationId(location.getLocationId())
+//                                .build())
+//                        .locationCode(location)
+//                        .classCode(classInfo)
+//                        .build();
+
+                Location l = Location.builder()
+                        .location(request.getLocation().get(i))
+                        .classId(classInfo)
+                        .build();
+
+//                classLocationList.add(cl);
+                locationList.add(l);
+            }
+
+            classLearningDayDAO.saveAll(classLearningDayList);
+            classUserDAO.saveAll(classUserList);
+            userClassSyllabusDAO.saveAll(userSyllabusList);
+//            classLocationDAO.saveAll(classLocationList);
+            locationDAO.saveAll(locationList);
 
             CreateClassResponse res = CreateClassResponse.builder()
                     .createdClass(classInfo)
@@ -134,7 +219,6 @@ public class ClassServiceImpl implements ClassService {
                             .className(updateClassRequest.getClassName())
                             .classId(updateClassRequest.getClassCode())
                             .duration(updateClassRequest.getDuration())
-                            .location(updateClassRequest.getLocation())
                             .startDate(updateClassRequest.getStartDate())
                             .endDate(updateClassRequest.getEndDate())
                             .createdBy(existingClass.getCreatedBy())
@@ -215,13 +299,11 @@ public class ClassServiceImpl implements ClassService {
             ClassDetailResponse res = ClassDetailResponse.builder()
                     .classId(classCode)
                     .className(c.getClassName())
-//                    .fsu(c.getFsu())
                     .createdBy(c.getCreatedBy())
                     .createdDate(c.getCreatedDate())
                     .deactivated(c.isDeactivated())
                     .duration(c.getDuration())
                     .endDate(c.getEndDate())
-                    .location(c.getLocation())
                     .modifiedBy(c.getModifiedBy())
                     .modifiedDate(c.getModifiedDate())
                     .startDate(c.getStartDate())
@@ -394,7 +476,7 @@ public class ClassServiceImpl implements ClassService {
                             .version(syllabus.getVersion())
                             .publishStatus(syllabus.getPublishStatus())
                             .topicName(syllabus.getTopicName())
-                            .createdBy(syllabus.getCreatedBy())
+                            .createdBy(syllabus.getCreatedBy().getName())
                             .createdDate(syllabus.getCreatedDate())
                             .build();
                     syllabusList.add(syllabusDTO);

@@ -20,7 +20,7 @@ public class ClassDetailResponse {
     private String message = "";
     private String classId;
     private String className;
-    private int duration;
+    private String duration;
     private String status;
     private Time timeFrom;
     private Time timeTo;

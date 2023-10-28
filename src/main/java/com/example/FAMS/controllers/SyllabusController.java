@@ -1,6 +1,5 @@
 package com.example.FAMS.controllers;
 
-import com.example.FAMS.dto.requests.CsvRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
@@ -9,8 +8,6 @@ import com.example.FAMS.dto.responses.Syllabus.CreateSyllabusGeneralResponse;
 import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
-import com.example.FAMS.models.UserSyllabus;
-import com.example.FAMS.models.composite_key.UserSyllabusCompositeKey;
 import com.example.FAMS.repositories.SyllabusDAO;
 import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.service_implementors.SyllabusServiceImpl;
@@ -28,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Date;
 import java.util.List;
 
 @RestController

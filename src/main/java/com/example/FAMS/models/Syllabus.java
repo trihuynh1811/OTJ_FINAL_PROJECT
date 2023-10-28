@@ -53,8 +53,13 @@ public class Syllabus {
     @Column(name = "publish_status", nullable = false)
     private String publishStatus;
 
-    @Column(name = "created_by", nullable = false)
-    private String createdBy;
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "user_syllabus", referencedColumnName = "user_id")
+    @JsonIgnore
+    @JsonBackReference
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private User createdBy;
 
     @Column(name = "created_date", nullable = false)
     private Date createdDate;
@@ -88,7 +93,7 @@ public class Syllabus {
 
     @OneToMany(mappedBy = "topicCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private final Set<UserSyllabus> userSyllabus = new HashSet<>();
+    private final Set<UserClassSyllabus> userSyllabus = new HashSet<>();
 
     @OneToMany(mappedBy = "topicCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
