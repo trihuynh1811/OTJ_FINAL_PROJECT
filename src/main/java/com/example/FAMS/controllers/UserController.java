@@ -30,6 +30,24 @@ public class UserController {
         return userService.getAll();
     }
 
+    @GetMapping("/get-all/trainer")
+    @PreAuthorize("hasAuthority('user:read')")
+    public ResponseEntity<ResponseObject> getAllTrainer() {
+        return userService.getAllTrainersByRole();
+    }
+
+    @GetMapping("/get-all/admin")
+    @PreAuthorize("hasAuthority('user:read')")
+    public ResponseEntity<ResponseObject> getAllAdmin() {
+        return userService.getAllAdminsByRole();
+    }
+
+    @GetMapping("/get-all/admin-and-superadmin")
+    @PreAuthorize("hasAuthority('user:read')")
+    public ResponseEntity<ResponseObject> getAllAdminAndSuperAdmin() {
+        return userService.getAllAdminAndSuperAdminByRole();
+    }
+
     @GetMapping("/pagination")
     @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<ResponseObject> getPagination(

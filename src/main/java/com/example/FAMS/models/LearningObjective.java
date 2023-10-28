@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-public class LearningObjective {
+public class  LearningObjective {
 
 //    @EmbeddedId
 //    TrainingContentLearningObjectiveCompositeKey id;
