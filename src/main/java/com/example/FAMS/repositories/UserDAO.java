@@ -3,12 +3,14 @@ package com.example.FAMS.repositories;
 import com.example.FAMS.dto.UserDTO;
 import com.example.FAMS.dto.responses.ListUserResponse;
 import com.example.FAMS.models.User;
+import com.example.FAMS.models.UserPermission;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +21,8 @@ public interface UserDAO extends JpaRepository<User, Integer> {
                     SELECT Us FROM User Us WHERE Us.email = :email AND Us.status = true
             """)
     Optional<User> findByEmail(String email);
+
+    List<User> findUsersByRole(UserPermission role);
 
     Optional<UserDTO> findUserByEmail(String email);
 

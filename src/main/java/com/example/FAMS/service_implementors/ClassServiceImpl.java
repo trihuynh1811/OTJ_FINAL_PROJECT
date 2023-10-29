@@ -101,6 +101,11 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
+    public ResponseEntity<ClassDetailResponse> getClassDetail(String classCode) throws InterruptedException {
+        return null;
+    }
+
+    @Override
     public Class createClass(CreateClassDTO request, Authentication authentication) {
         try {
             log.info(request);
@@ -230,6 +235,16 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
+    public ResponseEntity<DeactivateClassResponse> deactivateClass(String classCode) {
+        Class c = classDAO.findById(classCode).isPresent() ? classDAO.findById(classCode).get() : null;
+        if (c != null) {
+            c.setDeactivated(true);
+            return ResponseEntity.status(200).body(new DeactivateClassResponse("successfully deactivate class with id " + classCode + " (⌐■_■)👍"));
+        }
+        return ResponseEntity.status(400).body(new DeactivateClassResponse("fail to deactivate class with id " + classCode + " (⌐■⌒■)👎"));
+    }
+
+    @Override
     public UpdateClassResponse updateClass(UpdateClassRequest updateClassRequest) {
         Optional<Class> optionalClass = classDAO.findById(updateClassRequest.getClassCode());
         Class existingClass = optionalClass.orElse(null);
@@ -258,92 +273,14 @@ public class ClassServiceImpl implements ClassService {
                         .updatedClass(updatedClass)
                         .build();
             } else {
-                // Xử lý nếu việc cập nhật thất bại
                 return UpdateClassResponse.builder()
                         .status("Update Class failed")
                         .updatedClass(null)
                         .build();
             }
         } else {
-            // Xử lý nếu lớp học không tồn tại
-            return UpdateClassResponse.builder()
-                    .status("Class not found")
-                    .updatedClass(null)
-                    .build();
+            return UpdateClassResponse.builder().status("Class not found").updatedClass(null).build();
         }
-    }
-
-    @Override
-    public ResponseEntity<DeactivateClassResponse> deactivateClass(String classCode) {
-        Class c = classDAO.findById(classCode).isPresent() ? classDAO.findById(classCode).get() : null;
-        if (c != null) {
-            c.setDeactivated(true);
-            return ResponseEntity.status(200).body(new DeactivateClassResponse("successfully deactivate class with id " + classCode + " (⌐■_■)👍"));
-        }
-        return ResponseEntity.status(400).body(new DeactivateClassResponse("fail to deactivate class with id " + classCode + " (⌐■⌒■)👎"));
-    }
-
-    @Override
-    public ResponseEntity<ClassDetailResponse> getClassDetail(String classCode) throws InterruptedException {
-        Class c = classDAO.findById(classCode).isPresent() ? classDAO.findById(classCode).get() : null;
-        if (c != null) {
-            log.info(c.getTrainingProgram().getTrainingProgramSyllabus().size());
-            List<UserDTO> trainerList = new ArrayList<>();
-            List<UserDTO> adminList = new ArrayList<>();
-            List<SyllabusDTO> syllabusList = new ArrayList<>();
-            List<ClassUser> classUsers = c.getClassUsers().stream().toList();
-            User user = null;
-
-            for (int i = 0; i < classUsers.size(); i++) {
-                if (classUsers.get(i).getUserType().equals("TRAINER")) {
-                    user = userDAO.findById(classUsers.get(i).getUserID().getUserId()).get();
-                    trainerList.add(UserDTO.builder()
-                            .userEmail(user.getEmail())
-                            .userName(user.getName())
-                            .userId(user.getUserId())
-                            .build());
-                }
-                if (classUsers.get(i).getUserType().equals("CLASS_ADMIN")) {
-                    user = userDAO.findById(classUsers.get(i).getUserID().getUserId()).get();
-                    adminList.add(UserDTO.builder()
-                            .userEmail(user.getEmail())
-                            .userName(user.getName())
-                            .userId(user.getUserId())
-                            .build());
-                }
-            }
-            if (!c.getTrainingProgram().getTrainingProgramSyllabus().isEmpty()) {
-                syllabusList = getAllSyllabusInTrainingProgram(c.getTrainingProgram().getTrainingProgramSyllabus().stream().toList());
-            }
-
-            ClassDetailResponse res = ClassDetailResponse.builder()
-                    .classId(classCode)
-                    .className(c.getClassName())
-                    .createdBy(c.getCreatedBy())
-                    .createdDate(c.getCreatedDate())
-                    .deactivated(c.isDeactivated())
-                    .duration(c.getDuration())
-                    .endDate(c.getEndDate())
-                    .modifiedBy(c.getModifiedBy())
-                    .modifiedDate(c.getModifiedDate())
-                    .startDate(c.getStartDate())
-                    .status(c.getStatus())
-                    .adminList(adminList)
-                    .trainerList(trainerList)
-                    .timeFrom(c.getTimeFrom())
-                    .timeTo(c.getTimeTo())
-                    .trainingProgram(TrainingProgramDTO.builder()
-                            .trainingProgramCode(c.getTrainingProgram().getTrainingProgramCode())
-                            .trainingProgramName(c.getTrainingProgram().getName())
-                            .modifyBy(c.getTrainingProgram().getModifiedBy())
-                            .modifyDate(c.getTrainingProgram().getModifiedDate())
-                            .build())
-                    .syllabusList(syllabusList)
-                    .message("found class with id " + classCode)
-                    .build();
-            return ResponseEntity.status(200).body(res);
-        }
-        return ResponseEntity.status(400).body(new ClassDetailResponse("class with id " + classCode + " not found"));
     }
 
     public List<Class> getDetailClasses() {
@@ -386,15 +323,15 @@ public class ClassServiceImpl implements ClassService {
         }
     }
 
-    @Override
-    public UpdateCalendarResponse updateClassLearningDay(UpdateCalendarRequest request) throws ParseException {
-        String id = request.getId();
-        String enrollDate = request.getEnrollDate();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        java.util.Date eDate = dateFormat.parse(enrollDate);
-        Time timeFrom = request.getTimeFrom();
-        Time timeTo = request.getTimeTo();
-        String value = request.getValue();
+  @Override
+  public UpdateCalendarResponse updateClassLearningDay(UpdateCalendarRequest request) throws ParseException {
+    String id = request.getId();
+    String enrollDate = request.getEnrollDate();
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    Date eDate = dateFormat.parse(enrollDate);
+    Time timeFrom = request.getTimeFrom();
+    Time timeTo = request.getTimeTo();
+    String value = request.getValue();
 
         ClassLearningDay classLearningDay = classLearningDayDAO.findByClassId_ClassIdAndEnrollDate(id, eDate);
 

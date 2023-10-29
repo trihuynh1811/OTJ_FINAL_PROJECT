@@ -99,6 +99,7 @@ public class User implements UserDetails {
 //    @JsonBackReference
 //    private Fsu fsu;
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.getAuthorities();

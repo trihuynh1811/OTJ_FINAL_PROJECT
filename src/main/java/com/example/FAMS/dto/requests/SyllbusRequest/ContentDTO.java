@@ -17,7 +17,7 @@ public class ContentDTO {
     String content = "";
     String note = "";
     String deliveryType;
-    String trainingFormat;
+    boolean isOnline;
     int duration;
     List<StandardOutputDTO> standardOutput;
 }
