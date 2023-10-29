@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,15 +42,14 @@ public class TrainingProgramImpl implements TrainingProgramService {
     private final TrainingProgramDAO trainingProgramDAO;
     private final UserDAO userDAO;
     private final TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
-    private List<TrainingProgramModified> userList;
 
-  @Override
+    @Override
   public ResponseEntity<ResponseObject> createTrainingProgram(
       TrainingProgramDTO trainingProgramDTO, int trainerID, String topicCode) {
     TrainingProgram trainingProgram = new TrainingProgram();
     Date date = new Date();
     String token =
-        ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+        ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
             .getRequest()
             .getHeader("Authorization")
             .substring(7);
@@ -121,7 +122,8 @@ public class TrainingProgramImpl implements TrainingProgramService {
 
   @Override
   public ResponseEntity<ResponseObject> getAll() {
-    try {
+      List<TrainingProgramModified> userList;
+      try {
       userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
       return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
     } catch (Exception e) {
@@ -193,12 +195,7 @@ public class TrainingProgramImpl implements TrainingProgramService {
                 .modifiedBy(originalTraining.getModifiedBy())
                 .status(originalTraining.getStatus())
                 .build();
-        TrainingProgram savedTrainingProgram = trainingProgramDAO.save(newTrainingProgram);
-        if (savedTrainingProgram != null) {
-            return savedTrainingProgram;
-        } else {
-            throw new RuntimeException("Not duplicate");
-        }
+        return trainingProgramDAO.save(newTrainingProgram);
     }
 
     @Override

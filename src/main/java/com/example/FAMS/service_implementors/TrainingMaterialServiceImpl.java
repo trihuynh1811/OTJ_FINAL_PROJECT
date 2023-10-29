@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -40,8 +41,7 @@ public class TrainingMaterialServiceImpl implements TrainingMaterialService {
     public byte[] downloadTrainingMaterials(String fileName) throws IOException {
         S3Object s3Object = s3Client.getObject(bucketName, fileName);
         S3ObjectInputStream inputStream = s3Object.getObjectContent();
-        byte[] content = IOUtils.toByteArray(inputStream);
-        return content;
+        return IOUtils.toByteArray(inputStream);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class TrainingMaterialServiceImpl implements TrainingMaterialService {
 
 
     private File convertMultipartFileToFile(MultipartFile multipartFile) throws IOException {
-        File convertedFile = new File(multipartFile.getOriginalFilename());
+        File convertedFile = new File(Objects.requireNonNull(multipartFile.getOriginalFilename()));
         FileOutputStream fos = new FileOutputStream(convertedFile);
         fos.write(multipartFile.getBytes());
         return convertedFile;

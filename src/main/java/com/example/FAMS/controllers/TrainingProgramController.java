@@ -48,11 +48,11 @@ public class TrainingProgramController {
             trainingProgramCode, userId, updateTrainingProgramRequest));
   }
 
-  @GetMapping("/duplicate/{trainingProramCode}")
+  @GetMapping("/duplicate/{trainingProgramCode}")
   @PreAuthorize("hasAuthority('training:read')")
   public ResponseEntity<TrainingProgram> duplicateTrainingProgram(
-      @PathVariable int trainingProramCode) {
-    return ResponseEntity.ok(trainingProgram.duplicateTrainingProgram(trainingProramCode));
+      @PathVariable int trainingProgramCode) {
+    return ResponseEntity.ok(trainingProgram.duplicateTrainingProgram(trainingProgramCode));
   }
 
   @PostMapping("/importCSV")
@@ -74,14 +74,13 @@ public class TrainingProgramController {
     }
   }
 
-<<<<<<< HEAD
     @PostMapping("/search")
     @PreAuthorize("hasAnyAuthority('training:read')")
     public Object searchTrainingProgram(@RequestParam(name = "keyword") String keyword){
         return trainingProgram.searchTrainingProgram(keyword) != null ?
                 trainingProgram.searchTrainingProgram(keyword) : "no data";
     }
-=======
+
   @PostMapping("/activate/{trainingProgramCode}")
   @PreAuthorize("hasAnyAuthority('training:update')")
   public ResponseEntity<ResponseObject> activateTrainingProgram(
@@ -95,5 +94,4 @@ public class TrainingProgramController {
       @PathVariable int trainingProgramCode) {
     return trainingProgram.changeTrainingProgramStatus(trainingProgramCode, "De-activate");
   }
->>>>>>> a9269770e576483dba188ff7a2fb1332a9a4ced6
 }
