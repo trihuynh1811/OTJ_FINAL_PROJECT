@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-public interface FileService {
+public interface TrainingMaterialService {
 
     ResponseObject uploadTrainingMaterial(MultipartFile file) throws IOException;
 
