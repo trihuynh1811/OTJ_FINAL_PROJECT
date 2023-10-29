@@ -35,15 +35,16 @@ public class TrainingMaterialServiceImpl implements TrainingMaterialService {
     public ResponseObject uploadTrainingMaterial(MultipartFile file) throws IOException {
         File fileObj = convertMultipartFileToFile(file);
         var result = s3Client.putObject(new PutObjectRequest(bucketName, fileObj.getName(), fileObj));
-//        TrainingMaterial trainingMaterial = TrainingMaterial.builder()
-//                .material(fileObj.getName())
-//                .source()
-//                .build();
-
+        TrainingMaterial trainingMaterial = TrainingMaterial.builder()
+                .material(fileObj.getName())
+                .source("https://fams-datas.s3.ap-southeast-1.amazonaws.com/" + fileObj.getName())
+                .build();
+        var savedTrainingMaterial = trainingMaterialDAO.save(trainingMaterial);
         fileObj.delete();
         return ResponseObject.builder()
                 .status("Successful")
                 .message("File " + fileObj.getName() + " uploaded")
+                .payload(savedTrainingMaterial)
                 .build();
     }
 
@@ -75,11 +76,22 @@ public class TrainingMaterialServiceImpl implements TrainingMaterialService {
     }
 
     private boolean checkIfExisted(String fileName){
-        return trainingMaterialDAO.findTrainingMaterialByMaterial(fileName) != null;
+        List<TrainingMaterial> list = trainingMaterialDAO.findAll();
+        for (TrainingMaterial t: list) {
+            if(t.getMaterial().equalsIgnoreCase(fileName))
+                return true;
+        }
+        return false;
     }
 
     private void deleteOnDB(String fileName){
-        trainingMaterialDAO.deleteTrainingMaterialByMaterial(fileName);
+        List<TrainingMaterial> list = trainingMaterialDAO.findAll();
+        for (TrainingMaterial t: list) {
+            if(t.getMaterial().equalsIgnoreCase(fileName))
+                list.remove(t);
+            break;
+        }
+        trainingMaterialDAO.saveAll(list);
     }
 
     private File convertMultipartFileToFile(MultipartFile multipartFile) throws IOException {

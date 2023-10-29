@@ -48,4 +48,8 @@ public class TrainingUnit {
     @Column(name = "day_number", nullable = false)
     private int dayNumber;
 
+    @OneToMany(mappedBy = "trainingUnit")
+    @Column(name = "training_materials")
+    private Set<TrainingMaterial> trainingMaterials;
+
 }

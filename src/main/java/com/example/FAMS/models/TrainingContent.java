@@ -57,5 +57,7 @@ public class TrainingContent {
         learningObjective.setContentCode(this);
     }
 
-
+    @OneToMany(mappedBy = "trainingContent")
+    @Column(name = "training_materials")
+    private Set<TrainingMaterial> trainingMaterials;
 }

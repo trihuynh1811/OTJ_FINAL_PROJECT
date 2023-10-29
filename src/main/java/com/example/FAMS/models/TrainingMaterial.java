@@ -27,4 +27,15 @@ public class TrainingMaterial {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "syllabus")
     private Syllabus syllabus;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name="unit_code", referencedColumnName="unit_code"),
+            @JoinColumn(name="topic_code", referencedColumnName="topic_code")
+    })
+    private TrainingUnit trainingUnit;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "training_content")
+    private TrainingContent trainingContent;
 }
