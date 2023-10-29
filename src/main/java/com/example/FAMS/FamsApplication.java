@@ -41,7 +41,7 @@ public class FamsApplication {
     private final TrainingProgramDAO trainingProgramDAO;
     private final ClassUserDAO classUserDAO;
     private final TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
-//    private final FsuDAO fsuDAO;
+    //    private final FsuDAO fsuDAO;
     private final LocationDAO locationDAO;
 
     public static void main(String[] args) {
@@ -304,7 +304,7 @@ public class FamsApplication {
                             .modifiedDate(new Date())
                             .build());
 
-                    for(int i = 0; i < 5; i++){
+                    for (int i = 0; i < 5; i++) {
                         userList.add(User.builder()
                                 .email("trainee" + i + "@gmail.com")
                                 .password(passwordEncoder.encode("1"))
@@ -342,6 +342,29 @@ public class FamsApplication {
                                     .password("1")
                                     .build()).getToken());
                 }
+                if (syllabusDAO.findAll().isEmpty()) {
+                    List<Syllabus> syllabusList = new ArrayList<>();
+
+                    for (int i = 1; i <= 4; i++) {
+                        Syllabus s = Syllabus.builder()
+                                .topicCode("lmao " + i)
+                                .topicName("lmao " + i)
+                                .version("1.6")
+                                .publishStatus(i % 2 == 0 ? "active" : "inactive")
+                                .technicalGroup("mao ze dong picture at home.")
+                                .priority("low")
+                                .courseObjective("glory to ccp.")
+                                .trainingAudience(10)
+                                .createdBy(userDAO.findByEmail("admin@gmail.com").get())
+                                .createdDate(new Date())
+                                .modifiedDate(new Date())
+                                .build();
+                        syllabusList.add(s);
+                    }
+                    syllabusDAO.saveAll(syllabusList);
+
+                }
+
                 if (trainingProgramDAO.findAll().isEmpty()) {
                     List<TrainingProgram> trainingPrograms = new ArrayList<>();
 
@@ -379,7 +402,7 @@ public class FamsApplication {
 
                     trainingProgramDAO.saveAll(trainingPrograms);
                 }
-                if(trainingProgramSyllabusDAO.findAll().isEmpty()){
+                if (trainingProgramSyllabusDAO.findAll().isEmpty()) {
                     List<TrainingProgramSyllabus> trainingProgramSyllabusList = new ArrayList<>();
 
                     TrainingProgramSyllabus trainingProgramSyllabus = TrainingProgramSyllabus.builder()
@@ -422,7 +445,6 @@ public class FamsApplication {
 
                     trainingProgramSyllabusDAO.saveAll(trainingProgramSyllabusList);
                 }
-
 
 
             }
