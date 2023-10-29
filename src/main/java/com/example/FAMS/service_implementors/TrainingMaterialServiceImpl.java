@@ -6,15 +6,19 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
 import com.example.FAMS.dto.responses.ResponseObject;
+import com.example.FAMS.models.TrainingMaterial;
+import com.example.FAMS.repositories.TrainingMaterialDAO;
 import com.example.FAMS.services.TrainingMaterialService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -22,6 +26,8 @@ import java.util.Objects;
 public class TrainingMaterialServiceImpl implements TrainingMaterialService {
 
     private final AmazonS3 s3Client;
+
+    private final TrainingMaterialDAO trainingMaterialDAO;
 
     @Value("${application.bucket.name}")
     private String bucketName;
@@ -45,14 +51,32 @@ public class TrainingMaterialServiceImpl implements TrainingMaterialService {
     }
 
     @Override
-    public ResponseObject deleteTrainingMaterial(String fileName) {
-        s3Client.deleteObject(bucketName, fileName);
-        return ResponseObject.builder()
-                .status("Success")
-                .message("File " + fileName + " removed.")
-                .build();
+    public ResponseEntity<ResponseObject> deleteTrainingMaterial(String fileName) {
+        if(checkIfExisted(fileName)){
+            deleteOnDB(fileName);
+            s3Client.deleteObject(bucketName, fileName);
+            return ResponseEntity
+                    .ok()
+                    .body(ResponseObject.builder()
+                            .status("Success")
+                            .message("File " + fileName + " removed.")
+                            .build());
+        }
+        return ResponseEntity
+                .badRequest()
+                .body(ResponseObject.builder()
+                        .status("Fail")
+                        .message("File " + fileName + " is not found.")
+                        .build());
     }
 
+    private boolean checkIfExisted(String fileName){
+        return trainingMaterialDAO.findTrainingMaterialByMaterial(fileName) != null;
+    }
+
+    private void deleteOnDB(String fileName){
+        trainingMaterialDAO.deleteTrainingMaterialByMaterial(fileName);
+    }
 
     private File convertMultipartFileToFile(MultipartFile multipartFile) throws IOException {
         File convertedFile = new File(Objects.requireNonNull(multipartFile.getOriginalFilename()));

@@ -54,6 +54,6 @@ public class TrainingMaterialController {
     public ResponseEntity<ResponseObject> deleteTrainingMaterial(
             @PathVariable(name = "fileName") String fileName
     ) {
-        return ResponseEntity.ok(trainingMaterialService.deleteTrainingMaterial(fileName));
+        return trainingMaterialService.deleteTrainingMaterial(fileName);
     }
 }
