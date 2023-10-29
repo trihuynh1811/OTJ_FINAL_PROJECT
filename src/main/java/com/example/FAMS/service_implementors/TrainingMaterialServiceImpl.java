@@ -6,6 +6,8 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
 import com.example.FAMS.dto.responses.ResponseObject;
+import com.example.FAMS.models.TrainingMaterial;
+import com.example.FAMS.repositories.TrainingMaterialDAO;
 import com.example.FAMS.services.TrainingMaterialService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +24,7 @@ import java.util.Objects;
 public class TrainingMaterialServiceImpl implements TrainingMaterialService {
 
     private final AmazonS3 s3Client;
+    private final TrainingMaterialDAO trainingMaterialDAO;
 
     @Value("${application.bucket.name}")
     private String bucketName;
@@ -29,7 +32,12 @@ public class TrainingMaterialServiceImpl implements TrainingMaterialService {
     @Override
     public ResponseObject uploadTrainingMaterial(MultipartFile file) throws IOException {
         File fileObj = convertMultipartFileToFile(file);
-        s3Client.putObject(new PutObjectRequest(bucketName, fileObj.getName(), fileObj));
+        var result = s3Client.putObject(new PutObjectRequest(bucketName, fileObj.getName(), fileObj));
+//        TrainingMaterial trainingMaterial = TrainingMaterial.builder()
+//                .material(fileObj.getName())
+//                .source()
+//                .build();
+
         fileObj.delete();
         return ResponseObject.builder()
                 .status("Successful")
