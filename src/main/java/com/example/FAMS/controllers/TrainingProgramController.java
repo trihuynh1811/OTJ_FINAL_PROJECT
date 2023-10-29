@@ -88,5 +88,10 @@ public class TrainingProgramController {
         return trainingProgram.changeTrainingProgramStatus(trainingProgramCode, "De-activate");
     }
 
-
+    @PostMapping("/search")
+    @PreAuthorize("hasAnyAuthority('training:read')")
+    public Object searchTrainingProgram(@RequestParam(name = "keyword") String keyword){
+        return trainingProgram.searchTrainingProgram(keyword) != null ?
+                trainingProgram.searchTrainingProgram(keyword) : "no data";
+    }
 }

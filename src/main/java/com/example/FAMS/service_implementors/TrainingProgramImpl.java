@@ -286,6 +286,35 @@ public class TrainingProgramImpl implements TrainingProgramService {
     }
 
     @Override
+    public TrainingProgram searchTrainingProgram(String keyword) {
+        List<TrainingProgram> trainingProgramList = trainingProgramDAO.findAll();
+        TrainingProgram trainingProgramByName = getNameIfExisted(keyword, trainingProgramList);
+        TrainingProgram trainingProgramByCode = getCodeIfExisted(keyword, trainingProgramList);
+        if(trainingProgramByName == null){
+            return trainingProgramByCode;
+        }
+        return trainingProgramByName;
+    }
+
+    private TrainingProgram getNameIfExisted(String name, List<TrainingProgram> trainingProgramList){
+        for (TrainingProgram trainingProgram: trainingProgramList) {
+            if(trainingProgram.getName().equalsIgnoreCase(name) &&
+            trainingProgram.getStatus().equalsIgnoreCase("active"))
+                return trainingProgram;
+        }
+        return null;
+    }
+
+    private TrainingProgram getCodeIfExisted(String code, List<TrainingProgram> trainingProgramList){
+        for (TrainingProgram trainingProgram: trainingProgramList) {
+            if(Integer.toString(trainingProgram.getTrainingProgramCode()).equalsIgnoreCase(code) &&
+                    trainingProgram.getStatus().equalsIgnoreCase("active"))
+                return trainingProgram;
+        }
+        return null;
+    }
+
+    @Override
     public ResponseEntity<ResponseObject> changeTrainingProgramStatus(int trainingProgramCode, String value) {
         if (checkExisted(trainingProgramCode)) {
             switch (value) {
