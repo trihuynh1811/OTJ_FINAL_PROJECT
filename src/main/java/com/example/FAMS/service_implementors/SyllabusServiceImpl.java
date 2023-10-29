@@ -56,6 +56,9 @@ public class SyllabusServiceImpl implements SyllabusService {
 
     String line = "";
 
+    @Autowired
+    TrainingMaterialDAO trainingMaterialDAO;
+
     @Override
     public List<Syllabus> getSyllabuses() {
 //        log.info(userDAO.findAll());
@@ -305,7 +308,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             syllabusexits.setVersion(updatesyllabusRequest.getVersion());
             syllabusexits.setTrainingAudience(updatesyllabusRequest.getTrainingAudience());
             syllabusexits.setTopicOutline(updatesyllabusRequest.getTopicOutline());
-            syllabusexits.setTrainingMaterials(updatesyllabusRequest.getTrainingMaterials());
+//            syllabusexits.setTrainingMaterials(updatesyllabusRequest.getTrainingMaterials());
             syllabusexits.setPriority(updatesyllabusRequest.getPriority());
             syllabusexits.setPublishStatus(updatesyllabusRequest.getPublishStatus());
             syllabusexits.setCreatedBy(updatesyllabusRequest.getCreatedBy());
@@ -363,27 +366,27 @@ public class SyllabusServiceImpl implements SyllabusService {
                     continue;
                 }
                 String[] data = line.split(",");
-                Syllabus c = new Syllabus();
+                Syllabus newSyllabus = new Syllabus();
 
-                c.setTopicCode(data[0]);
-                c.setCreatedBy(getCreator(authentication).getName());
+                newSyllabus.setTopicCode(data[0]);
+                newSyllabus.setCreatedBy(getCreator(authentication).getName());
                 // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
                 Date parsedDate = dateFormat.parse(data[1]);
-                c.setCreatedDate(new java.sql.Date(parsedDate.getTime()));
-                c.setModifiedBy(getCreator(authentication).getName());
-                c.setModifiedDate(new java.sql.Date(dateFormat.parse(data[2]).getTime()));
-                c.setPriority(data[3]);
-                c.setPublishStatus(data[4]);
-                c.setTechnicalGroup(data[5]);
-                c.setTopicName(data[6]);
-                c.setTopicOutline(data[7]);
-                c.setTrainingAudience(Integer.parseInt(data[8]));
-                c.setTrainingMaterials(data[9]);
-                c.setTrainingPrinciples(data[10]);
-                c.setVersion(data[11]);
-                c.setCourseObjective(data[12]);
-                c.setUserID(getCreator(authentication));
-                syllabusList.add(c);
+                newSyllabus.setCreatedDate(new java.sql.Date(parsedDate.getTime()));
+                newSyllabus.setModifiedBy(getCreator(authentication).getName());
+                newSyllabus.setModifiedDate(new java.sql.Date(dateFormat.parse(data[2]).getTime()));
+                newSyllabus.setPriority(data[3]);
+                newSyllabus.setPublishStatus(data[4]);
+                newSyllabus.setTechnicalGroup(data[5]);
+                newSyllabus.setTopicName(data[6]);
+                newSyllabus.setTopicOutline(data[7]);
+                newSyllabus.setTrainingAudience(Integer.parseInt(data[8]));
+                newSyllabus.setTrainingMaterials(null);
+                newSyllabus.setTrainingPrinciples(data[10]);
+                newSyllabus.setVersion(data[11]);
+                newSyllabus.setCourseObjective(data[12]);
+                newSyllabus.setUserID(getCreator(authentication));
+                syllabusList.add(newSyllabus);
                 for (Syllabus syllabus : syllabusList) {
                     syllabusDAO.save(syllabus);
                 }

@@ -6,7 +6,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
 import com.example.FAMS.dto.responses.ResponseObject;
-import com.example.FAMS.services.FileService;
+import com.example.FAMS.services.TrainingMaterialService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
-public class FileServiceImpl implements FileService {
+public class TrainingMaterialServiceImpl implements TrainingMaterialService {
 
     private final AmazonS3 s3Client;
 
