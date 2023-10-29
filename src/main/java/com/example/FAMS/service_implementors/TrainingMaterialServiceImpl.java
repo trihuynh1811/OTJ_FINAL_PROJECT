@@ -71,11 +71,22 @@ public class TrainingMaterialServiceImpl implements TrainingMaterialService {
     }
 
     private boolean checkIfExisted(String fileName){
-        return trainingMaterialDAO.findTrainingMaterialByMaterial(fileName) != null;
+        List<TrainingMaterial> list = trainingMaterialDAO.findAll();
+        for (TrainingMaterial t: list) {
+            if(t.getMaterial().equalsIgnoreCase(fileName))
+                return true;
+        }
+        return false;
     }
 
     private void deleteOnDB(String fileName){
-        trainingMaterialDAO.deleteTrainingMaterialByMaterial(fileName);
+        List<TrainingMaterial> list = trainingMaterialDAO.findAll();
+        for (TrainingMaterial t: list) {
+            if(t.getMaterial().equalsIgnoreCase(fileName))
+                list.remove(t);
+            break;
+        }
+        trainingMaterialDAO.saveAll(list);
     }
 
     private File convertMultipartFileToFile(MultipartFile multipartFile) throws IOException {

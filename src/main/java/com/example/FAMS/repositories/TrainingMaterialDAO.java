@@ -16,10 +16,4 @@ public interface TrainingMaterialDAO extends JpaRepository<TrainingMaterial, Int
             """)
     List<TrainingMaterial> findTrainingMaterialBySyllabus(String topicCode);
 
-    @Query("SELECT TM FROM TrainingMaterial AS TM WHERE TM.material = :material")
-    TrainingMaterial findTrainingMaterialByMaterial(String material);
-
-    @Query("DELETE FROM TrainingMaterial WHERE TrainingMaterial.material = :material")
-    void deleteTrainingMaterialByMaterial(String material);
-
 }
