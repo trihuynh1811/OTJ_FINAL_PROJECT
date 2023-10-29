@@ -9,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 public interface TrainingProgramService {
     ResponseEntity<ResponseObject> createTrainingProgram(TrainingProgramDTO trainingProgramDTO, int trainerID, String topicCode);
 

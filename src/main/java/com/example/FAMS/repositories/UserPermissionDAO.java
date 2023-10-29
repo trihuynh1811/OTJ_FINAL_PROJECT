@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface UserPermissionDAO extends JpaRepository<UserPermission, Integer> {
 
     Optional<UserPermission> findUserPermissionByRole(Role role);
+
 }

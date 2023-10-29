@@ -195,7 +195,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
-
     public String passwordGenerator(String email) {
         return passwordEncoder.encode(email).substring(9, 20);
     }
