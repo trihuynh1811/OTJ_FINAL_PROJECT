@@ -3,10 +3,7 @@ package com.example.FAMS.services;
 import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
 import com.example.FAMS.dto.requests.UpdateClassRequest;
-import com.example.FAMS.dto.responses.Class.ClassDetailResponse;
-import com.example.FAMS.dto.responses.Class.CreateClassResponse;
-import com.example.FAMS.dto.responses.Class.DeactivateClassResponse;
-import com.example.FAMS.dto.responses.Class.UpdateClassResponse;
+import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.models.*;
@@ -22,7 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface ClassService {
-    List<Class> getClasses();
+    List<GetClassesResponse> getClasses();
 
     ResponseEntity<ClassDetailResponse> getClassDetail(String classCode) throws InterruptedException;
 
@@ -30,7 +27,7 @@ public interface ClassService {
 
     UpdateClassResponse updateClass(UpdateClassRequest updateClassRequest);
 
-    ResponseEntity<DeactivateClassResponse> deactivateClass(String classCode, boolean deactivated);
+    ResponseEntity<DeactivateClassResponse> deactivateClass(String classCode);
 
     Class getClassById(String classId);
 

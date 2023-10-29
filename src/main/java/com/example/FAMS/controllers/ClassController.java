@@ -3,10 +3,7 @@ package com.example.FAMS.controllers;
 import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
 import com.example.FAMS.dto.requests.UpdateClassRequest;
-import com.example.FAMS.dto.responses.Class.ClassDetailResponse;
-import com.example.FAMS.dto.responses.Class.CreateClassResponse;
-import com.example.FAMS.dto.responses.Class.DeactivateClassResponse;
-import com.example.FAMS.dto.responses.Class.UpdateClassResponse;
+import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.models.Class;
@@ -35,7 +32,7 @@ public class ClassController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('class:read')")
-    public ResponseEntity<List<Class>> getClasses() {
+    public ResponseEntity<List<GetClassesResponse>> getClasses() {
         return ResponseEntity.status(HttpStatus.OK).body(classService.getClasses());
     }
 
@@ -98,8 +95,8 @@ public class ClassController {
     }
 
     @PostMapping("/deactivate/{id}")
-    public ResponseEntity<DeactivateClassResponse> deactivateClass(@PathVariable("id") String classCode, @RequestParam(defaultValue = "false", name = "deactivated") boolean deactivated){
-        return classService.deactivateClass(classCode, deactivated);
+    public ResponseEntity<DeactivateClassResponse> deactivateClass(@PathVariable("id") String classCode){
+        return classService.deactivateClass(classCode);
     }
 
     @GetMapping("/detail/{id}")

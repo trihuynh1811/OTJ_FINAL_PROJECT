@@ -75,8 +75,29 @@ public class ClassServiceImpl implements ClassService {
     List<CalendarWeekResponse> weekCalendars;
 
     @Override
-    public List<Class> getClasses() {
-        return classDAO.findTop1000ByOrderByCreatedDateDesc();
+    public List<GetClassesResponse> getClasses() {
+        List<Class> classes = classDAO.findTop1000ByOrderByCreatedDateDesc();
+        List<GetClassesResponse> res = new ArrayList<>();
+        List<String> location = new ArrayList<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+
+        for(int i = 0; i < classes.size(); i++){
+            for(int j = 0; j < classes.get(i).getLocations().stream().toList().size(); j++){
+                location.add(classes.get(i).getLocations().stream().toList().get(j).getLocation());
+            }
+            GetClassesResponse c = GetClassesResponse.builder()
+                    .classCode(classes.get(i).getClassId())
+                    .className(classes.get(i).getClassName())
+                    .fsu(classes.get(i).getFsu())
+                    .location(location)
+                    .createdOn(sdf.format(new Date(classes.get(i).getCreatedDate().getTime())))
+                    .createdBy(classes.get(i).getCreatedBy())
+                    .duration(classes.get(i).getDuration())
+                    .status(classes.get(i).getStatus())
+                    .build();
+            res.add(c);
+        }
+        return res;
     }
 
     @Override
@@ -253,14 +274,13 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public ResponseEntity<DeactivateClassResponse> deactivateClass(String classCode, boolean deactivated) {
+    public ResponseEntity<DeactivateClassResponse> deactivateClass(String classCode) {
         Class c = classDAO.findById(classCode).isPresent() ? classDAO.findById(classCode).get() : null;
-        String d = deactivated ? "deactivate" : "activate";
         if (c != null) {
-            c.setDeactivated(deactivated);
-            return ResponseEntity.status(200).body(new DeactivateClassResponse("successfully " + d + " class with id " + classCode + " (⌐■_■)👍"));
+            c.setDeactivated(true);
+            return ResponseEntity.status(200).body(new DeactivateClassResponse("successfully deactivate class with id " + classCode + " (⌐■_■)👍"));
         }
-        return ResponseEntity.status(400).body(new DeactivateClassResponse("fail to " + d + " class with id " + classCode + " (⌐■⌒■)👎"));
+        return ResponseEntity.status(400).body(new DeactivateClassResponse("fail to deactivate class with id " + classCode + " (⌐■⌒■)👎"));
     }
 
     @Override
