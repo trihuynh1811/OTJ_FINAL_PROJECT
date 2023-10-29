@@ -12,8 +12,14 @@ import java.util.Optional;
 public interface TrainingMaterialDAO extends JpaRepository<TrainingMaterial, Integer> {
 
     @Query("""
-    SELECT TM FROM TrainingMaterial AS TM WHERE TM.syllabus.topicCode = :topicCode
-""")
+                SELECT TM FROM TrainingMaterial AS TM WHERE TM.syllabus.topicCode = :topicCode
+            """)
     List<TrainingMaterial> findTrainingMaterialBySyllabus(String topicCode);
+
+    @Query("SELECT TM FROM TrainingMaterial AS TM WHERE TM.material = :material")
+    TrainingMaterial findTrainingMaterialByMaterial(String material);
+
+    @Query("DELETE FROM TrainingMaterial WHERE TrainingMaterial.material = :material")
+    void deleteTrainingMaterialByMaterial(String material);
 
 }
