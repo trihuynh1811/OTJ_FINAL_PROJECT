@@ -28,8 +28,6 @@ public class TrainingMaterialServiceImpl implements TrainingMaterialService {
     private final AmazonS3 s3Client;
     private final TrainingMaterialDAO trainingMaterialDAO;
 
-    private final TrainingMaterialDAO trainingMaterialDAO;
-
     @Value("${application.bucket.name}")
     private String bucketName;
 
