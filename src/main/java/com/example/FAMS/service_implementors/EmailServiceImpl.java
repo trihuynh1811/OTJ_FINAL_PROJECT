@@ -11,6 +11,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
 @Service
 public class EmailServiceImpl implements EmailService {
     private final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
@@ -30,6 +33,7 @@ public class EmailServiceImpl implements EmailService {
             mimeMessageHelper.setFrom(sender);
             mimeMessageHelper.setTo(details.getRecipient());
             mimeMessageHelper.setSubject(details.getSubject());
+
             String message =
                     "<body data-new-gr-c-s-loaded=\"14.1130.0\">\n" +
                             "    <div class=\"es-wrapper-color\">\n" +
@@ -219,6 +223,16 @@ public class EmailServiceImpl implements EmailService {
         } catch (Exception e) {
             return "Mail sent fail";
         }
+    }
+
+    private String readFormat() throws Exception{
+        BufferedReader br = new BufferedReader(new FileReader("src/main/java/com/example/FAMS/files/MailFormat.txt"));
+        String line;
+        String result = "";
+        while((line = br.readLine()) != null){
+            result = line + "\n";
+        }
+        return result;
     }
 
 
