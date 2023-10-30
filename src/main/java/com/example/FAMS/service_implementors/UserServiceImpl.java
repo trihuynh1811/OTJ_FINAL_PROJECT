@@ -8,9 +8,11 @@ import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateResponse;
 import com.example.FAMS.dto.responses.UserWithRoleDTO;
 import com.example.FAMS.enums.Role;
+import com.example.FAMS.models.EmailDetails;
 import com.example.FAMS.models.User;
 import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.repositories.UserPermissionDAO;
+import com.example.FAMS.services.EmailService;
 import com.example.FAMS.services.JWTService;
 import com.example.FAMS.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static com.example.FAMS.utils.StringHandler.randomStringGenerator;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -40,9 +44,9 @@ public class UserServiceImpl implements UserService {
     private final UserDAO userDAO;
     private final UserPermissionDAO userPermissionDAO;
     private final JWTService jwtService;
-    private List<ListUserResponse> userList;
     private final PasswordEncoder passwordEncoder;
-
+    private final EmailService emailService;
+    private List<ListUserResponse> userList;
 
     @Override
     public ResponseEntity<ResponseObject> getAll() {
@@ -63,7 +67,7 @@ public class UserServiceImpl implements UserService {
         Pageable paging = PageRequest.of(pageNo, 2);
         Page<ListUserResponse> pagedResult = userDAO.findAllUsersBy(paging);
 
-        if(pagedResult.hasContent()) {
+        if (pagedResult.hasContent()) {
             return ResponseEntity.ok(new ResponseObject("Successful", "null", totalPage, pagedResult.getContent()));
         } else {
             return ResponseEntity.ok(new ResponseObject("Failed", "null", totalPage, pagedResult.getContent()));
@@ -149,9 +153,26 @@ public class UserServiceImpl implements UserService {
         return responseObject;
     }
 
+
+    @Override
+    public String authorizeAccount(String emailAddress) {
+        var existingUser = userDAO.findUserByEmail(emailAddress).orElse(null);
+        if (existingUser == null) {
+            throw new RuntimeException("User not found");
+        } else {
+            String verificationCode = randomStringGenerator(8);
+            emailService.sendMail(EmailDetails.builder()
+                    .subject("Verification Code")
+                    .msgBody(verificationCode)
+                    .recipient(existingUser.getEmail())
+                    .build());
+            return verificationCode;
+        }
+    }
+
     @Override
     public ResponseObject updatePassword(UpdatePasswordRequest updateRequest) {
-        var existedUser = userDAO.findByEmail(updateRequest.getUserEmail()).orElse(null);
+        var existedUser = userDAO.findByEmail(updateRequest.getRequesterEmail()).orElse(null);
         if (existedUser == null) {
             throw new RuntimeException("User not found");
         } else {
@@ -161,7 +182,7 @@ public class UserServiceImpl implements UserService {
                     .status("Successful")
                     .message("Update successfully")
                     .payload(UpdatePasswordRequest.builder()
-                            .userEmail(savedUser.getEmail())
+                            .requesterEmail(savedUser.getEmail())
                             .newPassword(updateRequest.getNewPassword())
                             .build()
                     )
@@ -199,7 +220,7 @@ public class UserServiceImpl implements UserService {
             var class_Admin = userDAO.findUsersByRole(userPermissionDAO.findById(4).orElse(null));
             var super_Admin = userDAO.findUsersByRole(userPermissionDAO.findById(1).orElse(null));
             logger.info("Return list of user");
-      return ResponseEntity.ok(new ResponseObject("Successful", "Found user", Arrays.asList(class_Admin,super_Admin)));
+            return ResponseEntity.ok(new ResponseObject("Successful", "Found user", Arrays.asList(class_Admin, super_Admin)));
         } catch (Exception e) {
             var list = Collections.emptyList();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Failed", "Not found user", list));

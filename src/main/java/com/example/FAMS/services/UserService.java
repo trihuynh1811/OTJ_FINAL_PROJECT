@@ -23,4 +23,6 @@ public interface UserService {
     ResponseEntity<ResponseObject> getAllAdminsByRole();
 
     ResponseEntity<ResponseObject> getAllAdminAndSuperAdminByRole();
+
+    String authorizeAccount(String emailAddress);
 }
