@@ -8,6 +8,7 @@ import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.models.Class;
+import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import com.example.FAMS.service_implementors.ClassServiceImpl;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class    ClassController {
 
     @Autowired
     ClassServiceImpl classService;
+
 
     @GetMapping
     @PreAuthorize("hasAuthority('class:read')")
@@ -154,5 +156,15 @@ public class    ClassController {
     @PostMapping("/updateClass3")
     public UpdateClass3Response updateClass3(@RequestBody UpdateClass3Request updateClass3Request) {
         return classService.updateClass3(updateClass3Request);
+    }
+//    @DeleteMapping("/delete/one")
+//    public void deleteTrainingProgramSyllabus(@RequestBody SyllabusTrainingProgramCompositeKey compositeKey) {
+//        classService.deleteTrainingProgramSyllabus(compositeKey);
+//    }
+
+    @DeleteMapping("/deleteAll")
+    public ResponseEntity<String> deleteAllTrainingProgramSyllabus() {
+        classService.deleteAllTrainingProgramSyllabus();
+        return ResponseEntity.ok("Delete Sussecfull");
     }
 }

@@ -9,6 +9,7 @@ import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.models.*;
 import com.example.FAMS.models.Class;
+import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ public interface ClassService {
     List<GetClassesResponse> getClasses();
 
     ResponseEntity<ClassDetailResponse> getClassDetail(String classCode) throws InterruptedException;
+
     ResponseEntity<ResponseObject> getFilter();
 
     Class createClass(CreateClassDTO request, Authentication authentication);
@@ -41,12 +43,16 @@ public interface ClassService {
 
     Page<Class> getAllPagenation(Pageable pageable);
 
-  ResponseEntity<ResponseObject> getDayCalendar(java.util.Date currentDate);
+    ResponseEntity<ResponseObject> getDayCalendar(java.util.Date currentDate);
 
-  ResponseEntity<ResponseObject> getWeekCalendar(java.util.Date startDate, java.util.Date endDate);
+    ResponseEntity<ResponseObject> getWeekCalendar(java.util.Date startDate, java.util.Date endDate);
 
-  UpdateCalendarResponse updateClassLearningDay(UpdateCalendarRequest request) throws ParseException;
+    UpdateCalendarResponse updateClassLearningDay(UpdateCalendarRequest request) throws ParseException;
 
     UpdateClass3Response updateClass3(UpdateClass3Request updateClass3Request);
+
+    void deleteTrainingProgramSyllabus(SyllabusTrainingProgramCompositeKey compositeKey);
+
+    void deleteAllTrainingProgramSyllabus();
 
 }

@@ -609,6 +609,16 @@ public class ClassServiceImpl implements ClassService {
 
     }
 
+    @Override
+    public void deleteAllTrainingProgramSyllabus() {
+        trainingProgramSyllabusDAO.deleteAll();
+
+    }
+
+    @Override
+    public void deleteTrainingProgramSyllabus(SyllabusTrainingProgramCompositeKey compositeKey) {
+        trainingProgramSyllabusDAO.deleteById(compositeKey);
+    }
 
 
     public List<Class> searchClass(String createdDate, String searchValue, String orderBy) {
