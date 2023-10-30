@@ -1,10 +1,13 @@
 package com.example.FAMS.controllers;
 
+import com.example.FAMS.dto.requests.UpdatePasswordRequest;
 import com.example.FAMS.dto.requests.UpdateRequest;
+import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateResponse;
 import com.example.FAMS.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.connector.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +29,10 @@ public class UserController {
     public ResponseEntity<ResponseObject> getAllUser() {
         return userService.getAll();
     }
+
+    @GetMapping("/get-all/trainee")
+    @PreAuthorize("hasAuthority('user:read')")
+    public ResponseEntity<ResponseObject> getAllTrainee(){return userService.getAllTraineeByRole();}
 
     @GetMapping("/get-all/trainer")
     @PreAuthorize("hasAuthority('user:read')")
@@ -66,5 +73,18 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('user:delete')")
     public ResponseEntity<ResponseObject> deletePermission(@PathVariable String email) {
         return ResponseEntity.ok(userService.deleteUser(email));
+    }
+
+    @PutMapping("/update-password")
+    @PreAuthorize("hasAuthority('user:read')")
+    public ResponseEntity<ResponseObject> updatePassword(@RequestBody UpdatePasswordRequest updateRequest) {
+        try {
+            ResponseObject response = userService.updatePassword(updateRequest);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseObject.builder()
+                    .status(e.getMessage())
+                    .build());
+        }
     }
 }

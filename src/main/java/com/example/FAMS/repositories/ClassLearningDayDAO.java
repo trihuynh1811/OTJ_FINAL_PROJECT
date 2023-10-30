@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ClassLearningDayDAO  extends JpaRepository<ClassLearningDay,Integer> {
 
-    ClassLearningDay findByClassId_ClassIdAndEnrollDate(int id, Date enrollDate);
+    ClassLearningDay findByClassId_ClassIdAndEnrollDate(String id, Date enrollDate);
 
-    List<ClassLearningDay> findByClassId_ClassId(int id);
+    List<ClassLearningDay> findByClassId_ClassId(String id);
 }

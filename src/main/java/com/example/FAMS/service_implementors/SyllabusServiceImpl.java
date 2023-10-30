@@ -3,9 +3,13 @@ package com.example.FAMS.service_implementors;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.StandardOutputDTO;
+import com.example.FAMS.dto.responses.Syllabus.CreateSyllabusGeneralResponse;
+import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
 import com.example.FAMS.models.*;
 import com.example.FAMS.models.composite_key.SyllabusStandardOutputCompositeKey;
 import com.example.FAMS.models.composite_key.SyllabusTrainingUnitCompositeKey;
+import com.example.FAMS.models.composite_key.TrainingContentLearningObjectiveCompositeKey;
+import com.example.FAMS.models.composite_key.UserSyllabusCompositeKey;
 import com.example.FAMS.repositories.*;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
@@ -54,19 +58,41 @@ public class SyllabusServiceImpl implements SyllabusService {
     @Autowired
     SyllabusObjectiveDAO syllabusObjectiveDAO;
 
+    @Autowired
+            UserSyllabusDAO userSyllabusDAO;
+
     String line = "";
 
     @Override
-    public List<Syllabus> getSyllabuses() {
+    public List<GetAllSyllabusResponse> getSyllabuses() {
 //        log.info(userDAO.findAll());
 //        log.info(trainingUnitDAO.countDayNumberBySyllabus_TopicCode("lmao"));
-        return syllabusDAO.findTop1000ByOrderByCreatedDateDesc();
+        List<GetAllSyllabusResponse> syllabuses = new ArrayList<>();
+        List<Syllabus> syllabusList = syllabusDAO.findTop1000ByOrderByCreatedDateDesc();
+
+        for(int i = 0; i < syllabusList.size(); i++){
+            GetAllSyllabusResponse res = GetAllSyllabusResponse.builder()
+                    .syllabusName(syllabusList.get(i).getTopicName())
+                    .syllabusCode(syllabusList.get(i).getTopicCode())
+                    .createdOn(syllabusList.get(i).getCreatedDate().getTime())
+                    .createdBy(syllabusList.get(i).getCreatedBy())
+                    .duration(syllabusList.get(i).getNumberOfDay())
+                    .status(syllabusList.get(i).getPublishStatus())
+                    .syllabusObjectiveList(syllabusList.get(i).getSyllabusObjectives().stream().toList())
+                    .build();
+
+            syllabuses.add(res);
+        }
+
+        return syllabuses;
     }
 
     @Override
-    public List<Syllabus> getDetailSyllabus() {
-        return syllabusDAO.findAll();
+    public Syllabus getDetailSyllabus(String topicCode) {
+        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
+        return optionalSyllabus.orElse(null);
     }
+
 
 
     @Override
@@ -74,45 +100,63 @@ public class SyllabusServiceImpl implements SyllabusService {
         if (syllabusDAO.findById(request.getTopicCode()).isPresent() && !request.isUpdated()) {
             return 1;
         }
+        try{
+            Syllabus syllabus = null;
+            if (request.isUpdated()) {
+                syllabus = syllabusDAO.findById(request.getTopicCode()).get();
 
-        Syllabus syllabus = null;
-        if (request.isUpdated()) {
-            syllabus = syllabusDAO.findById(request.getTopicCode()).get();
+                syllabus.setTopicName(request.getTopicName());
+                syllabus.setModifiedDate(new Date());
+                syllabus.setModifiedBy(getCreator(authentication).getName());
+                syllabus.setPriority(request.getPriority());
+                syllabus.setCourseObjective(request.getCourseObjective());
+                syllabus.setTechnicalGroup(request.getTechnicalRequirement());
+                syllabus.setTrainingAudience(request.getTrainingAudience());
+                syllabus.setVersion(request.getVersion());
+                syllabus.setPublishStatus(request.getPublishStatus());
 
-            syllabus.setTopicName(request.getTopicName());
-            syllabus.setModifiedDate(new Date());
-            syllabus.setModifiedBy(getCreator(authentication).getName());
-            syllabus.setPriority(request.getPriority());
-            syllabus.setCourseObjective(request.getCourseObjective());
-            syllabus.setTechnicalGroup(request.getTechnicalRequirement());
-            syllabus.setTrainingAudience(request.getTrainingAudience());
-            syllabus.setVersion(request.getVersion());
-            syllabus.setPublishStatus(request.getPublishStatus());
+                syllabusDAO.save(syllabus);
+
+                return 2;
+            }
+
+            User user = getCreator(authentication);
+            syllabus = Syllabus.builder()
+                    .topicCode(request.getTopicCode())
+                    .topicName(request.getTopicName())
+                    .trainingAudience(request.getTrainingAudience())
+                    .courseObjective(request.getCourseObjective())
+                    .technicalGroup(request.getTechnicalRequirement())
+                    .publishStatus(request.getPublishStatus())
+                    .priority(request.getPriority())
+                    .version(request.getVersion())
+                    .createdBy(getCreator(authentication).getName())
+                    .createdDate(new Date())
+//                .userID(getCreator(authentication))
+                    .modifiedDate(new Date())
+                    .modifiedBy(getCreator(authentication).getName())
+                    .build();
 
             syllabusDAO.save(syllabus);
 
+            UserSyllabus userSyllabus = UserSyllabus.builder()
+                    .id(UserSyllabusCompositeKey.builder()
+                            .userId(user.getUserId())
+                            .topicCode(request.getTopicCode())
+                            .build())
+                    .userType(user.getRole().getRole().name())
+                    .userId(user)
+                    .topicCode(syllabusDAO.findById(request.getTopicCode()).get())
+                    .build();
+
+            userSyllabusDAO.save(userSyllabus);
             return 0;
         }
+        catch (Exception err){
+            err.printStackTrace();
+            return -1;
+        }
 
-        syllabus = Syllabus.builder()
-                .topicCode(request.getTopicCode())
-                .topicName(request.getTopicName())
-                .trainingAudience(request.getTrainingAudience())
-                .courseObjective(request.getCourseObjective())
-                .technicalGroup(request.getTechnicalRequirement())
-                .publishStatus(request.getPublishStatus())
-                .priority(request.getPriority())
-                .version(request.getVersion())
-                .createdBy(getCreator(authentication).getName())
-                .createdDate(new Date())
-                .userID(getCreator(authentication))
-                .modifiedDate(new Date())
-                .modifiedBy(getCreator(authentication).getName())
-                .build();
-
-        syllabusDAO.save(syllabus);
-
-        return 0;
     }
 
     @Override
@@ -167,15 +211,15 @@ public class SyllabusServiceImpl implements SyllabusService {
                     savedContentList = trainingContentDAO.saveAll(contentList);
                     contentList.clear();
                     unitList.clear();
-                    for(Map.Entry<Integer, List<StandardOutputDTO>> entry: learningObjectiveMap.entrySet()){
+                    for (Map.Entry<Integer, List<StandardOutputDTO>> entry : learningObjectiveMap.entrySet()) {
                         log.info(entry.getKey());
                         log.info(entry.getValue().size());
-                        for(int k = 0; k < entry.getValue().size(); k++){
+                        for (int k = 0; k < entry.getValue().size(); k++) {
                             if (!standardOutput.getOutputCode().equalsIgnoreCase(entry.getValue().get(k).getOutputCode())) {
                                 standardOutput = standardOutputDAO.findById(entry.getValue().get(k).getOutputCode().toUpperCase()).get();
                             }
 
-                            if(!syllabusObjectiveMap.containsKey(entry.getValue().get(k).getOutputCode())){
+                            if (!syllabusObjectiveMap.containsKey(entry.getValue().get(k).getOutputCode())) {
                                 SyllabusObjective syllabusObjective = SyllabusObjective.builder()
                                         .id(SyllabusStandardOutputCompositeKey.builder()
                                                 .outputCode(entry.getValue().get(k).getOutputCode())
@@ -221,15 +265,15 @@ public class SyllabusServiceImpl implements SyllabusService {
 
         if (!contentList.isEmpty()) {
             savedContentList = trainingContentDAO.saveAll(contentList);
-            for(Map.Entry<Integer, List<StandardOutputDTO>> entry: learningObjectiveMap.entrySet()){
+            for (Map.Entry<Integer, List<StandardOutputDTO>> entry : learningObjectiveMap.entrySet()) {
                 log.info(entry.getKey());
                 log.info(entry.getValue().size());
-                for(int k = 0; k < entry.getValue().size(); k++){
+                for (int k = 0; k < entry.getValue().size(); k++) {
                     if (!standardOutput.getOutputCode().equalsIgnoreCase(entry.getValue().get(k).getOutputCode())) {
                         standardOutput = standardOutputDAO.findById(entry.getValue().get(k).getOutputCode().toUpperCase()).get();
                     }
 
-                    if(!syllabusObjectiveMap.containsKey(entry.getValue().get(k).getOutputCode())){
+                    if (!syllabusObjectiveMap.containsKey(entry.getValue().get(k).getOutputCode())) {
                         SyllabusObjective syllabusObjective = SyllabusObjective.builder()
                                 .id(SyllabusStandardOutputCompositeKey.builder()
                                         .outputCode(entry.getValue().get(k).getOutputCode())
@@ -279,24 +323,23 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
-    public void createSyllabusOther(CreateSyllabusGeneralRequest request) {
-        Syllabus syllabus = syllabusDAO.findById(request.getTopicCode()).get();
+    public int createSyllabusOther(CreateSyllabusGeneralRequest request) {
 
-        syllabus.setTrainingPrinciples(request.getTrainingPrinciple());
-        syllabusDAO.save(syllabus);
-    }
+        try{
+            Syllabus syllabus = syllabusDAO.findById(request.getTopicCode()).get();
 
-
-    public User getCreator(Authentication authentication) {
-        Object creator = authentication.getPrincipal();
-        if (creator instanceof User) {
-            return (User) creator;
+            syllabus.setTrainingPrinciples(request.getTrainingPrinciple());
+            syllabusDAO.save(syllabus);
+            return 0;
+        }catch (Exception err){
+            err.printStackTrace();
+            return -1;
         }
-        return null;
+
     }
 
     @Override
-    public UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest,String topicCode) {
+    public UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest, String topicCode) {
         Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
         Syllabus syllabusexits = optionalSyllabus.orElse(null);
         if (syllabusexits != null) {
@@ -305,7 +348,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             syllabusexits.setVersion(updatesyllabusRequest.getVersion());
             syllabusexits.setTrainingAudience(updatesyllabusRequest.getTrainingAudience());
             syllabusexits.setTopicOutline(updatesyllabusRequest.getTopicOutline());
-            syllabusexits.setTrainingMaterials(updatesyllabusRequest.getTrainingMaterials());
+            syllabusexits.setTrainingMaterials(null);
             syllabusexits.setPriority(updatesyllabusRequest.getPriority());
             syllabusexits.setPublishStatus(updatesyllabusRequest.getPublishStatus());
             syllabusexits.setCreatedBy(updatesyllabusRequest.getCreatedBy());
@@ -349,7 +392,7 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
-    public List<Syllabus> processDataFromCSV(MultipartFile file, Authentication authentication) throws IOException {
+    public List<Syllabus> processDataFromCSV(MultipartFile file, String choice, Authentication authentication) throws IOException {
 
         List<Syllabus> syllabusList = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
@@ -363,29 +406,80 @@ public class SyllabusServiceImpl implements SyllabusService {
                     continue;
                 }
                 String[] data = line.split(",");
-                Syllabus c = new Syllabus();
+                Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(data[0]);
+                Syllabus syllabusexits = optionalSyllabus.orElse(null);
+                if (choice.equals("Replace")) {
 
-                c.setTopicCode(data[0]);
-                c.setCreatedBy(getCreator(authentication).getName());
-                // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
-                Date parsedDate = dateFormat.parse(data[1]);
-                c.setCreatedDate(new java.sql.Date(parsedDate.getTime()));
-                c.setModifiedBy(getCreator(authentication).getName());
-                c.setModifiedDate(new java.sql.Date(dateFormat.parse(data[2]).getTime()));
-                c.setPriority(data[3]);
-                c.setPublishStatus(data[4]);
-                c.setTechnicalGroup(data[5]);
-                c.setTopicName(data[6]);
-                c.setTopicOutline(data[7]);
-                c.setTrainingAudience(Integer.parseInt(data[8]));
-                c.setTrainingMaterials(data[9]);
-                c.setTrainingPrinciples(data[10]);
-                c.setVersion(data[11]);
-                c.setCourseObjective(data[12]);
-                c.setUserID(getCreator(authentication));
-                syllabusList.add(c);
-                for (Syllabus syllabus : syllabusList) {
-                    syllabusDAO.save(syllabus);
+                    if (syllabusexits != null) {
+                        syllabusexits.setCreatedBy(getCreator(authentication).getName());
+                        // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
+                        Date parsedDate = dateFormat.parse(data[1]);
+                        syllabusexits.setCreatedDate(new java.sql.Date(parsedDate.getTime()));
+                        syllabusexits.setModifiedBy(getCreator(authentication).getName());
+                        syllabusexits.setModifiedDate(new java.sql.Date(dateFormat.parse(data[2]).getTime()));
+                        syllabusexits.setPriority(data[3]);
+                        syllabusexits.setPublishStatus(data[4]);
+                        syllabusexits.setTechnicalGroup(data[5]);
+                        syllabusexits.setTopicName(data[6]);
+                        syllabusexits.setTopicOutline(data[7]);
+                        syllabusexits.setTrainingAudience(Integer.parseInt(data[8]));
+                        syllabusexits.setTrainingMaterials(null);
+                        syllabusexits.setTrainingPrinciples(data[10]);
+                        syllabusexits.setVersion(data[11]);
+                        syllabusexits.setCourseObjective(data[12]);
+//                        syllabusexits.setUserID(getCreator(authentication));
+                        syllabusDAO.save(syllabusexits);
+                    } else {
+                        Syllabus c = new Syllabus();
+
+                        c.setTopicCode(data[0]);
+                        c.setCreatedBy(getCreator(authentication).getName());
+                        // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
+                        Date parsedDate = dateFormat.parse(data[1]);
+                        c.setCreatedDate(new java.sql.Date(parsedDate.getTime()));
+                        c.setModifiedBy(getCreator(authentication).getName());
+                        c.setModifiedDate(new java.sql.Date(dateFormat.parse(data[2]).getTime()));
+                        c.setPriority(data[3]);
+                        c.setPublishStatus(data[4]);
+                        c.setTechnicalGroup(data[5]);
+                        c.setTopicName(data[6]);
+                        c.setTopicOutline(data[7]);
+                        c.setTrainingAudience(Integer.parseInt(data[8]));
+                        c.setTrainingMaterials(null);
+                        c.setTrainingPrinciples(data[10]);
+                        c.setVersion(data[11]);
+                        c.setCourseObjective(data[12]);
+//                        c.setUserID(getCreator(authentication));
+                        syllabusList.add(c);
+                        syllabusDAO.saveAll(syllabusList);
+                    }
+                } else if (choice.equals("Skip")){
+                    if (syllabusexits != null) {
+
+                    } else {
+                        Syllabus c = new Syllabus();
+
+                        c.setTopicCode(data[0]);
+                        c.setCreatedBy(getCreator(authentication).getName());
+                        // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
+                        Date parsedDate = dateFormat.parse(data[1]);
+                        c.setCreatedDate(new java.sql.Date(parsedDate.getTime()));
+                        c.setModifiedBy(getCreator(authentication).getName());
+                        c.setModifiedDate(new java.sql.Date(dateFormat.parse(data[2]).getTime()));
+                        c.setPriority(data[3]);
+                        c.setPublishStatus(data[4]);
+                        c.setTechnicalGroup(data[5]);
+                        c.setTopicName(data[6]);
+                        c.setTopicOutline(data[7]);
+                        c.setTrainingAudience(Integer.parseInt(data[8]));
+                        c.setTrainingMaterials(null);
+                        c.setTrainingPrinciples(data[10]);
+                        c.setVersion(data[11]);
+                        c.setCourseObjective(data[12]);
+//                        c.setUserID(getCreator(authentication));
+                        syllabusList.add(c);
+                        syllabusDAO.saveAll(syllabusList);
+                    }
                 }
             }
         } catch (IOException | ParseException e) {
@@ -393,6 +487,7 @@ public class SyllabusServiceImpl implements SyllabusService {
         }
         return syllabusList;
     }
+
 
     public void downloadCSV() throws IOException {
         String computerAccountName = System.getProperty("user.name");
@@ -413,7 +508,7 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
-    public Syllabus duplicateSyllabus(String topicCode) {
+    public Syllabus duplicateSyllabus(String topicCode, Authentication authentication) {
         int tuanSoiMapDit = syllabusDAO.countByTopicCodeLike(topicCode + "%");
         Syllabus originalSyllabus = syllabusDAO.findById(topicCode).get();
 
@@ -423,7 +518,6 @@ public class SyllabusServiceImpl implements SyllabusService {
 
         Syllabus duplicatedSyllabus = Syllabus.builder()
                 .topicName(originalSyllabus.getTopicName())
-                .userID(originalSyllabus.getUserID())
                 .trainingPrinciples(originalSyllabus.getTrainingPrinciples())
                 .version(originalSyllabus.getVersion())
                 .technicalGroup(originalSyllabus.getTechnicalGroup())
@@ -444,22 +538,30 @@ public class SyllabusServiceImpl implements SyllabusService {
 
         return duplicatedSyllabus;
     }
+
     public Syllabus saveSyllabus(Syllabus syllabus) {
         return syllabusDAO.save(syllabus);
     }
 
     public List<Syllabus> searchSyllabus(String createdDate, String searchValue, String orderBy) {
         List<Syllabus> syllabusList = syllabusDAO.findAll();
-        if(!Strings.isNullOrEmpty(createdDate)){
+        if (!Strings.isNullOrEmpty(createdDate)) {
             syllabusList = syllabusList.stream().filter(n -> {
                 return new SimpleDateFormat("yyyy-MM-dd").format(n.getCreatedDate()).equals(createdDate);
             }).collect(Collectors.toList());
         }
-        if(!Strings.isNullOrEmpty(searchValue)){
+        if (!Strings.isNullOrEmpty(searchValue)) {
             syllabusList = syllabusList.stream().filter(n -> n.getTopicName().trim().toLowerCase().contains(searchValue.trim().toLowerCase())
                     || n.getTopicCode().trim().toLowerCase().contains(searchValue.trim().toLowerCase())).collect(Collectors.toList());
         }
         return syllabusList;
+    }
+    public User getCreator(Authentication authentication) {
+        Object creator = authentication.getPrincipal();
+        if (creator instanceof User) {
+            return (User) creator;
+        }
+        return null;
     }
 
 }

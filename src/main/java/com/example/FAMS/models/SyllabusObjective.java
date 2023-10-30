@@ -17,7 +17,7 @@ public class SyllabusObjective {
     @EmbeddedId
     SyllabusStandardOutputCompositeKey id;
 
-    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_code", referencedColumnName = "topic_code")
     @MapsId("topicCode")
     @EqualsAndHashCode.Exclude
@@ -25,7 +25,7 @@ public class SyllabusObjective {
     @JsonBackReference
     private Syllabus topicCode;
 
-    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "output_code", referencedColumnName = "output_code", columnDefinition = "VARCHAR(10)")
     @MapsId("outputCode")
     @EqualsAndHashCode.Exclude
