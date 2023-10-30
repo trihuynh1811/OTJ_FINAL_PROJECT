@@ -49,16 +49,21 @@ public class TrainingMaterialServiceImpl implements TrainingMaterialService {
     }
 
     @Override
-    public byte[] downloadTrainingMaterials(String fileName) throws IOException {
-        S3Object s3Object = s3Client.getObject(bucketName, fileName);
-        S3ObjectInputStream inputStream = s3Object.getObjectContent();
-        return IOUtils.toByteArray(inputStream);
+    public byte[] downloadTrainingMaterials(String fileName) throws IOException, RuntimeException {
+        if (isFileExisted(fileName)) {
+            S3Object s3Object = s3Client.getObject(bucketName, fileName);
+            S3ObjectInputStream inputStream = s3Object.getObjectContent();
+            return IOUtils.toByteArray(inputStream);
+        } else {
+            throw new RuntimeException("File not found");
+        }
+
     }
 
     @Override
     public ResponseEntity<ResponseObject> deleteTrainingMaterial(String fileName) {
-        if(checkIfExisted(fileName)){
-            deleteOnDB(fileName);
+        if(isFileExisted(fileName)){
+            deleteFileInDatabase(fileName);
             s3Client.deleteObject(bucketName, fileName);
             return ResponseEntity
                     .ok()
@@ -75,7 +80,7 @@ public class TrainingMaterialServiceImpl implements TrainingMaterialService {
                         .build());
     }
 
-    private boolean checkIfExisted(String fileName){
+    private boolean isFileExisted(String fileName){
         List<TrainingMaterial> list = trainingMaterialDAO.findAll();
         for (TrainingMaterial t: list) {
             if(t.getMaterial().equalsIgnoreCase(fileName))
@@ -84,7 +89,7 @@ public class TrainingMaterialServiceImpl implements TrainingMaterialService {
         return false;
     }
 
-    private void deleteOnDB(String fileName){
+    private void deleteFileInDatabase(String fileName){
         List<TrainingMaterial> list = trainingMaterialDAO.findAll();
         for (TrainingMaterial t: list) {
             if(t.getMaterial().equalsIgnoreCase(fileName))

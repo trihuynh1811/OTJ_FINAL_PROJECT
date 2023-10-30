@@ -5,8 +5,10 @@ import com.example.FAMS.dto.responses.TrainingProgramDTO;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateTrainingProgramResponse;
 import com.example.FAMS.models.TrainingProgram;
-import com.example.FAMS.service_implementors.TrainingProgramImpl;
+
 import java.io.IOException;
+
+import com.example.FAMS.services.TrainingProgramService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
 public class TrainingProgramController {
-  private final TrainingProgramImpl trainingProgram;
+
+  private final TrainingProgramService trainingProgram;
 
   @PostMapping("/create")
   @PreAuthorize("hasAuthority('user:create')")

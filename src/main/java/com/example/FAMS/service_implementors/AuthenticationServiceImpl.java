@@ -31,8 +31,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.example.FAMS.utils.StringHandler.randomStringGenerator;
 
 @Service
 @RequiredArgsConstructor
@@ -86,7 +89,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new RuntimeException("ADMIN can not create SUPER_ADMIN");
         }
         var permission = userPermissionDAO.findUserPermissionByRole(createRequest.getRole()).orElse(null);
-        String initialPassword = passwordGenerator(createRequest.getEmail());
+        String initialPassword = randomStringGenerator(10);
         User user = User.builder()
                 .name(createRequest.getName())
                 .email(createRequest.getEmail())
@@ -193,10 +196,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .status("Fail")
                 .message("Invalid request")
                 .build();
-    }
-
-    public String passwordGenerator(String email) {
-        return passwordEncoder.encode(email).substring(9, 20);
     }
 
     public void saveUserToken(User user, String token) {

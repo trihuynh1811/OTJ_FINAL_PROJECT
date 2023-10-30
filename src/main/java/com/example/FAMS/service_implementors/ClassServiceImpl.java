@@ -387,11 +387,11 @@ public class ClassServiceImpl implements ClassService {
                         .attendeePlanned(Integer.toString(c.getAttendeePlanned()))
                         .attendeeActual(Integer.toString(c.getAttendeeActual()))
                         .trainingProgram(TrainingProgramDTO.builder()
-                                .trainingProgramCode(Integer.toString(c.getTrainingProgram().getTrainingProgramCode()))
+                                .trainingProgramCode(c.getTrainingProgram().getTrainingProgramCode())
                                 .trainingProgramName(c.getTrainingProgram().getName())
                                 .modifyBy(c.getTrainingProgram().getModifiedBy())
                                 .modifyDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getTrainingProgram().getModifiedDate().toString().split(" ")[0]) : "")
-                                .duration(Integer.toString(tp.getDuration()))
+                                .duration(tp.getDuration())
                                 .build())
                         .listDay(listDay)
                         .location(locationList)
@@ -559,7 +559,7 @@ public class ClassServiceImpl implements ClassService {
 
         if(trainingProgramSyllabus != null){
 
-            trainingProgramSyllabus.setDeleted(status);
+//            trainingProgramSyllabus.setDeleted(status);
             trainingProgramSyllabus = trainingProgramSyllabusDAO.save(trainingProgramSyllabus);
 
             if(trainingProgramSyllabus != null){
@@ -584,7 +584,7 @@ public class ClassServiceImpl implements ClassService {
                                             .build())
                             .topicCode(syllabus)
                             .trainingProgramCode(trainingProgram)
-                            .deleted(true)
+//                            .deleted(true)
                             .build();
             trainingProgramSyllabus2 =trainingProgramSyllabusDAO.save(trainingProgramSyllabus2);
 

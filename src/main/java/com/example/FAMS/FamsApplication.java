@@ -1,5 +1,6 @@
 package com.example.FAMS;
 
+import com.example.FAMS.dto.UserDTO;
 import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.enums.DateEnum;
 import com.example.FAMS.enums.DayEnum;
@@ -44,25 +45,24 @@ public class FamsApplication {
     //    private final FsuDAO fsuDAO;
     private final LocationDAO locationDAO;
 
-  public static void main(String[] args) {
-    SpringApplication.run(FamsApplication.class, args);
-  }
+    public static void main(String[] args) {
+        SpringApplication.run(FamsApplication.class, args);
+    }
 
-  @Bean
-  public CommandLineRunner initData() {
-    return new CommandLineRunner() {
-      @Override
-      public void run(String... args) throws Exception {
-        if (standardOutputDAO.findAll().size() == 0) {
-          List<StandardOutput> standardOutputList = new ArrayList<>();
-          String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
-          for (int i = 0; i < objectiveCode.length; i++) {
-            StandardOutput standardOutput =
-                StandardOutput.builder()
-                    .outputCode(objectiveCode[i].toUpperCase())
-                    .outputName(objectiveCode[i])
-                    .description("some bs description.")
-                    .build();
+    @Bean
+    public CommandLineRunner initData() {
+        return new CommandLineRunner() {
+            @Override
+            public void run(String... args) throws Exception {
+                if (standardOutputDAO.findAll().size() == 0) {
+                    List<StandardOutput> standardOutputList = new ArrayList<>();
+                    String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
+                    for (int i = 0; i < objectiveCode.length; i++) {
+                        StandardOutput standardOutput = StandardOutput.builder()
+                                .outputCode(objectiveCode[i].toUpperCase())
+                                .outputName(objectiveCode[i])
+                                .description("some bs description.")
+                                .build();
 
                         standardOutputList.add(standardOutput);
                     }
@@ -527,8 +527,8 @@ public class FamsApplication {
         };
     }
 
-  @GetMapping("")
-  public String greeting() {
-    return "Hello from FAMS Application made from GROUP 1 WITH LOVE";
-  }
+    @GetMapping("")
+    public String greeting() {
+        return "Hello from FAMS Application made from GROUP 1 WITH LOVE";
+    }
 }

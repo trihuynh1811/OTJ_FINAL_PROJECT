@@ -33,5 +33,6 @@ public class TrainingProgramSyllabus {
     @JsonBackReference
     private TrainingProgram trainingProgramCode;
 
-    private boolean deleted;
+    @Column(name = "sequence")
+    private String sequence;
 }

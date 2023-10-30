@@ -6,6 +6,7 @@ import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateResponse;
 import com.example.FAMS.services.UserService;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.connector.Response;
 import org.slf4j.Logger;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('USER', 'CLASS_ADMIN', 'SUPER_ADMIN')")
 public class UserController {
 
     private final UserService userService;
@@ -29,6 +29,10 @@ public class UserController {
     public ResponseEntity<ResponseObject> getAllUser() {
         return userService.getAll();
     }
+
+    @GetMapping("/get-all/trainee")
+    @PreAuthorize("hasAuthority('user:read')")
+    public ResponseEntity<ResponseObject> getAllTrainee(){return userService.getAllTraineeByRole();}
 
     @GetMapping("/get-all/trainer")
     @PreAuthorize("hasAuthority('user:read')")
@@ -69,6 +73,19 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('user:delete')")
     public ResponseEntity<ResponseObject> deletePermission(@PathVariable String email) {
         return ResponseEntity.ok(userService.deleteUser(email));
+    }
+
+    @GetMapping("/authorize/{emailAddress}")
+    public ResponseEntity<String> authorizeAccount(
+            @NonNull @PathVariable String emailAddress
+    ) {
+        try {
+            String response = userService.authorizeAccount(emailAddress);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+
     }
 
     @PutMapping("/update-password")
