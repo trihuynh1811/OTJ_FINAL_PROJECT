@@ -64,7 +64,7 @@ public class ClassController {
     }
 
     @GetMapping("/listClass")
-    public ResponseEntity<?> getall(){
+    public ResponseEntity<?> getAll(){
         return ResponseEntity.ok(classService.getAll());
 
     }
@@ -127,7 +127,7 @@ public class ClassController {
                     .modifiedBy("joe father")
                     .modifiedDate(new Date())
                     .version("1.0")
-                    .trainingMaterials("nothing")
+                    .trainingMaterials(null)
                     .trainingPrinciples("idk")
                     .publishStatus("active")
                     .createdBy("joe")

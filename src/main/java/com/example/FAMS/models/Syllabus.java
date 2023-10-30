@@ -40,8 +40,9 @@ public class Syllabus {
     @Column(name = "topic_outline")
     private String topicOutline;
 
+    @OneToMany(mappedBy = "syllabus")
     @Column(name = "training_materials")
-    private String trainingMaterials;
+    private Set<TrainingMaterial> trainingMaterials;
 
     @Lob
     @Column(name = "training_principles")
