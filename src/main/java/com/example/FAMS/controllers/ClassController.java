@@ -10,6 +10,7 @@ import com.example.FAMS.models.Class;
 import com.example.FAMS.service_implementors.ClassServiceImpl;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +26,7 @@ import java.util.List;
 @RequestMapping("/api/class")
 @PreAuthorize("hasRole('CLASS_ADMIN') or hasRole('SUPER_ADMIN') or hasRole('TRAINER')")
 @Log4j2
-public class ClassController {
+public class    ClassController {
 
     @Autowired
     ClassServiceImpl classService;
@@ -108,6 +109,12 @@ public class ClassController {
     @GetMapping("/listClass")
     public ResponseEntity<?> getAll(){
         return ResponseEntity.ok(classService.getAll());
+
+    }
+
+    @GetMapping("/listClassPagenation")
+    public ResponseEntity<?> getallPagenation(Pageable pageable){
+        return ResponseEntity.ok(classService.getAllPagenation(pageable));
 
     }
 

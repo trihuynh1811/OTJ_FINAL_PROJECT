@@ -18,6 +18,8 @@ import com.example.FAMS.services.ClassService;
 import com.google.common.base.Strings;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -450,6 +452,12 @@ public class ClassServiceImpl implements ClassService {
     @Override
     public List<Class> getAll() {
         return classDAO.getAll();
+    }
+
+    @Override
+    public Page<Class> getAllPagenation(Pageable pageable) {
+
+        return classDAO.findAll(pageable);
     }
 
     @Override

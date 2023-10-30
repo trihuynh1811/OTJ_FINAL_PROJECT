@@ -8,6 +8,8 @@ import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.models.*;
 import com.example.FAMS.models.Class;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.models.TrainingProgram;
@@ -34,6 +36,8 @@ public interface ClassService {
     List<Class> CalendarSort();
 
     List<Class> getAll();
+
+    Page<Class> getAllPagenation(Pageable pageable);
 
   ResponseEntity<ResponseObject> getDayCalendar(java.util.Date currentDate);
 
