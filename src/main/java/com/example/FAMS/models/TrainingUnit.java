@@ -29,7 +29,7 @@ public class TrainingUnit {
 //    String topicCode;
 
 
-    @ManyToOne(cascade = CascadeType.MERGE, optional = false)
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
     @MapsId("topicCode")
     @JoinColumn(name = "topic_code", referencedColumnName = "topic_code")
     @EqualsAndHashCode.Exclude
@@ -37,7 +37,7 @@ public class TrainingUnit {
     @JsonBackReference
     private Syllabus syllabus;
 
-    @OneToMany(mappedBy = "unitCode", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "unitCode", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonBackReference
     private final Set<TrainingContent> trainingContents = new HashSet<>();
 

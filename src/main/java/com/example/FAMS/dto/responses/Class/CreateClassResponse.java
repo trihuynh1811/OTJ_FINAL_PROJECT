@@ -1,4 +1,4 @@
-package com.example.FAMS.dto.responses;
+package com.example.FAMS.dto.responses.Class;
 
 import com.example.FAMS.models.Class;
 import lombok.AllArgsConstructor;
@@ -8,9 +8,10 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class UpdateClassResponse {
-    private String status;
-    private Class updatedClass;
+@NoArgsConstructor
+public class CreateClassResponse {
+
+    Class createdClass;
+    String message;
 }

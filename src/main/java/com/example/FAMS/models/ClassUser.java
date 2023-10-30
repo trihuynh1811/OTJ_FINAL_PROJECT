@@ -5,6 +5,7 @@ import com.example.FAMS.models.composite_key.ClassUserCompositeKey;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.transaction.annotation.Transactional;
 
 @Entity
 @Data
@@ -17,21 +18,21 @@ public class ClassUser {
     @EmbeddedId
     ClassUserCompositeKey id;
 
-    @ManyToOne(optional = false, cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
     @MapsId("classId")
     @JoinColumn(name = "class_id")
-    @JsonBackReference
-    @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Class classID;
+    @ToString.Exclude
+    @JsonBackReference
+    private Class classId;
 
-    @ManyToOne(optional = false, cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "users_id")
-    @JsonBackReference
-    @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private User userID; //ADMIN or MENTOR or STUDENT
+    @ToString.Exclude
+    @JsonBackReference
+    private User userID;
 
     @Column(nullable = false)
     private String userType;

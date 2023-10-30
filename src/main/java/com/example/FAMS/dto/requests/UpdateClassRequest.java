@@ -12,10 +12,9 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateClassRequest {
-    private int classId;
-    private String className;
     private String classCode;
-    private String duration;
+    private String className;
+    private int duration;
     private String status;
     private String location;
     private String fsu;

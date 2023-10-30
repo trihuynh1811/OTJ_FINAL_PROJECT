@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Date;
 import java.util.List;
 
-public interface ClassDAO extends JpaRepository<Class, Integer> {
+public interface ClassDAO extends JpaRepository<Class, String> {
 
     List<Class> findTop1000ByOrderByCreatedDateDesc();
 
@@ -22,7 +22,7 @@ public interface ClassDAO extends JpaRepository<Class, Integer> {
 
     @Query(
             value =
-                    "SELECT a.class_id as 'classId', a.class_code as 'classCode', a.time_from as 'timeFrom', a.time_to as 'timeTo', a.start_date as 'startDate', a.end_date as 'endDate', a.status, b.user_type as 'userType', c.name, f.number_of_day as 'numberOfDay'\n"
+                    "SELECT a.class_id as 'classId', a.class_code as 'classCode', g.time_from as 'timeFrom', g.time_to as 'timeTo', a.start_date as 'startDate', a.end_date as 'endDate', a.status, b.user_type as 'userType', c.name, f.number_of_day as 'numberOfDay'\n"
                             + "FROM class a \n"
                             + "left join class_learning_day g on g.enroll_date = :currentDate and a.class_id = g.class_id\n"
                             + "left join training_programs d on d.training_program_code = a.training_program_code\n"
@@ -33,7 +33,7 @@ public interface ClassDAO extends JpaRepository<Class, Integer> {
     List<CalendarDayResponse> getCalendarByDay(@Param("currentDate") Date currentDate);
     @Query(
             value =
-                    "SELECT a.class_id as 'classId', a.class_code as 'classCode', a.time_from as 'timeFrom', a.time_to as 'timeTo', a.start_date as 'startDate', a.end_date as 'endDate', a.status, g.enroll_date as 'enrollDate'\n"
+                    "SELECT a.class_id as 'classId', a.class_code as 'classCode', g.time_from as 'timeFrom', g.time_to as 'timeTo', a.start_date as 'startDate', a.end_date as 'endDate', a.status, g.enroll_date as 'enrollDate'\n"
                             + "FROM class a \n"
                             + "left join class_learning_day g on a.class_id = g.class_id\n"
                             + "WHERE g.enroll_date >= :startDate and g.enroll_date <= :endDate",
