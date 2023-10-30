@@ -94,4 +94,5 @@ public class Syllabus {
     @OneToMany(mappedBy = "topicCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private final Set<SyllabusObjective> syllabusObjectives = new HashSet<>();
+
 }

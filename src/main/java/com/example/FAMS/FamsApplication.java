@@ -1,5 +1,6 @@
 package com.example.FAMS;
 
+import com.example.FAMS.dto.UserDTO;
 import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.enums.DateEnum;
 import com.example.FAMS.enums.DayEnum;
