@@ -30,6 +30,10 @@ public class UserController {
         return userService.getAll();
     }
 
+    @GetMapping("/get-all/trainee")
+    @PreAuthorize("hasAuthority('user:read')")
+    public ResponseEntity<ResponseObject> getAllTrainee(){return userService.getAllTraineeByRole();}
+
     @GetMapping("/get-all/trainer")
     @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<ResponseObject> getAllTrainer() {
