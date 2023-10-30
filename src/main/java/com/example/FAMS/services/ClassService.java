@@ -25,6 +25,7 @@ public interface ClassService {
     List<GetClassesResponse> getClasses();
 
     ResponseEntity<ClassDetailResponse> getClassDetail(String classCode) throws InterruptedException;
+    ResponseEntity<ResponseObject> getFilter();
 
     Class createClass(CreateClassDTO request, Authentication authentication);
 

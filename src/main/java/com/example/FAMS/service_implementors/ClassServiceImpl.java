@@ -71,6 +71,7 @@ public class ClassServiceImpl implements ClassService {
 
     @Autowired
     UserClassSyllabusDAO userClassSyllabusDAO;
+    List<SearchFilterResponse> filterResponses;
 
     List<CalendarDayResponse> dayCalendars;
     List<CalendarWeekResponse> weekCalendars;
@@ -99,6 +100,16 @@ public class ClassServiceImpl implements ClassService {
             res.add(c);
         }
         return res;
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> getFilter() {
+        try {
+            filterResponses = classDAO.searchByFilter();
+            return ResponseEntity.ok(new ResponseObject("Successful", "List of classroom", filterResponses));
+        } catch(Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't found the list", e.getMessage()));
+        }
     }
 
     @Override
