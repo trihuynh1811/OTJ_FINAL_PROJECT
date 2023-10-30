@@ -51,8 +51,6 @@ public interface ClassService {
 
     UpdateClass3Response updateClass3(UpdateClass3Request updateClass3Request);
 
-    void deleteTrainingProgramSyllabus(SyllabusTrainingProgramCompositeKey compositeKey);
-
-    void deleteAllTrainingProgramSyllabus();
+    ResponseEntity<ResponseObject>deleteAllTrainingProgramSyllabus();
 
 }

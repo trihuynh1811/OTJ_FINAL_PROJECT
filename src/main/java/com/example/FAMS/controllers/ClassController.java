@@ -157,14 +157,9 @@ public class    ClassController {
     public UpdateClass3Response updateClass3(@RequestBody UpdateClass3Request updateClass3Request) {
         return classService.updateClass3(updateClass3Request);
     }
-//    @DeleteMapping("/delete/one")
-//    public void deleteTrainingProgramSyllabus(@RequestBody SyllabusTrainingProgramCompositeKey compositeKey) {
-//        classService.deleteTrainingProgramSyllabus(compositeKey);
-//    }
 
     @DeleteMapping("/deleteAll")
-    public ResponseEntity<String> deleteAllTrainingProgramSyllabus() {
-        classService.deleteAllTrainingProgramSyllabus();
-        return ResponseEntity.ok("Delete Sussecfull");
+    public ResponseEntity<ResponseObject> deleteAllTrainingProgramSyllabus() {
+        return classService.deleteAllTrainingProgramSyllabus();
     }
 }

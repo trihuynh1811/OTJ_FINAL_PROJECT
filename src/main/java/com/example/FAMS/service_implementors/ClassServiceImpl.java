@@ -610,14 +610,13 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public void deleteAllTrainingProgramSyllabus() {
-        trainingProgramSyllabusDAO.deleteAll();
-
-    }
-
-    @Override
-    public void deleteTrainingProgramSyllabus(SyllabusTrainingProgramCompositeKey compositeKey) {
-        trainingProgramSyllabusDAO.deleteById(compositeKey);
+    public ResponseEntity<ResponseObject> deleteAllTrainingProgramSyllabus() {
+        try {
+            trainingProgramSyllabusDAO.deleteAll(); // Assuming your DAO has a deleteAll method
+            return new ResponseEntity<>(new ResponseObject("Success", "All TrainingProgramSyllabus have been deleted successfully.", null), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ResponseObject("Error", "Failed to delete TrainingProgramSyllabus.", null), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
