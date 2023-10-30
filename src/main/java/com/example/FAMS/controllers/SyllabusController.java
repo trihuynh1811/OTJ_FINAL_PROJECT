@@ -1,10 +1,11 @@
 package com.example.FAMS.controllers;
 
-import com.example.FAMS.dto.requests.CsvRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.dto.responses.ResponseObject;
+import com.example.FAMS.dto.responses.Syllabus.CreateSyllabusGeneralResponse;
+import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.repositories.SyllabusDAO;
@@ -24,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -44,8 +44,8 @@ public class SyllabusController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('syllabus:read')")
-    public ResponseEntity<?> get() {
-        List<Syllabus> syllabusList = syllabusService.getSyllabuses();
+    public ResponseEntity<List<GetAllSyllabusResponse>> get() {
+        List<GetAllSyllabusResponse> syllabusList = syllabusService.getSyllabuses();
         log.info(syllabusList);
         return ResponseEntity.status(200).body(syllabusList);
     }
@@ -53,7 +53,7 @@ public class SyllabusController {
     @GetMapping("/detail/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:read')")
     public ResponseEntity<?> getDetail(@PathVariable String topicCode) {
-        Syllabus syllabus = syllabusService.getSyllabusById(topicCode);
+        Syllabus syllabus = syllabusService.getDetailSyllabus(topicCode);
         if (syllabus != null) {
             return ResponseEntity.ok(syllabus);
         } else {
@@ -73,9 +73,9 @@ public class SyllabusController {
 //    }
 
     @PostMapping("/importCSV")
-    public ResponseEntity<ResponseObject> loadDataInFile(@RequestParam("file") MultipartFile file, Authentication authentication) throws IOException {
+    public ResponseEntity<ResponseObject> loadDataInFile(@RequestParam("file") MultipartFile file,@RequestParam("choice") String choice, Authentication authentication) throws IOException {
         try {
-            List<Syllabus> syllabus = syllabusService.processDataFromCSV(file, authentication);
+            List<Syllabus> syllabus = syllabusService.processDataFromCSV(file,choice, authentication);
             return ResponseEntity.ok(new ResponseObject("Successful", "List of CSV", syllabus));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't found the list", e.getMessage()));
@@ -99,27 +99,55 @@ public class SyllabusController {
 
             return ResponseEntity.ok().headers(headers).body(data);
         } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to read CSV file.".getBytes());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("CSV file has exist.".getBytes());
         }
     }
 
     @PostMapping("/create/{type}")
     @PreAuthorize("hasAuthority('syllabus:create')")
-    public ResponseEntity<String> create(@PathVariable("type") String type, @RequestBody CreateSyllabusGeneralRequest request, Authentication authentication) {
+    public ResponseEntity<CreateSyllabusGeneralResponse> create(@PathVariable("type") String type, @RequestBody CreateSyllabusGeneralRequest request, Authentication authentication) {
         int result = -1;
+        CreateSyllabusGeneralResponse res = null;
 //        log.info(syllabusDAO.findById(request.getTopicCode()).get());
         switch (type) {
             case "general":
                 log.info(authentication.getPrincipal());
                 result = syllabusService.createSyllabusGeneral(request, authentication);
-                if (result == 1) {
-                    return ResponseEntity.status(418).body("syllabus is duplicated, change it or else.");
+                switch (result) {
+                    case -1:
+                        res = CreateSyllabusGeneralResponse.builder()
+                                .message("Server error, damn have to fix some bug :(.")
+                                .build();
+                        return ResponseEntity.status(500).body(res);
+                    case 1:
+                        res = CreateSyllabusGeneralResponse.builder()
+                                .message("Syllabus is duplicated, change it or else.")
+                                .build();
+                        return ResponseEntity.status(418).body(res);
+                    case 2:
+                        res = CreateSyllabusGeneralResponse.builder()
+                                .message("Successfully update syllabus.")
+                                .build();
+                        return ResponseEntity.status(200).body(res);
                 }
-                return ResponseEntity.status(200).body("syllabus created.");
+                res = CreateSyllabusGeneralResponse.builder()
+                        .message("Create syllabus successfully.")
+                        .build();
+                break;
             case "other":
+                result = syllabusService.createSyllabusOther(request);
+                if (result < 0) {
+                    res = CreateSyllabusGeneralResponse.builder()
+                            .message("Server error, dame have to fix some bug :(.")
+                            .build();
+                    return ResponseEntity.status(500).body(res);
+                }
+                res = CreateSyllabusGeneralResponse.builder()
+                        .message("Save changes.")
+                        .build();
                 break;
         }
-        return ResponseEntity.status(404).body(null);
+        return ResponseEntity.status(200).body(res);
     }
 
     @PostMapping("/create/outline")
@@ -129,12 +157,6 @@ public class SyllabusController {
         return ResponseEntity.status(200).body(request);
     }
 
-
-    @GetMapping("/draft/create/{type}")
-    @PreAuthorize("hasAuthority('syllabus:create')")
-    public ResponseEntity<List<Syllabus>> draftCreate(@PathVariable("type") String type) {
-        return ResponseEntity.status(418).body(syllabusService.getSyllabuses());
-    }
 
     @PutMapping("/update/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
@@ -146,6 +168,20 @@ public class SyllabusController {
             return ResponseEntity.ok(updatedSyllabus);
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/update/syllabus/outline")
+    @PreAuthorize("hasAuthority('syllabus:update')")
+    public ResponseEntity<String> updateSyllabusOutlineRequest(
+            @RequestBody CreateSyllabusOutlineRequest request, Authentication authentication) {
+        try{
+            syllabusService.createSyllabusOutline(request, authentication);
+            return ResponseEntity.ok("success");
+        }catch (Exception err){
+            err.printStackTrace();
+            return ResponseEntity.notFound().build();
+
         }
     }
 
@@ -162,8 +198,8 @@ public class SyllabusController {
 
     @GetMapping("/duplicate/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
-    public ResponseEntity<?> duplicateTopicCode(@PathVariable String topicCode) {
-        Syllabus duplicatedSyllabus = syllabusService.duplicateSyllabus(topicCode);
+    public ResponseEntity<?> duplicateTopicCode(@PathVariable String topicCode, Authentication authentication) {
+        Syllabus duplicatedSyllabus = syllabusService.duplicateSyllabus(topicCode, authentication);
 
         return ResponseEntity.ok(duplicatedSyllabus);
     }

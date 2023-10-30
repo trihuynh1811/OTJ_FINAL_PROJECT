@@ -1,29 +1,30 @@
 package com.example.FAMS.controllers;
 
+import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
-import com.example.FAMS.dto.responses.ClassRes.GetAllClasses;
-import com.example.FAMS.dto.responses.ClassRes.GetClass;
-import com.example.FAMS.dto.responses.ClassRes.GetClassDetail;
+import com.example.FAMS.dto.requests.UpdateClassRequest;
+import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateCalendarResponse;
-import com.example.FAMS.models.Syllabus;
+import com.example.FAMS.models.Class;
 import com.example.FAMS.service_implementors.ClassServiceImpl;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/class")
 @PreAuthorize("hasRole('CLASS_ADMIN') or hasRole('SUPER_ADMIN') or hasRole('TRAINER')")
+@Log4j2
 public class ClassController {
 
     @Autowired
@@ -31,40 +32,81 @@ public class ClassController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('class:read')")
-    public ResponseEntity<List<GetAllClasses>> getClasses() {
-        List<GetAllClasses> classes = getListClasses();
-        return ResponseEntity.status(HttpStatus.OK).body(classes);
+    public ResponseEntity<List<GetClassesResponse>> getClasses() {
+        return ResponseEntity.status(HttpStatus.OK).body(classService.getClasses());
     }
 
-    @GetMapping("/detail/{classId}")
-    @PreAuthorize("hasAuthority('class:read')")
-    public ResponseEntity<GetClassDetail> getDetailClasses(@PathVariable String classId) {
-        return ResponseEntity.ok(detailOfClass(classId));
-    }
+//    @GetMapping("/detail")
+//    @PreAuthorize("hasAuthority('class:read')")
+//    public ResponseEntity<List<Class>> getDetailClasses() {
+//        return ResponseEntity.ok(classService.getDetailClasses());
+//    }
 
-    @PostMapping("/create")
+    @PostMapping("/create/{type}")
     @PreAuthorize("hasAuthority('class:create')")
-    public ResponseEntity<GetClassDetail> createClass(){
-        return ResponseEntity.status(HttpStatus.OK).body(detailOfClass("mock class"));
+    public ResponseEntity<CreateClassResponse> createClass(
+            @PathVariable(name = "type", required = false) String type,
+            @RequestBody CreateClassDTO createClassDTO,
+            Authentication authentication) {
+
+        switch (type) {
+            case "general":
+                // Xử lý tạo lớp học dựa trên thông tin từ request
+                Class result = classService.createClass(createClassDTO, authentication);
+                if(result == null){
+                    return ResponseEntity.status(400).body(new CreateClassResponse(null, "fail create class."));
+                }
+                return ResponseEntity.status(200).body(new CreateClassResponse(result, "successfully create class."));
+            case "schedule":
+                // Xử lý tạo lịch trình cho lớp học
+                break;
+            case "other":
+                // Xử lý tạo thông tin khác cho lớp học
+                break;
+        }
+        return ResponseEntity.status(400).body(new CreateClassResponse(null, "fail to create class."));
+    }
+
+    @GetMapping("/draft/create/{type}")
+    @PreAuthorize("hasAuthority('class:create')")
+    public ResponseEntity<List<Class>> draftCreateClass(@PathVariable("type") String type) {
+        return ResponseEntity.status(HttpStatus.OK).body(classService.getDetailClasses());
     }
 
     @PutMapping("/update/{classId}")
-    public ResponseEntity<String> updateClass(@PathVariable String classId) {
-        return ResponseEntity.status(200).body("successfully update class with id: " + classId);
-    }
-
-    @PutMapping("/delete/{classId}")
-    public ResponseEntity<String> deleteClass(@PathVariable String classId) {
-        return ResponseEntity.status(200).body("successfully delete class with id: " + classId);
+    public ResponseEntity<UpdateClassResponse> updateClass(
+            @PathVariable int classId, @RequestBody UpdateClassRequest updateClassRequest) {
+        UpdateClassResponse updatedClass = classService.updateClass(updateClassRequest);
+        if (updatedClass != null) {
+            return ResponseEntity.ok(updatedClass);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/search/{classId}")
-    public ResponseEntity<GetClass> getClassById(@PathVariable String classId) {
-        return ResponseEntity.status(200).body(getClass_(classId));
+    public ResponseEntity<?> getClassById(@PathVariable String classId) {
+        Class classInfo = classService.getClassById(classId);
+        if (classInfo != null) {
+            return ResponseEntity.ok(classInfo);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/deactivate/{id}")
+    public ResponseEntity<DeactivateClassResponse> deactivateClass(@PathVariable("id") String classCode){
+        return classService.deactivateClass(classCode);
+    }
+
+    @GetMapping("/detail/{id}")
+    @PreAuthorize("hasAuthority('class:read')")
+    public ResponseEntity<ClassDetailResponse> getClassDetail(@PathVariable("id") String classCode) throws InterruptedException {
+        return classService.getClassDetail(classCode);
     }
 
     @GetMapping("/listClass")
-    public ResponseEntity<?> getAll(){
+    public ResponseEntity<?> getall(){
         return ResponseEntity.ok(classService.getAll());
 
     }
@@ -95,89 +137,4 @@ public class ClassController {
     public UpdateCalendarResponse updateClassLearningDay(@RequestBody UpdateCalendarRequest request) throws ParseException {
         return classService.updateClassLearningDay(request);
     }
-
-    public List<GetAllClasses> getListClasses(){
-        List<GetAllClasses> classes = new ArrayList<>();
-        for(int i = 0; i < 5; i ++){
-            GetAllClasses class_ = GetAllClasses.builder()
-                    .className("class " + i)
-                    .classCode(Integer.toString(i))
-                    .createdOn(new Date().getTime())
-                    .fsu("fhcm")
-                    .status("planing")
-                    .createBy("joe mama")
-                    .location("joe mama house")
-                    .duration(69)
-                    .build();
-
-            classes.add(class_);
-        }
-        return classes;
-    }
-
-    public GetClassDetail detailOfClass(String classId){
-        List<Syllabus> syllabusList = new ArrayList<>();
-
-        for(int i = 0; i < 5; i++){
-            Syllabus s = Syllabus.builder()
-                    .topicCode("mock topic " + i)
-                    .topicName("topic " + i)
-                    .topicOutline("lorem...")
-                    .courseObjective("lorem...")
-                    .modifiedBy("joe father")
-                    .modifiedDate(new Date())
-                    .version("1.0")
-                    .trainingMaterials(null)
-                    .trainingPrinciples("idk")
-                    .publishStatus("active")
-                    .createdBy("joe")
-                    .createdDate(new Date())
-                    .technicalGroup("a pc")
-                    .trainingAudience(100)
-                    .numberOfDay(2000)
-                    .priority("high")
-                    .build();
-
-            syllabusList.add(s);
-        }
-
-        GetClassDetail class_ = GetClassDetail.builder()
-                .className("class " + classId)
-                .classCode(classId)
-                .createdOn(new Date().getTime())
-                .fsu("fhcm")
-                .status("planing")
-                .createBy("joe mama")
-                .location("joe mama house")
-                .duration(69)
-                .attendee("fresher")
-                .attendeePlanned(100)
-                .attendeeAccepted(99)
-                .attendeeActual(99)
-                .timeFrom(Time.valueOf("08:00:00"))
-                .timeTo(Time.valueOf("10:00:00"))
-                .startDate(new Date().getTime() - 1000000)
-                .endDate(new Date().getTime() + 2000000)
-                .trainingProgram("how to code with joe mama.")
-                .trainingProgramModifiedDate(new Date().getTime() - 5000000)
-                .listOfSyllabus(syllabusList)
-                .build();
-
-        return class_;
-    }
-
-    public GetClass getClass_(String id){
-        return GetClass.builder()
-                .className("class " + id)
-                .classCode(id)
-                .createdOn(new Date().getTime())
-                .fsu("fhcm")
-                .status("planing")
-                .createBy("joe mama")
-                .location("joe mama house")
-                .duration(69)
-                .build();
-    }
-
-
 }

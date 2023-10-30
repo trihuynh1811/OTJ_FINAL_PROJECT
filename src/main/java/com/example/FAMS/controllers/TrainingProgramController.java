@@ -1,8 +1,8 @@
 package com.example.FAMS.controllers;
 
 import com.example.FAMS.dto.requests.UpdateTrainingProgramRequest;
-import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.TrainingProgramDTO;
+import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateTrainingProgramResponse;
 import com.example.FAMS.models.TrainingProgram;
 import com.example.FAMS.service_implementors.TrainingProgramImpl;

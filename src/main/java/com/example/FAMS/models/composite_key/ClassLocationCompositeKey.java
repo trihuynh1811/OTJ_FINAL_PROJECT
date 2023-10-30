@@ -7,18 +7,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 @Embeddable
 @Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class ClassUserCompositeKey implements Serializable {
+public class ClassLocationCompositeKey {
 
-    @Column(name = "user_id")
-    int userId;
+    @Column(name = "class_code")
+    String classCode;
 
-    @Column(name = "class_id")
-    String classId;
+    @Column(name = "location_id")
+    Long locationId;
 }

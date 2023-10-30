@@ -42,6 +42,7 @@ public class TrainingProgramImpl implements TrainingProgramService {
     private final TrainingProgramDAO trainingProgramDAO;
     private final UserDAO userDAO;
     private final TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
+    private List<TrainingProgramModified> userList;
 
     @Override
   public ResponseEntity<ResponseObject> createTrainingProgram(
@@ -58,7 +59,7 @@ public class TrainingProgramImpl implements TrainingProgramService {
     var person = userDAO.findById(trainerID).orElse(null);
     var syllabus = syllabusDAO.findById(topicCode).orElse(null);
 
-    trainingProgram.setName(trainingProgramDTO.getName());
+    trainingProgram.setName(trainingProgramDTO.getTrainingProgramName());
     if (!trainingProgramDTO.getStartDate().before(date)
         && date != trainingProgramDTO.getStartDate()) {
       trainingProgram.setStartDate(trainingProgramDTO.getStartDate());
@@ -107,16 +108,15 @@ public class TrainingProgramImpl implements TrainingProgramService {
 
   public void createTrainingSyllabus(TrainingProgram trainingProgram, Syllabus syllabus) {
     TrainingProgramSyllabus trainingProgramSyllabus =
-        TrainingProgramSyllabus.builder()
-            .id(
-                SyllabusTrainingProgramCompositeKey.builder()
-                    .topicCode(syllabus.getTopicCode())
-                    .trainingProgramCode(trainingProgram.getTrainingProgramCode())
-                    .build())
-            .topicCode(syllabus)
-            .trainingProgramCode(trainingProgram)
-            .sequence("high")
-            .build();
+            TrainingProgramSyllabus.builder()
+                    .id(
+                            SyllabusTrainingProgramCompositeKey.builder()
+                                    .topicCode(syllabus.getTopicCode())
+                                    .trainingProgramCode(trainingProgram.getTrainingProgramCode())
+                                    .build())
+                    .topicCode(syllabus)
+                    .trainingProgramCode(trainingProgram)
+                    .build();
     trainingProgramSyllabusDAO.save(trainingProgramSyllabus);
   }
 
@@ -195,7 +195,12 @@ public class TrainingProgramImpl implements TrainingProgramService {
                 .modifiedBy(originalTraining.getModifiedBy())
                 .status(originalTraining.getStatus())
                 .build();
-        return trainingProgramDAO.save(newTrainingProgram);
+        TrainingProgram savedTrainingProgram = trainingProgramDAO.save(newTrainingProgram);
+        if (savedTrainingProgram != null) {
+            return savedTrainingProgram;
+        } else {
+            throw new RuntimeException("Not duplicate");
+        }
     }
 
     @Override
