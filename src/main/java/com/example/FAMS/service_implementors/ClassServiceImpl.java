@@ -11,7 +11,6 @@ import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.models.*;
 import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.models.Class;
-import com.example.FAMS.models.composite_key.ClassLocationCompositeKey;
 import com.example.FAMS.models.composite_key.ClassUserCompositeKey;
 import com.example.FAMS.models.composite_key.UserClassSyllabusCompositeKey;
 import com.example.FAMS.repositories.*;
@@ -24,17 +23,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -81,8 +75,8 @@ public class ClassServiceImpl implements ClassService {
         List<String> location = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
 
-        for(int i = 0; i < classes.size(); i++){
-            for(int j = 0; j < classes.get(i).getLocations().stream().toList().size(); j++){
+        for (int i = 0; i < classes.size(); i++) {
+            for (int j = 0; j < classes.get(i).getLocations().stream().toList().size(); j++) {
                 location.add(classes.get(i).getLocations().stream().toList().get(j).getLocation());
             }
             GetClassesResponse c = GetClassesResponse.builder()
@@ -101,11 +95,6 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public ResponseEntity<ClassDetailResponse> getClassDetail(String classCode) throws InterruptedException {
-        return null;
-    }
-
-    @Override
     public Class createClass(CreateClassDTO request, Authentication authentication) {
         try {
             log.info(request);
@@ -118,8 +107,11 @@ public class ClassServiceImpl implements ClassService {
             List<Location> locationList = new ArrayList<>();
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
             User user = userDAO.findByEmail(request.getCreated()).get();
+            String review = userDAO.findByEmail(request.getReview()).get().getName();
+            String approve = userDAO.findByEmail(request.getApprove()).get().getName();
             String timeFromStr = request.getClassTimeFrom().split(":").length == 3 ? request.getClassTimeFrom() : request.getClassTimeFrom() + ":00";
             String timeToStr = request.getClassTimeTo().split(":").length == 3 ? request.getClassTimeTo() : request.getClassTimeTo() + ":00";
+
             classInfo = Class.builder()
                     .className(request.getNameClass())
                     .classId(request.getClassCode())
@@ -127,8 +119,8 @@ public class ClassServiceImpl implements ClassService {
                     .startDate(sdf.parse(request.getStartDate()))
                     .endDate(sdf.parse(request.getEndDate()))
                     .createdBy(user.getName())
-                    .review(request.getReview())
-                    .approve(request.getApprove())
+                    .review(review)
+                    .approve(approve)
                     .attendeeActual(Integer.parseInt(request.getAttendeeActual()))
                     .attendee(request.getAttendee())
                     .attendeePlanned(Integer.parseInt(request.getAttendeePlanned()))
@@ -172,6 +164,20 @@ public class ClassServiceImpl implements ClassService {
                         .build();
 
                 classUserList.add(classUser);
+            }
+            for(int i = 0; i < request.getAdmin().size(); i++){
+                user = userDAO.findByEmail(request.getAdmin().get(i)).get();
+                ClassUser classAdmin = ClassUser.builder()
+                        .id(ClassUserCompositeKey.builder()
+                                .userId(user.getUserId())
+                                .classId(classInfo.getClassId())
+                                .build())
+                        .userID(user)
+                        .classId(classInfo)
+                        .userType(user.getRole().getRole().name())
+                        .build();
+
+                classUserList.add(classAdmin);
             }
 
             for (int i = 0; i < request.getTrainer().size(); i++) {
@@ -242,6 +248,149 @@ public class ClassServiceImpl implements ClassService {
             return ResponseEntity.status(200).body(new DeactivateClassResponse("successfully deactivate class with id " + classCode + " (⌐■_■)👍"));
         }
         return ResponseEntity.status(400).body(new DeactivateClassResponse("fail to deactivate class with id " + classCode + " (⌐■⌒■)👎"));
+    }
+
+    @Override
+    public ResponseEntity<ClassDetailResponse> getClassDetail(String classCode) throws InterruptedException {
+        Class c = classDAO.findById(classCode).isPresent() ? classDAO.findById(classCode).get() : null;
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+        Map<Integer, List<String>> trainerSyllabusMap = new HashMap<>();
+        if (c != null) {
+            try {
+                log.info(c.getTrainingProgram().getTrainingProgramSyllabus().size());
+                TrainingProgram tp = trainingProgramDAO.findById(c.getTrainingProgram().getTrainingProgramCode()).get();
+
+                List<String> locationList = new ArrayList<>();
+                List<Location> classLocations = c.getLocations().stream().toList();
+
+                List<String> listDay = new ArrayList<>();
+                List<ClassLearningDay> classLearningDays = c.getClassLearningDays().stream().toList();
+
+                List<TrainerDTO> trainerList = new ArrayList<>();
+                List<UserClassSyllabus> userClassSyllabuses = c.getUserClassSyllabus().stream().toList();
+
+                List<UserDTO> attendeeList = new ArrayList<>();
+                List<UserDTO> adminList = new ArrayList<>();
+                List<ClassUser> classUsers = c.getClassUsers().stream().toList();
+
+                List<SyllabusDTO> syllabusList = new ArrayList<>();
+                List<TrainingProgramSyllabus> trainingProgramSyllabuses = tp.getTrainingProgramSyllabus().stream().toList();
+
+                List<User> trainers = new ArrayList<>();
+
+                for (int i = 0; i < classLocations.size(); i++) {
+                    locationList.add(classLocations.get(i).getLocation());
+                }
+                for (int i = 0; i < classLearningDays.size(); i++) {
+                    listDay.add(convertToMMDDYYYY(classLearningDays.get(i).getEnrollDate().toString().split(" ")[0]));
+                }
+                for (int i = 0; i < userClassSyllabuses.size(); i++) {
+                    List<String> syllabusCodeList;
+                    if(trainerSyllabusMap.containsKey(userClassSyllabuses.get(i).getUserId().getUserId())){
+                        syllabusCodeList = trainerSyllabusMap.get(userClassSyllabuses.get(i).getUserId().getUserId());
+                    }
+                    else{
+                        syllabusCodeList = new ArrayList<>();
+                        trainers.add(userClassSyllabuses.get(i).getUserId());
+                    }
+                    syllabusCodeList.add(userClassSyllabuses.get(i).getTopicCode().getTopicCode());
+                    trainerSyllabusMap.put(userClassSyllabuses.get(i).getUserId().getUserId(), syllabusCodeList);
+                }
+                for(int i = 0; i < trainers.size(); i++){
+                    TrainerDTO trainer = TrainerDTO.builder()
+                            .userId(trainers.get(i).getUserId())
+                            .userName(trainers.get(i).getName())
+                            .userEmail(trainers.get(i).getEmail())
+                            .syllabusList(trainerSyllabusMap.get(trainers.get(i).getUserId()))
+                            .build();
+                    trainerList.add(trainer);
+                }
+                log.info(trainerSyllabusMap);
+                for (int i = 0; i < classUsers.size(); i++) {
+                    if(classUsers.get(i).getUserType().equalsIgnoreCase("user")){
+                        UserDTO trainee = UserDTO.builder()
+                                .userId(classUsers.get(i).getUserID().getUserId())
+                                .userName(classUsers.get(i).getUserID().getName())
+                                .userEmail(classUsers.get(i).getUserID().getEmail())
+                                .build();
+                        attendeeList.add(trainee);
+                    }
+                    else{
+                        UserDTO admin = UserDTO.builder()
+                                .userId(classUsers.get(i).getUserID().getUserId())
+                                .userName(classUsers.get(i).getUserID().getName())
+                                .userEmail(classUsers.get(i).getUserID().getEmail())
+                                .build();
+                        adminList.add(admin);
+                    }
+                }
+                for (int i = 0; i < trainingProgramSyllabuses.size(); i++) {
+                    SyllabusDTO syllabus = SyllabusDTO.builder()
+                            .numberOfDay(trainingProgramSyllabuses.get(i).getTopicCode().getNumberOfDay())
+                            .version(trainingProgramSyllabuses.get(i).getTopicCode().getVersion())
+                            .createdDate(convertToMMDDYYYY(trainingProgramSyllabuses.get(i).getTopicCode().getCreatedDate().toString().split(" ")[0]))
+                            .createdBy(trainingProgramSyllabuses.get(i).getTopicCode().getCreatedBy().getName())
+                            .topicName(trainingProgramSyllabuses.get(i).getTopicCode().getTopicName())
+                            .publishStatus(trainingProgramSyllabuses.get(i).getTopicCode().getPublishStatus())
+                            .topicCode(trainingProgramSyllabuses.get(i).getTopicCode().getTopicCode())
+                            .build();
+
+                    syllabusList.add(syllabus);
+                }
+
+                log.info(c.getTimeFrom().toString());
+                log.info(c.getTimeTo().toString());
+
+                String timeFrom = c.getTimeFrom().toString();
+                timeFrom = timeFrom.substring(0, timeFrom.lastIndexOf(":"));
+                String timeTo = c.getTimeTo().toString();
+                timeTo = timeTo.substring(0, timeTo.lastIndexOf(":"));
+
+
+                ClassDetailResponse res = ClassDetailResponse.builder()
+                        .classId(classCode)
+                        .className(c.getClassName())
+                        .createdBy(c.getCreatedBy())
+                        .createdDate(convertToMMDDYYYY(c.getCreatedDate().toString().split(" ")[0]))
+                        .deactivated(c.isDeactivated())
+                        .duration(c.getDuration())
+                        .endDate(convertToMMDDYYYY(c.getEndDate().toString().split(" ")[0]))
+                        .modifiedBy(c.getModifiedBy())
+                        .modifiedDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getModifiedDate().toString().split(" ")[0]) : "")
+                        .startDate(convertToMMDDYYYY(c.getStartDate().toString().split(" ")[0]))
+                        .status(c.getStatus())
+                        .timeFrom(timeFrom)
+                        .timeTo(timeTo)
+                        .approve(c.getApprove())
+                        .review(c.getReview())
+                        .fsu(c.getFsu())
+                        .attendee(c.getAttendee())
+                        .attendeeAccepted(Integer.toString(c.getAttendeeAccepted()))
+                        .attendeePlanned(Integer.toString(c.getAttendeePlanned()))
+                        .attendeeActual(Integer.toString(c.getAttendeeActual()))
+                        .trainingProgram(TrainingProgramDTO.builder()
+                                .trainingProgramCode(Integer.toString(c.getTrainingProgram().getTrainingProgramCode()))
+                                .trainingProgramName(c.getTrainingProgram().getName())
+                                .modifyBy(c.getTrainingProgram().getModifiedBy())
+                                .modifyDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getTrainingProgram().getModifiedDate().toString().split(" ")[0]) : "")
+                                .duration(Integer.toString(tp.getDuration()))
+                                .build())
+                        .listDay(listDay)
+                        .location(locationList)
+                        .trainerList(trainerList)
+                        .attendeeList(attendeeList)
+                        .syllabusList(syllabusList)
+                        .adminList(adminList)
+                        .message("found class with id " + classCode)
+                        .build();
+                return ResponseEntity.status(200).body(res);
+            } catch (Exception err) {
+                err.printStackTrace();
+                return ResponseEntity.status(500).body(null);
+            }
+
+        }
+        return ResponseEntity.status(400).body(new ClassDetailResponse("class with id " + classCode + " not found"));
     }
 
     @Override
@@ -323,15 +472,15 @@ public class ClassServiceImpl implements ClassService {
         }
     }
 
-  @Override
-  public UpdateCalendarResponse updateClassLearningDay(UpdateCalendarRequest request) throws ParseException {
-    String id = request.getId();
-    String enrollDate = request.getEnrollDate();
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    Date eDate = dateFormat.parse(enrollDate);
-    Time timeFrom = request.getTimeFrom();
-    Time timeTo = request.getTimeTo();
-    String value = request.getValue();
+    @Override
+    public UpdateCalendarResponse updateClassLearningDay(UpdateCalendarRequest request) throws ParseException {
+        String id = request.getId();
+        String enrollDate = request.getEnrollDate();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date eDate = dateFormat.parse(enrollDate);
+        Time timeFrom = request.getTimeFrom();
+        Time timeTo = request.getTimeTo();
+        String value = request.getValue();
 
         ClassLearningDay classLearningDay = classLearningDayDAO.findByClassId_ClassIdAndEnrollDate(id, eDate);
 
@@ -408,47 +557,47 @@ public class ClassServiceImpl implements ClassService {
     }
 
 
-    public List<SyllabusDTO> getAllSyllabusInTrainingProgram(
-            List<TrainingProgramSyllabus> trainingProgramSyllabusList
-    ) throws InterruptedException {
-        List<SyllabusDTO> syllabusList = new ArrayList<>();
-        int numThreads = calculateNumThreads(trainingProgramSyllabusList.size());
-
-        ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
-
-        int batchSize = (int) Math.ceil((double) trainingProgramSyllabusList.size() / numThreads);
-        int fromIndex = 0;
-
-        for (int i = 0; i < numThreads; i++) {
-            int toIndex = Math.min(fromIndex + batchSize, trainingProgramSyllabusList.size());
-
-            List<TrainingProgramSyllabus> tps = trainingProgramSyllabusList.subList(fromIndex, toIndex);
-
-            executorService.submit(() -> {
-                for (int j = 0; j < tps.size(); j++) {
-                    Syllabus syllabus = tps.get(j).getTopicCode();
-                    SyllabusDTO syllabusDTO = SyllabusDTO.builder()
-                            .topicCode(syllabus.getTopicCode())
-                            .numberOfDay(syllabus.getNumberOfDay())
-                            .version(syllabus.getVersion())
-                            .publishStatus(syllabus.getPublishStatus())
-                            .topicName(syllabus.getTopicName())
-                            .createdBy(syllabus.getCreatedBy().getName())
-                            .createdDate(syllabus.getCreatedDate())
-                            .build();
-                    syllabusList.add(syllabusDTO);
-                }
-            });
-
-            fromIndex = toIndex;
-
-        }
-
-        executorService.shutdown();
-        executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-
-        return syllabusList;
-    }
+//    public List<SyllabusDTO> getAllSyllabusInTrainingProgram(
+//            List<TrainingProgramSyllabus> trainingProgramSyllabusList
+//    ) throws InterruptedException {
+//        List<SyllabusDTO> syllabusList = new ArrayList<>();
+//        int numThreads = calculateNumThreads(trainingProgramSyllabusList.size());
+//
+//        ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
+//
+//        int batchSize = (int) Math.ceil((double) trainingProgramSyllabusList.size() / numThreads);
+//        int fromIndex = 0;
+//
+//        for (int i = 0; i < numThreads; i++) {
+//            int toIndex = Math.min(fromIndex + batchSize, trainingProgramSyllabusList.size());
+//
+//            List<TrainingProgramSyllabus> tps = trainingProgramSyllabusList.subList(fromIndex, toIndex);
+//
+//            executorService.submit(() -> {
+//                for (int j = 0; j < tps.size(); j++) {
+//                    Syllabus syllabus = tps.get(j).getTopicCode();
+//                    SyllabusDTO syllabusDTO = SyllabusDTO.builder()
+//                            .topicCode(syllabus.getTopicCode())
+//                            .numberOfDay(syllabus.getNumberOfDay())
+//                            .version(syllabus.getVersion())
+//                            .publishStatus(syllabus.getPublishStatus())
+//                            .topicName(syllabus.getTopicName())
+//                            .createdBy(syllabus.getCreatedBy().getName())
+//                            .createdDate(syllabus.getCreatedDate())
+//                            .build();
+//                    syllabusList.add(syllabusDTO);
+//                }
+//            });
+//
+//            fromIndex = toIndex;
+//
+//        }
+//
+//        executorService.shutdown();
+//        executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+//
+//        return syllabusList;
+//    }
 
     private int calculateNumThreads(int numRecords) {
         final int maxThreads = 10;
@@ -461,6 +610,15 @@ public class ClassServiceImpl implements ClassService {
             return (User) creator;
         }
         return null;
+    }
+
+    public String convertToMMDDYYYY(String dateStr){
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(dateStr, inputFormatter);
+
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        String formattedDate = date.format(outputFormatter);
+        return formattedDate;
     }
 
 

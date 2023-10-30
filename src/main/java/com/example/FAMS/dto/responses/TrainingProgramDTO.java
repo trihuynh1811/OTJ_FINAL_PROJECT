@@ -1,19 +1,24 @@
-package com.example.FAMS.dto.responses.Class;
+package com.example.FAMS.dto.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
+import java.util.Date;
+
 @Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class TrainingProgramDTO {
 
-    String trainingProgramCode;
+    int trainingProgramCode;
     String trainingProgramName;
-    String modifyDate;
+    Date modifyDate;
     String modifyBy;
-    String duration;
+    Date startDate;
+    int duration;
+    String status;
+
 }

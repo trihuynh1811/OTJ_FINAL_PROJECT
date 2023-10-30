@@ -1,7 +1,7 @@
 package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.dto.requests.UpdateTrainingProgramRequest;
-import com.example.FAMS.dto.responses.Class.TrainingProgramDTO;
+import com.example.FAMS.dto.responses.TrainingProgramDTO;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.TrainingProgramModified;
 import com.example.FAMS.dto.responses.UpdateTrainingProgramResponse;

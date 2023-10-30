@@ -36,11 +36,11 @@ public class ClassController {
         return ResponseEntity.status(HttpStatus.OK).body(classService.getClasses());
     }
 
-    @GetMapping("/detail")
-    @PreAuthorize("hasAuthority('class:read')")
-    public ResponseEntity<List<Class>> getDetailClasses() {
-        return ResponseEntity.ok(classService.getDetailClasses());
-    }
+//    @GetMapping("/detail")
+//    @PreAuthorize("hasAuthority('class:read')")
+//    public ResponseEntity<List<Class>> getDetailClasses() {
+//        return ResponseEntity.ok(classService.getDetailClasses());
+//    }
 
     @PostMapping("/create/{type}")
     @PreAuthorize("hasAuthority('class:create')")
@@ -100,6 +100,7 @@ public class ClassController {
     }
 
     @GetMapping("/detail/{id}")
+    @PreAuthorize("hasAuthority('class:read')")
     public ResponseEntity<ClassDetailResponse> getClassDetail(@PathVariable("id") String classCode) throws InterruptedException {
         return classService.getClassDetail(classCode);
     }
