@@ -31,6 +31,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -80,10 +81,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (!matcher.matches()) {
             throw new RuntimeException("Invalid email");
         }
-        String token = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+        String token = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
                 .getRequest().getHeader("Authorization").substring(7);
         String userEmail = jwtService.extractUserEmail(token);
         var requester = userDAO.findUserByEmail(userEmail).orElse(null);
+        assert requester != null;
         if (requester.getRole().getRole().equals(Role.CLASS_ADMIN) &&
                 createRequest.getRole().equals(Role.SUPER_ADMIN)) {
             throw new RuntimeException("ADMIN can not create SUPER_ADMIN");
