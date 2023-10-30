@@ -46,7 +46,7 @@ public class TrainingMaterialController {
                     )
                     .body(byteArrayResource);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Fail to download file");
+            return ResponseEntity.badRequest().body("Fail to download file: " + e.getMessage());
         }
     }
 
