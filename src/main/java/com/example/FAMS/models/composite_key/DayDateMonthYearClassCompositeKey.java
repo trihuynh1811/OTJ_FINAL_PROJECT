@@ -7,17 +7,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 @Embeddable
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class ClassUserCompositeKey implements Serializable {
+public class DayDateMonthYearClassCompositeKey {
 
-    @Column(name = "user_id")
-    int userId;
+    @Column(name = "day_id")
+    int dayId;
+
+    @Column(name = "date_id")
+    int dateId;
+
+    @Column(name = "month_id")
+    int monthId;
 
     @Column(name = "class_id")
     String classId;

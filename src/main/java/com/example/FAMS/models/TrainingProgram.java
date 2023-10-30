@@ -13,12 +13,15 @@ import java.util.Set;
 
 @Entity
 @Builder
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "TrainingPrograms")
+@Table(name = "TrainingPrograms",  uniqueConstraints = {
+        @UniqueConstraint(
+                name = "training_program_name_constraint",
+                columnNames = "name"
+        )
+})
 public class TrainingProgram {
 
     @Id
@@ -53,16 +56,16 @@ public class TrainingProgram {
     private Date createdDate;
 
     @Column(name = "modified_by")
-    private String modifiedBy;
+    private String modifiedBy = "";
 
     @Column(name = "modified_date")
-    private Date modifiedDate;
+    private Date modifiedDate = null;
 
-    @OneToMany(mappedBy = "trainingProgramCode", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "trainingProgramCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private final Set<TrainingProgramSyllabus> trainingProgramSyllabus = new HashSet<>();
 
-    @OneToMany(mappedBy = "trainingProgram")
+    @OneToMany(mappedBy = "trainingProgram", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private final Set<Class> classes = new HashSet<>();
 

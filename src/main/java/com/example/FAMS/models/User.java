@@ -1,7 +1,6 @@
 package com.example.FAMS.models;
 
 
-import com.example.FAMS.enums.Role;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -13,14 +12,11 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Data
@@ -76,26 +72,33 @@ public class User implements UserDetails {
     @ManyToOne
     @JoinColumn(name = "role")
     @JsonIgnore
-    @JsonBackReference
+    @JsonManagedReference
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private UserPermission role;
 
-    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonBackReference
     @JsonIgnore
     private final Set<TrainingProgram> trainingPrograms = new HashSet<>();
 
-    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
-    private final Set<Syllabus> syllabusList = new HashSet<>();
+    @JsonIgnore
+    private final Set<UserSyllabus> userSyllabus = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonBackReference
     @ToString.Exclude
     private final Set<Token> tokens = new HashSet<>();
 
-    @JsonIgnore
+    @ManyToOne(cascade = CascadeType.MERGE, optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "fsu_id", referencedColumnName = "fsu_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
+    private Fsu fsu;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.getAuthorities();

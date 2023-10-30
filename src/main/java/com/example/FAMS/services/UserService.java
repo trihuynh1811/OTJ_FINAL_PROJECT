@@ -20,6 +20,8 @@ public interface UserService {
 
     ResponseEntity<ResponseObject> getAllTrainersByRole();
 
+    ResponseEntity<ResponseObject> getAllTraineeByRole();
+
     ResponseEntity<ResponseObject> getAllAdminsByRole();
 
     ResponseEntity<ResponseObject> getAllAdminAndSuperAdminByRole();

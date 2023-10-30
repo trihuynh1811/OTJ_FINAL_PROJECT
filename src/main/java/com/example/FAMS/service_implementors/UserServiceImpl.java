@@ -15,6 +15,11 @@ import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.services.EmailService;
 import com.example.FAMS.services.JWTService;
 import com.example.FAMS.services.UserService;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,30 +97,23 @@ public class UserServiceImpl implements UserService {
             // Save the updated user
             User updatedUser = userDAO.save(existedUser);
 
-            if (updatedUser != null) {
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                return UpdateResponse.builder()
-                        .status("Update successful")
-                        .updatedUser(UserWithRoleDTO.builder()
-                                .name(updatedUser.getName())
-                                .role(updatedUser.getRole().getRole())
-                                .email(updatedUser.getEmail())
-                                .phone(updatedUser.getPhone())
-                                .dob(updatedUser.getDob())
-                                .gender(updatedUser.getGender())
-                                .status(updatedUser.isStatus())
-                                .createdBy(updatedUser.getCreatedBy())
-                                .createdDate(updatedUser.getCreatedDate())
-                                .modifiedBy(updatedUser.getModifiedBy())
-                                .modifiedDate(updatedUser.getModifiedDate())
-                                .build())
-                        .build();
-            } else {
-                return UpdateResponse.builder()
-                        .status("Update failed")
-                        .updatedUser(null)
-                        .build();
-            }
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            return UpdateResponse.builder()
+                    .status("Update successful")
+                    .updatedUser(UserWithRoleDTO.builder()
+                            .name(updatedUser.getName())
+                            .role(updatedUser.getRole().getRole())
+                            .email(updatedUser.getEmail())
+                            .phone(updatedUser.getPhone())
+                            .dob(updatedUser.getDob())
+                            .gender(updatedUser.getGender())
+                            .status(updatedUser.isStatus())
+                            .createdBy(updatedUser.getCreatedBy())
+                            .createdDate(updatedUser.getCreatedDate())
+                            .modifiedBy(updatedUser.getModifiedBy())
+                            .modifiedDate(updatedUser.getModifiedDate())
+                            .build())
+                    .build();
         } else {
             // Return an UpdateResponse indicating user not found
             return UpdateResponse.builder()
@@ -127,7 +125,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseObject deleteUser(String mail) {
-        String token = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+        String token = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
                 .getRequest().getHeader("Authorization").substring(7);
         String performUserEmail = jwtService.extractUserEmail(token);
         User performUser = userDAO.findByEmail(performUserEmail).orElse(null);
@@ -203,6 +201,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public ResponseEntity<ResponseObject> getAllTraineeByRole() {
+        try {
+            var list = userDAO.findUsersByRole(userPermissionDAO.findById(3).orElse(null));
+            logger.info("Return list of user");
+            return ResponseEntity.ok(new ResponseObject("Successful", "Found user", list));
+        } catch (Exception e) {
+            var list = Collections.emptyList();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Failed", "Not found user", list));
+        }
+    }
+
+    @Override
     public ResponseEntity<ResponseObject> getAllAdminsByRole() {
         try {
             var list = userDAO.findUsersByRole(userPermissionDAO.findById(4).orElse(null));
@@ -217,13 +227,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ResponseObject> getAllAdminAndSuperAdminByRole() {
         try {
-            var class_Admin = userDAO.findUsersByRole(userPermissionDAO.findById(4).orElse(null));
-            var super_Admin = userDAO.findUsersByRole(userPermissionDAO.findById(1).orElse(null));
-            logger.info("Return list of user");
-            return ResponseEntity.ok(new ResponseObject("Successful", "Found user", Arrays.asList(class_Admin, super_Admin)));
+            userList = userDAO.getAllUsersWithRoleAdmin_SuperAdmin();
+            logger.info("Return list of Admin_SuperAdmin");
+            return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
         } catch (Exception e) {
-            var list = Collections.emptyList();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Failed", "Not found user", list));
+            userList = Collections.emptyList();
+            return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
         }
     }
 

@@ -10,7 +10,7 @@ public interface TrainingMaterialService {
 
     ResponseObject uploadTrainingMaterial(MultipartFile file) throws IOException;
 
-    byte[] downloadTrainingMaterials(String fileName) throws IOException;
+    byte[] downloadTrainingMaterials(String fileName) throws IOException, RuntimeException;
 
     ResponseEntity<ResponseObject> deleteTrainingMaterial(String fileName);
 }

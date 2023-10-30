@@ -7,18 +7,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 @Embeddable
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class ClassUserCompositeKey implements Serializable {
+public class UserSyllabusCompositeKey {
 
     @Column(name = "user_id")
-    int userId;
+    private int userId;
 
-    @Column(name = "class_id")
-    String classId;
+    @Column(name = "topic_code")
+    private String topicCode;
 }
