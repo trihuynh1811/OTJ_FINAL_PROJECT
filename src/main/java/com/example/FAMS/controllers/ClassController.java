@@ -2,6 +2,7 @@ package com.example.FAMS.controllers;
 
 import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
+import com.example.FAMS.dto.requests.ClassRequest.UpdateClass3Request;
 import com.example.FAMS.dto.requests.UpdateClassRequest;
 import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.dto.responses.ResponseObject;
@@ -143,5 +144,10 @@ public class    ClassController {
     @PutMapping("/update-calendar")
     public UpdateCalendarResponse updateClassLearningDay(@RequestBody UpdateCalendarRequest request) throws ParseException {
         return classService.updateClassLearningDay(request);
+    }
+
+    @PostMapping("/updateClass3")
+    public UpdateClass3Response updateClass3(@RequestBody UpdateClass3Request updateClass3Request) {
+        return classService.updateClass3(updateClass3Request);
     }
 }

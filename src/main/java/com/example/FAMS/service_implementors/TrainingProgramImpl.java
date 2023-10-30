@@ -115,6 +115,7 @@ public class TrainingProgramImpl implements TrainingProgramService {
                                     .build())
                     .topicCode(syllabus)
                     .trainingProgramCode(trainingProgram)
+                    .deleted(true)
                     .build();
     trainingProgramSyllabusDAO.save(trainingProgramSyllabus);
   }

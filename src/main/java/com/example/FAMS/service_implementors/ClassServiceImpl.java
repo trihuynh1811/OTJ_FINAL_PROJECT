@@ -2,6 +2,7 @@ package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
 import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
+import com.example.FAMS.dto.requests.ClassRequest.UpdateClass3Request;
 import com.example.FAMS.dto.requests.UpdateClassRequest;
 import com.example.FAMS.dto.responses.CalendarDayResponse;
 import com.example.FAMS.dto.responses.CalendarWeekResponse;
@@ -12,6 +13,7 @@ import com.example.FAMS.models.*;
 import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.models.Class;
 import com.example.FAMS.models.composite_key.ClassUserCompositeKey;
+import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import com.example.FAMS.models.composite_key.UserClassSyllabusCompositeKey;
 import com.example.FAMS.repositories.*;
 import com.example.FAMS.services.ClassService;
@@ -48,6 +50,9 @@ public class ClassServiceImpl implements ClassService {
 
     @Autowired
     SyllabusDAO syllabusDAO;
+
+    @Autowired
+    TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
 
 //    @Autowired
 //    FsuDAO fsuDAO;
@@ -525,6 +530,74 @@ public class ClassServiceImpl implements ClassService {
                     .build();
         }
     }
+
+    @Override
+    public UpdateClass3Response updateClass3(UpdateClass3Request updateClass3Request) {
+
+        boolean status = updateClass3Request.isDeleted();
+        String topicCode = updateClass3Request.getTopicCode();
+        int trainingProgramCode = updateClass3Request.getTrainingProgramCode();
+
+        var syllabus = syllabusDAO.findById(topicCode).orElse(null);
+        var trainingProgram = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
+
+        TrainingProgramSyllabus trainingProgramSyllabus = trainingProgramSyllabusDAO.findByIdTopicCodeAndIdTrainingProgramCode(topicCode,trainingProgramCode);
+//        TrainingProgramSyllabus topicCode1 = trainingProgramSyllabusDAO.findByIdTopicCode(topicCode);
+//        TrainingProgramSyllabus trainingProgram1= trainingProgramSyllabusDAO.findByIdTrainingProgramCode(trainingProgramCode);
+
+
+        if(trainingProgramSyllabus != null){
+
+            trainingProgramSyllabus.setDeleted(status);
+            trainingProgramSyllabus = trainingProgramSyllabusDAO.save(trainingProgramSyllabus);
+
+            if(trainingProgramSyllabus != null){
+                return UpdateClass3Response.builder()
+                        .status("Update TrainingProgramSyllabus successful")
+                        .updatedClass3(trainingProgramSyllabus)
+                        .build();
+            }else {
+                return UpdateClass3Response.builder()
+                        .status("Update TrainingProgramSyllabus failed")
+                        .updatedClass3(null)
+                        .build();
+            }
+
+        }else {
+            TrainingProgramSyllabus trainingProgramSyllabus2 =
+                    TrainingProgramSyllabus.builder()
+                            .id(
+                                    SyllabusTrainingProgramCompositeKey.builder()
+                                            .topicCode(topicCode)
+                                            .trainingProgramCode(trainingProgramCode)
+                                            .build())
+                            .topicCode(syllabus)
+                            .trainingProgramCode(trainingProgram)
+                            .deleted(true)
+                            .build();
+            trainingProgramSyllabus2 =trainingProgramSyllabusDAO.save(trainingProgramSyllabus2);
+
+            if(trainingProgramSyllabus2 != null){
+                return UpdateClass3Response.builder()
+                        .status("Update TrainingProgramSyllabus successful")
+                        .updatedClass3(trainingProgramSyllabus2)
+                        .build();
+
+            }else {
+                return UpdateClass3Response.builder()
+                        .status("Update TrainingProgramSyllabus failed")
+                        .updatedClass3(null)
+                        .build();
+            }
+
+
+
+        }
+
+
+
+    }
+
 
 
     public List<Class> searchClass(String createdDate, String searchValue, String orderBy) {
