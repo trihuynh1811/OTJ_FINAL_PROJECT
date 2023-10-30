@@ -1,10 +1,7 @@
 package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.dto.requests.UpdateTrainingProgramRequest;
-import com.example.FAMS.dto.responses.ResponseObject;
-import com.example.FAMS.dto.responses.TrainingProgramDTO;
-import com.example.FAMS.dto.responses.TrainingProgramModified;
-import com.example.FAMS.dto.responses.UpdateTrainingProgramResponse;
+import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.models.TrainingProgram;
@@ -280,6 +277,14 @@ public class TrainingProgramImpl implements TrainingProgramService {
                         .message("Import failed")
                         .payload(null)
                         .build());
+    }
+
+    @Override
+    public ResponseEntity<ResponseObjectVersion2> getDetails(int trainingProgramCode) {
+      Integer totalSubjectDays = trainingProgramDAO.totalSubjectDays(trainingProgramCode);
+      Integer totalTrainingProgramDates = trainingProgramDAO.totalTrainingProgramDates(trainingProgramCode);
+
+        return null;
     }
 
 

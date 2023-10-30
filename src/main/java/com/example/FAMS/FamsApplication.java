@@ -13,6 +13,8 @@ import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,7 +42,7 @@ public class FamsApplication {
   private final AuthenticationService authenticationService;
   private final StandardOutputDAO standardOutputDAO;
   private final SyllabusDAO syllabusDAO;
-
+  private Logger logger = LoggerFactory.getLogger(FamsApplication.class);
   public static void main(String[] args) {
     SpringApplication.run(FamsApplication.class, args);
   }
@@ -202,7 +204,8 @@ public class FamsApplication {
                   .modifiedDate(new Date())
                   .build());
           userDAO.saveAll(userList);
-          System.out.println(
+
+          logger.info(
               "SUPER_ADMIN Token: "
                   + authenticationService
                       .login(
@@ -211,7 +214,7 @@ public class FamsApplication {
                               .password("1")
                               .build())
                       .getToken());
-          System.out.println(
+          logger.info(
               "CLASS_ADMIN Token: "
                   + authenticationService
                       .login(
@@ -220,7 +223,7 @@ public class FamsApplication {
                               .password("1")
                               .build())
                       .getToken());
-          System.out.println(
+          logger.info(
               "TRAINER Token: "
                   + authenticationService
                       .login(
@@ -229,7 +232,7 @@ public class FamsApplication {
                               .password("1")
                               .build())
                       .getToken());
-          System.out.println(
+          logger.info(
               "USER Token: "
                   + authenticationService
                       .login(

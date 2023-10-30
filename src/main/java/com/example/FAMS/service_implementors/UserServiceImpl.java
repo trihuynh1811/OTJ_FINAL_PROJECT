@@ -12,6 +12,11 @@ import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.services.JWTService;
 import com.example.FAMS.services.UserService;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +28,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -172,13 +171,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ResponseObject> getAllAdminAndSuperAdminByRole() {
         try {
-            var class_Admin = userDAO.findUsersByRole(userPermissionDAO.findById(4).orElse(null));
-            var super_Admin = userDAO.findUsersByRole(userPermissionDAO.findById(1).orElse(null));
-            logger.info("Return list of user");
-      return ResponseEntity.ok(new ResponseObject("Successful", "Found user", Arrays.asList(class_Admin,super_Admin)));
+            userList = userDAO.getAllUsersWithRoleAdmin_SuperAdmin();
+            logger.info("Return list of Admin_SuperAdmin");
+            return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
         } catch (Exception e) {
-            var list = Collections.emptyList();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Failed", "Not found user", list));
+            userList = Collections.emptyList();
+            return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
         }
     }
 
