@@ -48,11 +48,11 @@ public class TrainingProgramController {
             trainingProgramCode, userId, updateTrainingProgramRequest));
   }
 
-  @GetMapping("/duplicate/{trainingProramCode}")
+  @GetMapping("/duplicate/{trainingProgramCode}")
   @PreAuthorize("hasAuthority('training:read')")
   public ResponseEntity<TrainingProgram> duplicateTrainingProgram(
-      @PathVariable int trainingProramCode) {
-    return ResponseEntity.ok(trainingProgram.duplicateTrainingProgram(trainingProramCode));
+      @PathVariable int trainingProgramCode) {
+    return ResponseEntity.ok(trainingProgram.duplicateTrainingProgram(trainingProgramCode));
   }
 
   @PostMapping("/importCSV")
@@ -73,6 +73,13 @@ public class TrainingProgramController {
           .body("An error occurred while processing the file.");
     }
   }
+
+    @PostMapping("/search")
+    @PreAuthorize("hasAnyAuthority('training:read')")
+    public Object searchTrainingProgram(@RequestParam(name = "keyword") String keyword){
+        return trainingProgram.searchTrainingProgram(keyword) != null ?
+                trainingProgram.searchTrainingProgram(keyword) : "no data";
+    }
 
   @PostMapping("/activate/{trainingProgramCode}")
   @PreAuthorize("hasAnyAuthority('training:update')")

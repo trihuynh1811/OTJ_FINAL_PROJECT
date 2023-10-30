@@ -1,15 +1,16 @@
 package com.example.FAMS.services;
 
 import com.example.FAMS.dto.responses.ResponseObject;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-public interface FileService {
+public interface TrainingMaterialService {
 
     ResponseObject uploadTrainingMaterial(MultipartFile file) throws IOException;
 
     byte[] downloadTrainingMaterials(String fileName) throws IOException;
 
-    ResponseObject deleteTrainingMaterial(String fileName);
+    ResponseEntity<ResponseObject> deleteTrainingMaterial(String fileName);
 }

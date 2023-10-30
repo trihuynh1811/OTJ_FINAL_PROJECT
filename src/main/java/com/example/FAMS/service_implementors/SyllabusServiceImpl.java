@@ -60,6 +60,9 @@ public class SyllabusServiceImpl implements SyllabusService {
 
     String line = "";
 
+    @Autowired
+    TrainingMaterialDAO trainingMaterialDAO;
+
     @Override
     public List<GetAllSyllabusResponse> getSyllabuses() {
 //        log.info(userDAO.findAll());
@@ -334,7 +337,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             syllabusexits.setVersion(updatesyllabusRequest.getVersion());
             syllabusexits.setTrainingAudience(updatesyllabusRequest.getTrainingAudience());
             syllabusexits.setTopicOutline(updatesyllabusRequest.getTopicOutline());
-            syllabusexits.setTrainingMaterials(updatesyllabusRequest.getTrainingMaterials());
+//            syllabusexits.setTrainingMaterials(updatesyllabusRequest.getTrainingMaterials());
             syllabusexits.setPriority(updatesyllabusRequest.getPriority());
             syllabusexits.setPublishStatus(updatesyllabusRequest.getPublishStatus());
             syllabusexits.setCreatedBy(user);
@@ -409,7 +412,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                         syllabusexits.setTopicName(data[6]);
                         syllabusexits.setTopicOutline(data[7]);
                         syllabusexits.setTrainingAudience(Integer.parseInt(data[8]));
-                        syllabusexits.setTrainingMaterials(data[9]);
+//                        syllabusexits.setTrainingMaterials(data[9]);
                         syllabusexits.setTrainingPrinciples(data[10]);
                         syllabusexits.setVersion(data[11]);
                         syllabusexits.setCourseObjective(data[12]);
@@ -431,7 +434,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                         c.setTopicName(data[6]);
                         c.setTopicOutline(data[7]);
                         c.setTrainingAudience(Integer.parseInt(data[8]));
-                        c.setTrainingMaterials(data[9]);
+//                        c.setTrainingMaterials(data[9]);
                         c.setTrainingPrinciples(data[10]);
                         c.setVersion(data[11]);
                         c.setCourseObjective(data[12]);
@@ -458,7 +461,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                         c.setTopicName(data[6]);
                         c.setTopicOutline(data[7]);
                         c.setTrainingAudience(Integer.parseInt(data[8]));
-                        c.setTrainingMaterials(data[9]);
+//                        c.setTrainingMaterials(data[9]);
                         c.setTrainingPrinciples(data[10]);
                         c.setVersion(data[11]);
                         c.setCourseObjective(data[12]);

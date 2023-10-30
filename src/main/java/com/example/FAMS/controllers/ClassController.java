@@ -106,7 +106,7 @@ public class ClassController {
     }
 
     @GetMapping("/listClass")
-    public ResponseEntity<?> getall(){
+    public ResponseEntity<?> getAll(){
         return ResponseEntity.ok(classService.getAll());
 
     }

@@ -1,7 +1,7 @@
 package com.example.FAMS.controllers;
 
 import com.example.FAMS.dto.responses.ResponseObject;
-import com.example.FAMS.services.FileService;
+import com.example.FAMS.services.TrainingMaterialService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
@@ -9,17 +9,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/file")
+@RequestMapping("/training-material")
 @RequiredArgsConstructor
-public class FileControlller {
+public class TrainingMaterialController {
 
-    private final FileService fileService;
+    private final TrainingMaterialService trainingMaterialService;
 
     @PostMapping("/upload")
     public ResponseEntity<ResponseObject> uploadTrainingMaterial(@RequestBody MultipartFile file) {
         ResponseObject response = ResponseObject.builder().build();
         try {
-            response = fileService.uploadTrainingMaterial(file);
+            response = trainingMaterialService.uploadTrainingMaterial(file);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ResponseObject.builder()
                     .status("Fail")
@@ -35,7 +35,7 @@ public class FileControlller {
     ) {
         ResponseObject response = ResponseObject.builder().build();
         try {
-            byte[] data = fileService.downloadTrainingMaterials(fileName);
+            byte[] data = trainingMaterialService.downloadTrainingMaterials(fileName);
             ByteArrayResource byteArrayResource = new ByteArrayResource(data);
             return ResponseEntity.ok()
                     .contentLength(data.length)
@@ -54,6 +54,6 @@ public class FileControlller {
     public ResponseEntity<ResponseObject> deleteTrainingMaterial(
             @PathVariable(name = "fileName") String fileName
     ) {
-        return ResponseEntity.ok(fileService.deleteTrainingMaterial(fileName));
+        return trainingMaterialService.deleteTrainingMaterial(fileName);
     }
 }

@@ -17,6 +17,14 @@ import com.example.FAMS.repositories.TrainingProgramSyllabusDAO;
 import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.services.JWTService;
 import com.example.FAMS.services.TrainingProgramService;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,13 +34,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class TrainingProgramImpl implements TrainingProgramService {
@@ -41,15 +42,14 @@ public class TrainingProgramImpl implements TrainingProgramService {
     private final TrainingProgramDAO trainingProgramDAO;
     private final UserDAO userDAO;
     private final TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
-    private List<TrainingProgramModified> userList;
 
-  @Override
+    @Override
   public ResponseEntity<ResponseObject> createTrainingProgram(
       TrainingProgramDTO trainingProgramDTO, int trainerID, String topicCode) {
     TrainingProgram trainingProgram = new TrainingProgram();
     Date date = new Date();
     String token =
-        ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+        ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
             .getRequest()
             .getHeader("Authorization")
             .substring(7);
@@ -121,7 +121,8 @@ public class TrainingProgramImpl implements TrainingProgramService {
 
   @Override
   public ResponseEntity<ResponseObject> getAll() {
-    try {
+      List<TrainingProgramModified> userList;
+      try {
       userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
       return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
     } catch (Exception e) {
@@ -193,12 +194,7 @@ public class TrainingProgramImpl implements TrainingProgramService {
                 .modifiedBy(originalTraining.getModifiedBy())
                 .status(originalTraining.getStatus())
                 .build();
-        TrainingProgram savedTrainingProgram = trainingProgramDAO.save(newTrainingProgram);
-        if (savedTrainingProgram != null) {
-            return savedTrainingProgram;
-        } else {
-            throw new RuntimeException("Not duplicate");
-        }
+        return trainingProgramDAO.save(newTrainingProgram);
     }
 
     @Override
@@ -230,7 +226,7 @@ public class TrainingProgramImpl implements TrainingProgramService {
                                             dateFormat.parse(data[1]).getTime()
                                     ))
                                     .duration(Integer.parseInt(data[2]))
-                                    .status(data[3])
+                                    .status(data[3].equalsIgnoreCase("1") ? "active" : "inactive")
                                     .createdBy(getCreator(authentication).getName())
                                     .createdDate(new java.sql.Date(dateFormat.parse(data[4]).getTime()))
                                     .modifiedBy(getCreator(authentication).getName())
@@ -282,6 +278,35 @@ public class TrainingProgramImpl implements TrainingProgramService {
                         .build());
     }
 
+
+    @Override
+    public TrainingProgram searchTrainingProgram(String keyword) {
+        List<TrainingProgram> trainingProgramList = trainingProgramDAO.findAll();
+        TrainingProgram trainingProgramByName = getNameIfExisted(keyword, trainingProgramList);
+        TrainingProgram trainingProgramByCode = getCodeIfExisted(keyword, trainingProgramList);
+        if(trainingProgramByName == null){
+            return trainingProgramByCode;
+        }
+        return trainingProgramByName;
+    }
+
+    private TrainingProgram getNameIfExisted(String name, List<TrainingProgram> trainingProgramList){
+        for (TrainingProgram trainingProgram: trainingProgramList) {
+            if(trainingProgram.getName().equalsIgnoreCase(name) &&
+            trainingProgram.getStatus().equalsIgnoreCase("active"))
+                return trainingProgram;
+        }
+        return null;
+    }
+
+    private TrainingProgram getCodeIfExisted(String code, List<TrainingProgram> trainingProgramList){
+        for (TrainingProgram trainingProgram: trainingProgramList) {
+            if(Integer.toString(trainingProgram.getTrainingProgramCode()).equalsIgnoreCase(code) &&
+                    trainingProgram.getStatus().equalsIgnoreCase("active"))
+                return trainingProgram;
+        }
+        return null;
+    }
 
     @Override
     public ResponseEntity<ResponseObject> changeTrainingProgramStatus(int trainingProgramCode, String value) {
