@@ -5,20 +5,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TrainingProgramDTO {
+public class GetClassesResponse {
 
-    int trainingProgramCode;
-    String trainingProgramName;
-    String modifyDate;
-    String modifyBy;
-    Date startDate;
-    int duration;
+    String className;
+    String classCode;
+    String createdBy;
+    String duration;
     String status;
-
+    List<String> location;
+    String fsu;
+    String createdOn;
 }

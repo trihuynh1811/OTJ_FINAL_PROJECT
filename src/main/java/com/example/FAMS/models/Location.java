@@ -1,8 +1,12 @@
 package com.example.FAMS.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -20,12 +24,24 @@ public class Location {
     @Column(name = "location")
     String location;
 
-    boolean deleted = false;
+//    boolean deleted = false;
+
+//    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "fsu_id", referencedColumnName = "fsu_id")
+//    @EqualsAndHashCode.Exclude
+//    @ToString.Exclude
+//    @JsonBackReference
+//    private Fsu fsuId;
+
+//    @OneToMany(mappedBy = "locationCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JsonManagedReference
+//    private Set<ClassLocation> classLocations = new HashSet<>();
 
     @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "fsu_id", referencedColumnName = "fsu_id")
+    @JoinColumn(name = "class_code", referencedColumnName = "class_code")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonBackReference
-    private Fsu fsuId;
+    private Class classId;
+
 }

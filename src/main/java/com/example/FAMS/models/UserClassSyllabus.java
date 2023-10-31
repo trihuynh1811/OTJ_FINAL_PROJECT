@@ -1,6 +1,6 @@
 package com.example.FAMS.models;
 
-import com.example.FAMS.models.composite_key.UserSyllabusCompositeKey;
+import com.example.FAMS.models.composite_key.UserClassSyllabusCompositeKey;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,10 +11,10 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "user_syllabus")
-public class UserSyllabus {
+public class UserClassSyllabus {
 
     @EmbeddedId
-    UserSyllabusCompositeKey id;
+    UserClassSyllabusCompositeKey id;
 
     @ManyToOne(cascade = CascadeType.MERGE, optional = false)
     @MapsId("userId")
@@ -32,7 +32,13 @@ public class UserSyllabus {
     @JsonBackReference
     private Syllabus topicCode;
 
-
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false)
+    @MapsId("classId")
+    @JoinColumn(name = "class_code", referencedColumnName = "class_code")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonBackReference
+    private Class classCode;
 
     @Column(name = "user_type")
     private String userType;

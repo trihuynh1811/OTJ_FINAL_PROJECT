@@ -170,21 +170,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseObject updatePassword(UpdatePasswordRequest updateRequest) {
-        var existedUser = userDAO.findByEmail(updateRequest.getRequesterEmail()).orElse(null);
-        if (existedUser == null) {
-            throw new RuntimeException("User not found");
+        if (updateRequest.isAuthorized() || updateRequest.isLoggedIn()) {
+            var existedUser = userDAO.findByEmail(updateRequest.getRequesterEmail()).orElse(null);
+            if (existedUser == null) {
+                throw new RuntimeException("User not found");
+            } else {
+                existedUser.setPassword(passwordEncoder.encode(updateRequest.getNewPassword()));
+                User savedUser = userDAO.save(existedUser);
+                return ResponseObject.builder()
+                        .status("Successful")
+                        .message("Update successfully")
+                        .payload(UpdatePasswordRequest.builder()
+                                .requesterEmail(savedUser.getEmail())
+                                .newPassword(updateRequest.getNewPassword())
+                                .build()
+                        )
+                        .build();
+            }
         } else {
-            existedUser.setPassword(passwordEncoder.encode(updateRequest.getNewPassword()));
-            User savedUser = userDAO.save(existedUser);
-            return ResponseObject.builder()
-                    .status("Successful")
-                    .message("Update successfully")
-                    .payload(UpdatePasswordRequest.builder()
-                            .requesterEmail(savedUser.getEmail())
-                            .newPassword(updateRequest.getNewPassword())
-                            .build()
-                    )
-                    .build();
+            throw new RuntimeException("Unauthorized User");
         }
     }
 

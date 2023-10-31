@@ -28,5 +28,5 @@ public class SyllabusDTO {
 
     private String createdBy;
 
-    private Date createdDate;
+    private String createdDate;
 }

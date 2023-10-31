@@ -5,14 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class TrainerSyllabusDTO {
-
-    String gmail;
-    List<String> classCode;
+@AllArgsConstructor
+public class UpdateClass3Request {
+    private boolean deleted;
+    private String topicCode;
+    private int trainingProgramCode;
 }

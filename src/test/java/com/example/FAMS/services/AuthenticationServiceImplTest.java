@@ -112,7 +112,7 @@ public class AuthenticationServiceImplTest {
             .build();
 
     when(userPermissionDAO.findUserPermissionByRole(any())).thenReturn(Optional.of(userPermission));
-    when(authenticationService.randomStringGenerator(anyString())).thenReturn("123fwwretwertewrtefqwef4");
+//    when(authenticationService.randomStringGenerator(anyString())).thenReturn("123fwwretwertewrtefqwef4");
 
     // Create a mock User object
     int userId = 123;
@@ -122,7 +122,7 @@ public class AuthenticationServiceImplTest {
     when(userDAO.findUserByEmail(Mockito.any())).thenReturn(Optional.of(mockUser));
     when(userDAO.findByEmail(Mockito.any())).thenReturn(Optional.empty());
 
-    String initialPassword = authenticationService.randomStringGenerator("Hefqwewretwertwretfqwefqwello");
+//    String initialPassword = authenticationService.randomStringGenerator("Hefqwewretwertwretfqwefqwello");
     CreateRequest request =
             CreateRequest.builder()
                     .name("Albert Einstein")
@@ -138,7 +138,7 @@ public class AuthenticationServiceImplTest {
     User user =
             User.builder()
                     .name(request.getName())
-                    .password(passwordEncoder.encode(initialPassword))
+//                    .password(passwordEncoder.encode(initialPassword))
                     .email(request.getEmail())
                     .phone(request.getPhone())
                     .dob(request.getDob())
@@ -187,7 +187,7 @@ public class AuthenticationServiceImplTest {
             .build();
 
     when(userPermissionDAO.findUserPermissionByRole(any())).thenReturn(Optional.of(userPermission));
-    when(authenticationService.randomStringGenerator(anyString())).thenReturn("123fwwretwertewrtefqwef4");
+//    when(authenticationService.randomStringGenerator(anyString())).thenReturn("123fwwretwertewrtefqwef4");
 
     // Create a mock User object
     int userId = 123;
@@ -197,7 +197,7 @@ public class AuthenticationServiceImplTest {
     when(userDAO.findUserByEmail(Mockito.any())).thenReturn(Optional.of(mockUser));
 
 
-    String initialPassword = authenticationService.randomStringGenerator("Hefqwewretwertwretfqwefqwello");
+//    String initialPassword = authenticationService.randomStringGenerator("Hefqwewretwertwretfqwefqwello");
     CreateRequest request =
             CreateRequest.builder()
                     .name("Albert Einstein")
@@ -213,7 +213,7 @@ public class AuthenticationServiceImplTest {
     User user =
             User.builder()
                     .name(request.getName())
-                    .password(passwordEncoder.encode(initialPassword))
+//                    .password(passwordEncoder.encode(initialPassword))
                     .email(request.getEmail())
                     .phone(request.getPhone())
                     .dob(request.getDob())

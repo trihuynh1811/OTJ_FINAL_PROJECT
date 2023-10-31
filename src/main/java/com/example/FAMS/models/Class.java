@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.sql.Time;
 import java.util.Date;
@@ -34,7 +35,7 @@ public class Class {
     private String className;
 
     @Column(name = "duration", nullable = false)
-    private int duration;
+    private String duration;
 
     @Column(name = "time_from")
     private Time timeFrom;
@@ -45,32 +46,39 @@ public class Class {
     @Column(name = "status", nullable = false)
     private String status;
 
-    @Column(name = "location", nullable = false)
-    private String location;
+//    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "fsu_id", referencedColumnName = "fsu_id")
+//    @EqualsAndHashCode.Exclude
+//    @ToString.Exclude
+//    @JsonBackReference
+//    private Fsu fsu;
 
-    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "fsu_id", referencedColumnName = "fsu_id")
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @JsonBackReference
-    private Fsu fsu;
+    private String fsu;
 
     @Column(name = "start_date", nullable = false)
+    @DateTimeFormat(pattern = "MM/dd/yyyy")
     private Date startDate;
 
     @Column(name = "end_date", nullable = false)
+    @DateTimeFormat(pattern = "MM/dd/yyyy")
     private Date endDate;
 
     @Column(name = "created_by", nullable = false)
     private String createdBy;
 
+    private String approve;
+
+    private String review;
+
     @Column(name = "created_date", nullable = false)
+    @DateTimeFormat(pattern = "MM/dd/yyyy")
     private Date createdDate;
 
     @Column(name = "modified_by")
     private String modifiedBy = "";
 
     @Column(name = "modified_date")
+    @DateTimeFormat(pattern = "MM/dd/yyyy")
     private Date modifiedDate = null;
 
     private boolean deactivated = false;
@@ -92,9 +100,21 @@ public class Class {
     @JsonIgnore
     private Set<ClassUser> classUsers = new HashSet<>();
 
+    @OneToMany(mappedBy = "classCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private Set<UserClassSyllabus> userClassSyllabus = new HashSet<>();
+
     @OneToMany(mappedBy = "classId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private Set<ClassLearningDay> classLearningDays = new HashSet<>();
+
+//    @OneToMany(mappedBy = "classCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JsonManagedReference
+//    private Set<ClassLocation> classLocations = new HashSet<>();
+
+    @OneToMany(mappedBy = "classId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private Set<Location> locations = new HashSet<>();
 
 
 }

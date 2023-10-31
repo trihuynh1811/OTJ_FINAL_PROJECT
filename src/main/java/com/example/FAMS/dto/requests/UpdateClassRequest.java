@@ -14,7 +14,7 @@ import java.util.Date;
 public class UpdateClassRequest {
     private String classCode;
     private String className;
-    private int duration;
+    private String duration;
     private String status;
     private String location;
     private String fsu;

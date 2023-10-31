@@ -1,4 +1,4 @@
-package com.example.FAMS.dto.responses.Class;
+package com.example.FAMS.dto.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,15 +7,15 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-@Data
 @Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class TrainingProgramDTO {
 
     int trainingProgramCode;
     String trainingProgramName;
-    String modifyDate;
+    Date modifyDate;
     String modifyBy;
     Date startDate;
     int duration;

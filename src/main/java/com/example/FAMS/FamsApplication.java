@@ -7,6 +7,7 @@ import com.example.FAMS.enums.DayEnum;
 import com.example.FAMS.enums.MonthEnum;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.*;
+import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import com.example.FAMS.repositories.*;
 import com.example.FAMS.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class FamsApplication {
     private final TrainingProgramDAO trainingProgramDAO;
     private final ClassUserDAO classUserDAO;
     private final TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
-    private final FsuDAO fsuDAO;
+    //    private final FsuDAO fsuDAO;
     private final LocationDAO locationDAO;
 
     public static void main(String[] args) {
@@ -116,75 +117,75 @@ public class FamsApplication {
                     userPermissionDAO.saveAll(permissionList);
                 }
 
-                if (fsuDAO.findAll().isEmpty()) {
-                    List<Fsu> fsuList = new ArrayList<>();
-
-                    Fsu fsu = Fsu.builder()
-                            .fsuId("FHCM")
-                            .fsuName("FPT HO CHI MINH")
-                            .build();
-                    Fsu fsu1 = Fsu.builder()
-                            .fsuId("FHN")
-                            .fsuName("FPT HA NOI")
-                            .build();
-                    Fsu fsu2 = Fsu.builder()
-                            .fsuId("FDN")
-                            .fsuName("FPT DA NANG")
-                            .build();
-                    Fsu fsu3 = Fsu.builder()
-                            .fsuId("FVT")
-                            .fsuName("FPT VUNG TAU")
-                            .build();
-
-                    fsuList.add(fsu);
-                    fsuList.add(fsu1);
-                    fsuList.add(fsu2);
-                    fsuList.add(fsu3);
-
-                    fsuDAO.saveAll(fsuList);
-                }
-                if (locationDAO.findAll().isEmpty()) {
-                    List<Location> locationList = new ArrayList<>();
-
-                    Location location = Location.builder()
-                            .location("FTOWN LMAO 1")
-                            .fsuId(fsuDAO.findById("FHCM").get())
-                            .build();
-
-                    Location location1 = Location.builder()
-                            .location("FTOWN LMAO 2")
-                            .fsuId(fsuDAO.findById("FHCM").get())
-                            .build();
-
-                    Location location2 = Location.builder()
-                            .location("123, lmao street hehe")
-                            .fsuId(fsuDAO.findById("FHN").get())
-                            .build();
-
-                    Location location3 = Location.builder()
-                            .location("123, lmao 2 street hihi")
-                            .fsuId(fsuDAO.findById("FHN").get())
-                            .build();
-
-                    Location location4 = Location.builder()
-                            .location("234, cj house")
-                            .fsuId(fsuDAO.findById("FDN").get())
-                            .build();
-
-                    Location location5 = Location.builder()
-                            .location("234, smoke house")
-                            .fsuId(fsuDAO.findById("FDN").get())
-                            .build();
-
-                    locationList.add(location);
-                    locationList.add(location1);
-                    locationList.add(location2);
-                    locationList.add(location3);
-                    locationList.add(location4);
-                    locationList.add(location5);
-
-                    locationDAO.saveAll(locationList);
-                }
+//                if (fsuDAO.findAll().isEmpty()) {
+//                    List<Fsu> fsuList = new ArrayList<>();
+//
+//                    Fsu fsu = Fsu.builder()
+//                            .fsuId("FHCM")
+//                            .fsuName("FPT HO CHI MINH")
+//                            .build();
+//                    Fsu fsu1 = Fsu.builder()
+//                            .fsuId("FHN")
+//                            .fsuName("FPT HA NOI")
+//                            .build();
+//                    Fsu fsu2 = Fsu.builder()
+//                            .fsuId("FDN")
+//                            .fsuName("FPT DA NANG")
+//                            .build();
+//                    Fsu fsu3 = Fsu.builder()
+//                            .fsuId("FVT")
+//                            .fsuName("FPT VUNG TAU")
+//                            .build();
+//
+//                    fsuList.add(fsu);
+//                    fsuList.add(fsu1);
+//                    fsuList.add(fsu2);
+//                    fsuList.add(fsu3);
+//
+//                    fsuDAO.saveAll(fsuList);
+//                }
+//                if (locationDAO.findAll().isEmpty()) {
+//                    List<Location> locationList = new ArrayList<>();
+//
+//                    Location location = Location.builder()
+//                            .location("FTOWN LMAO 1")
+//                            .fsuId(fsuDAO.findById("FHCM").get())
+//                            .build();
+//
+//                    Location location1 = Location.builder()
+//                            .location("FTOWN LMAO 2")
+//                            .fsuId(fsuDAO.findById("FHCM").get())
+//                            .build();
+//
+//                    Location location2 = Location.builder()
+//                            .location("123, lmao street hehe")
+//                            .fsuId(fsuDAO.findById("FHN").get())
+//                            .build();
+//
+//                    Location location3 = Location.builder()
+//                            .location("123, lmao 2 street hihi")
+//                            .fsuId(fsuDAO.findById("FHN").get())
+//                            .build();
+//
+//                    Location location4 = Location.builder()
+//                            .location("234, cj house")
+//                            .fsuId(fsuDAO.findById("FDN").get())
+//                            .build();
+//
+//                    Location location5 = Location.builder()
+//                            .location("234, smoke house")
+//                            .fsuId(fsuDAO.findById("FDN").get())
+//                            .build();
+//
+//                    locationList.add(location);
+//                    locationList.add(location1);
+//                    locationList.add(location2);
+//                    locationList.add(location3);
+//                    locationList.add(location4);
+//                    locationList.add(location5);
+//
+//                    locationDAO.saveAll(locationList);
+//                }
                 if (userDAO.findAll().size() == 0) {
                     List<User> userList = new ArrayList<>();
                     userList.add(User.builder()
@@ -205,6 +206,48 @@ public class FamsApplication {
                             .email("classadmin@gmail.com")
                             .password(passwordEncoder.encode("1"))
                             .name("Class Admin")
+                            .phone("0977545451")
+                            .dob(new Date())
+                            .gender("male")
+                            .role(userPermissionDAO.findUserPermissionByRole(Role.CLASS_ADMIN).orElse(null))
+                            .status(true)
+                            .createdBy("Hoang Anh")
+                            .createdDate(new Date())
+                            .modifiedBy("Hoang Anh")
+                            .modifiedDate(new Date())
+                            .build());
+                    userList.add(User.builder()
+                            .email("classadmin1@gmail.com")
+                            .password(passwordEncoder.encode("1"))
+                            .name("Class Admin1")
+                            .phone("0977545451")
+                            .dob(new Date())
+                            .gender("male")
+                            .role(userPermissionDAO.findUserPermissionByRole(Role.CLASS_ADMIN).orElse(null))
+                            .status(true)
+                            .createdBy("Hoang Anh")
+                            .createdDate(new Date())
+                            .modifiedBy("Hoang Anh")
+                            .modifiedDate(new Date())
+                            .build());
+                    userList.add(User.builder()
+                            .email("classadmin2@gmail.com")
+                            .password(passwordEncoder.encode("1"))
+                            .name("Class Admin2")
+                            .phone("0977545451")
+                            .dob(new Date())
+                            .gender("male")
+                            .role(userPermissionDAO.findUserPermissionByRole(Role.CLASS_ADMIN).orElse(null))
+                            .status(true)
+                            .createdBy("Hoang Anh")
+                            .createdDate(new Date())
+                            .modifiedBy("Hoang Anh")
+                            .modifiedDate(new Date())
+                            .build());
+                    userList.add(User.builder()
+                            .email("classadmin3@gmail.com")
+                            .password(passwordEncoder.encode("1"))
+                            .name("Class Admin3")
                             .phone("0977545451")
                             .dob(new Date())
                             .gender("male")
@@ -243,6 +286,39 @@ public class FamsApplication {
                             .modifiedBy("Hoang Anh")
                             .modifiedDate(new Date())
                             .build());
+                    for(int i = 0; i < 5; i++){
+                        userList.add(User.builder()
+                                .email("review" + i + "@gmail.com")
+                                .password(passwordEncoder.encode("1"))
+                                .name("el rex " + i)
+                                .phone("0977545453")
+                                .dob(new Date())
+                                .gender("male")
+                                .role(userPermissionDAO.findUserPermissionByRole(Role.CLASS_ADMIN).orElse(null))
+                                .status(true)
+                                .createdBy("Xi JinPing")
+                                .createdDate(new Date())
+                                .modifiedBy("Hoang Anh")
+                                .modifiedDate(new Date())
+                                .build());
+                    }
+
+                    for(int i = 0; i < 5; i++){
+                        userList.add(User.builder()
+                                .email("approve" + i + "@gmail.com")
+                                .password(passwordEncoder.encode("1"))
+                                .name("el mencho " + i)
+                                .phone("0977545453")
+                                .dob(new Date())
+                                .gender("male")
+                                .role(userPermissionDAO.findUserPermissionByRole(Role.CLASS_ADMIN).orElse(null))
+                                .status(true)
+                                .createdBy("Xi JinPing")
+                                .createdDate(new Date())
+                                .modifiedBy("Hoang Anh")
+                                .modifiedDate(new Date())
+                                .build());
+                    }
 
                     userList.add(User.builder()
                             .email("fhcmcontacter1@gmail.com")
@@ -257,7 +333,7 @@ public class FamsApplication {
                             .createdDate(new Date())
                             .modifiedBy("Hoang Anh")
                             .modifiedDate(new Date())
-                            .fsu(fsuDAO.findById("FHCM").get())
+//                            .fsu(fsuDAO.findById("FHCM").get())
                             .build());
                     userList.add(User.builder()
                             .email("fhcmcontacter2@gmail.com")
@@ -272,7 +348,7 @@ public class FamsApplication {
                             .createdDate(new Date())
                             .modifiedBy("Hoang Anh")
                             .modifiedDate(new Date())
-                            .fsu(fsuDAO.findById("FHCM").get())
+//                            .fsu(fsuDAO.findById("FHCM").get())
                             .build());
                     userList.add(User.builder()
                             .email("fhncontacter1@gmail.com")
@@ -287,7 +363,7 @@ public class FamsApplication {
                             .createdDate(new Date())
                             .modifiedBy("Hoang Anh")
                             .modifiedDate(new Date())
-                            .fsu(fsuDAO.findById("FHN").get())
+//                            .fsu(fsuDAO.findById("FHN").get())
                             .build());
                     userList.add(User.builder()
                             .email("fhncontacter2@gmail.com")
@@ -303,6 +379,23 @@ public class FamsApplication {
                             .modifiedBy("Hoang Anh")
                             .modifiedDate(new Date())
                             .build());
+
+                    for (int i = 0; i < 5; i++) {
+                        userList.add(User.builder()
+                                .email("trainee" + i + "@gmail.com")
+                                .password(passwordEncoder.encode("1"))
+                                .name("Trainee" + i)
+                                .phone("0977545453")
+                                .dob(new Date())
+                                .gender("male")
+                                .role(userPermissionDAO.findUserPermissionByRole(Role.USER).orElse(null))
+                                .status(true)
+                                .createdBy("Hoang Anh")
+                                .createdDate(new Date())
+                                .modifiedBy("Hoang Anh")
+                                .modifiedDate(new Date())
+                                .build());
+                    }
                     userDAO.saveAll(userList);
                     System.out.println("SUPER_ADMIN Token: " + authenticationService.login(
                             LoginRequest.builder()
@@ -325,180 +418,109 @@ public class FamsApplication {
                                     .password("1")
                                     .build()).getToken());
                 }
-//                if (trainingProgramDAO.findAll().isEmpty()) {
-//                    List<TrainingProgram> trainingPrograms = new ArrayList<>();
-//
-//                    TrainingProgram trainingProgram = TrainingProgram.builder()
-//                            .name("tp_1")
-//                            .userID(userDAO.findById(1).get())
-//                            .startDate(new Date("2001/9/11"))
-//                            .duration(999)
-//                            .status("active")
-//                            .createdBy("jotaro")
-//                            .createdDate(new Date())
-//                            .build();
-//                    TrainingProgram trainingProgram1 = TrainingProgram.builder()
-//                            .name("tp_2")
-//                            .userID(userDAO.findById(2).get())
-//                            .startDate(new Date("2001/9/11"))
-//                            .duration(999)
-//                            .status("inactive")
-//                            .createdBy("dio")
-//                            .createdDate(new Date())
-//                            .build();
-//                    TrainingProgram trainingProgram2 = TrainingProgram.builder()
-//                            .name("tp_3")
-//                            .userID(userDAO.findById(1).get())
-//                            .startDate(new Date("2001/9/11"))
-//                            .duration(999)
-//                            .status("drafting")
-//                            .createdBy("jojo")
-//                            .createdDate(new Date())
-//                            .build();
-//
-//                    trainingPrograms.add(trainingProgram);
-//                    trainingPrograms.add(trainingProgram1);
-//                    trainingPrograms.add(trainingProgram2);
-//
-//                    trainingProgramDAO.saveAll(trainingPrograms);
-//                }
-////                if (classDAO.findAll().isEmpty()) {
-////                    List<Class> classes = new ArrayList<>();
-////
-////                    Class class_ = Class.builder()
-////                            .classId("ayy22_lmao_01")
-////                            .className("ayy lmao1")
-////                            .duration(999)
-////                            .status("planing")
-//////                            .fsu("hn")
-////                            .startDate(new Date("2001/09/11"))
-////                            .endDate(new Date("2011/5/2"))
-////                            .createdBy("bin laden")
-////                            .createdDate(new Date())
-////                            .location("your mom house :).")
-////                            .timeFrom(Time.valueOf("10:00:00"))
-////                            .timeTo(Time.valueOf("12:00:00"))
-////                            .attendeePlanned(100)
-////                            .attendeeActual(99)
-////                            .attendeeAccepted(99)
-////                            .trainingProgram(trainingProgramDAO.findAll().get(1))
-////                            .build();
-////
-////                    Class class_1 = Class.builder()
-////                            .classId("ayy22_lmao_02")
-////                            .className("ayy lmao2")
-////                            .duration(999)
-////                            .status("completed")
-//////                            .fsu("hcm")
-////                            .startDate(new Date("2001/09/11"))
-////                            .endDate(new Date("2011/5/2"))
-////                            .createdBy("bin laden")
-////                            .createdDate(new Date())
-////                            .location("your mom house :).")
-////                            .timeFrom(Time.valueOf("8:00:00"))
-////                            .timeTo(Time.valueOf("10:00:00"))
-////                            .attendeePlanned(911)
-////                            .attendeeActual(910)
-////                            .attendeeAccepted(910)
-////                            .trainingProgram(trainingProgramDAO.findAll().get(0))
-////                            .build();
-////
-////                    Class class_2 = Class.builder()
-////                            .classId("ayy22_lmao_03")
-////                            .className("ayy lmao3")
-////                            .duration(999)
-////                            .status("opening")
-//////                            .fsu("hn")
-////                            .startDate(new Date("2001/09/11"))
-////                            .endDate(new Date("2011/5/2"))
-////                            .createdBy("bin laden")
-////                            .createdDate(new Date())
-////                            .location("your mom house :).")
-////                            .timeFrom(Time.valueOf("9:30:00"))
-////                            .timeTo(Time.valueOf("12:00:00"))
-////                            .attendeePlanned(100)
-////                            .attendeeActual(99)
-////                            .attendeeAccepted(99)
-////                            .trainingProgram(trainingProgramDAO.findAll().get(0))
-////                            .build();
-////
-////                    classes.add(class_);
-////                    classes.add(class_1);
-////                    classes.add(class_2);
-////
-////                    classDAO.saveAll(classes);
-////                }
-////                if(classUserDAO.findAll().isEmpty()){
-////                    List<ClassUser> classUsers = new ArrayList<>();
-////                    ClassUser classUser = ClassUser.builder()
-////                            .id(ClassUserCompositeKey.builder()
-////                                    .classId("ayy22_lmao_01")
-////                                    .userId(2)
-////                                    .build())
-////                            .classID(classDAO.findById("ayy22_lmao_01").get())
-////                            .userID(userDAO.findById(2).get())
-////                            .userType(userDAO.findById(2).get().getRole().getRole().name())
-////                            .build();
-////                    ClassUser classUser1 = ClassUser.builder()
-////                            .id(ClassUserCompositeKey.builder()
-////                                    .classId("ayy22_lmao_01")
-////                                    .userId(3)
-////                                    .build())
-////                            .classID(classDAO.findById("ayy22_lmao_01").get())
-////                            .userID(userDAO.findById(3).get())
-////                            .userType(userDAO.findById(3).get().getRole().getRole().name())
-////                            .build();
-////
-////                    classUsers.add(classUser);
-////                    classUsers.add(classUser1);
-////
-////                    classUserDAO.saveAll(classUsers);
-////                }
-////
-////                if(trainingProgramSyllabusDAO.findAll().isEmpty()){
-////                    List<TrainingProgramSyllabus> trainingProgramSyllabusList = new ArrayList<>();
-////
-////                    TrainingProgramSyllabus trainingProgramSyllabus = TrainingProgramSyllabus.builder()
-////                            .id(SyllabusTrainingProgramCompositeKey.builder()
-////                                    .trainingProgramCode(2)
-////                                    .topicCode("lmao 1")
-////                                    .build())
-////                            .trainingProgramCode(trainingProgramDAO.findById(2).get())
-////                            .topicCode(syllabusDAO.findById("lmao 1").get())
-////                            .build();
-////                    TrainingProgramSyllabus trainingProgramSyllabus1 = TrainingProgramSyllabus.builder()
-////                            .id(SyllabusTrainingProgramCompositeKey.builder()
-////                                    .trainingProgramCode(2)
-////                                    .topicCode("lmao 2")
-////                                    .build())
-////                            .trainingProgramCode(trainingProgramDAO.findById(2).get())
-////                            .topicCode(syllabusDAO.findById("lmao 2").get())
-////                            .build();
-////                    TrainingProgramSyllabus trainingProgramSyllabus2 = TrainingProgramSyllabus.builder()
-////                            .id(SyllabusTrainingProgramCompositeKey.builder()
-////                                    .trainingProgramCode(2)
-////                                    .topicCode("lmao 3")
-////                                    .build())
-////                            .trainingProgramCode(trainingProgramDAO.findById(2).get())
-////                            .topicCode(syllabusDAO.findById("lmao 3").get())
-////                            .build();
-////                    TrainingProgramSyllabus trainingProgramSyllabus3 = TrainingProgramSyllabus.builder()
-////                            .id(SyllabusTrainingProgramCompositeKey.builder()
-////                                    .trainingProgramCode(2)
-////                                    .topicCode("lmao 4")
-////                                    .build())
-////                            .trainingProgramCode(trainingProgramDAO.findById(2).get())
-////                            .topicCode(syllabusDAO.findById("lmao 4").get())
-////                            .build();
-////
-////                    trainingProgramSyllabusList.add(trainingProgramSyllabus);
-////                    trainingProgramSyllabusList.add(trainingProgramSyllabus1);
-////                    trainingProgramSyllabusList.add(trainingProgramSyllabus2);
-////                    trainingProgramSyllabusList.add(trainingProgramSyllabus3);
-////
-////                    trainingProgramSyllabusDAO.saveAll(trainingProgramSyllabusList);
-////                }
-//
+                if (syllabusDAO.findAll().isEmpty()) {
+                    List<Syllabus> syllabusList = new ArrayList<>();
+
+                    for (int i = 1; i <= 4; i++) {
+                        Syllabus s = Syllabus.builder()
+                                .topicCode("lmao " + i)
+                                .topicName("lmao " + i)
+                                .version("1.6")
+                                .publishStatus(i % 2 == 0 ? "active" : "inactive")
+                                .technicalGroup("mao ze dong picture at home.")
+                                .priority("low")
+                                .courseObjective("glory to ccp.")
+                                .trainingAudience(10)
+                                .createdBy(userDAO.findByEmail("admin@gmail.com").get())
+                                .createdDate(new Date())
+                                .modifiedDate(new Date())
+                                .build();
+                        syllabusList.add(s);
+                    }
+                    syllabusDAO.saveAll(syllabusList);
+
+                }
+
+                if (trainingProgramDAO.findAll().isEmpty()) {
+                    List<TrainingProgram> trainingPrograms = new ArrayList<>();
+
+                    TrainingProgram trainingProgram = TrainingProgram.builder()
+                            .name("tp_1")
+                            .userID(userDAO.findById(1).get())
+                            .startDate(new Date("2001/9/11"))
+                            .duration(999)
+                            .status("active")
+                            .createdBy("jotaro")
+                            .createdDate(new Date())
+                            .build();
+                    TrainingProgram trainingProgram1 = TrainingProgram.builder()
+                            .name("tp_2")
+                            .userID(userDAO.findById(2).get())
+                            .startDate(new Date("2001/9/11"))
+                            .duration(999)
+                            .status("inactive")
+                            .createdBy("dio")
+                            .createdDate(new Date())
+                            .build();
+                    TrainingProgram trainingProgram2 = TrainingProgram.builder()
+                            .name("tp_3")
+                            .userID(userDAO.findById(1).get())
+                            .startDate(new Date("2001/9/11"))
+                            .duration(999)
+                            .status("drafting")
+                            .createdBy("jojo")
+                            .createdDate(new Date())
+                            .build();
+
+                    trainingPrograms.add(trainingProgram);
+                    trainingPrograms.add(trainingProgram1);
+                    trainingPrograms.add(trainingProgram2);
+
+                    trainingProgramDAO.saveAll(trainingPrograms);
+                }
+                if (trainingProgramSyllabusDAO.findAll().isEmpty()) {
+                    List<TrainingProgramSyllabus> trainingProgramSyllabusList = new ArrayList<>();
+
+                    TrainingProgramSyllabus trainingProgramSyllabus = TrainingProgramSyllabus.builder()
+                            .id(SyllabusTrainingProgramCompositeKey.builder()
+                                    .trainingProgramCode(1)
+                                    .topicCode("lmao 1")
+                                    .build())
+                            .trainingProgramCode(trainingProgramDAO.findById(1).get())
+                            .topicCode(syllabusDAO.findById("lmao 1").get())
+                            .build();
+                    TrainingProgramSyllabus trainingProgramSyllabus1 = TrainingProgramSyllabus.builder()
+                            .id(SyllabusTrainingProgramCompositeKey.builder()
+                                    .trainingProgramCode(1)
+                                    .topicCode("lmao 3")
+                                    .build())
+                            .trainingProgramCode(trainingProgramDAO.findById(1).get())
+                            .topicCode(syllabusDAO.findById("lmao 3").get())
+                            .build();
+                    TrainingProgramSyllabus trainingProgramSyllabus2 = TrainingProgramSyllabus.builder()
+                            .id(SyllabusTrainingProgramCompositeKey.builder()
+                                    .trainingProgramCode(2)
+                                    .topicCode("lmao 2")
+                                    .build())
+                            .trainingProgramCode(trainingProgramDAO.findById(2).get())
+                            .topicCode(syllabusDAO.findById("lmao 2").get())
+                            .build();
+                    TrainingProgramSyllabus trainingProgramSyllabus3 = TrainingProgramSyllabus.builder()
+                            .id(SyllabusTrainingProgramCompositeKey.builder()
+                                    .trainingProgramCode(2)
+                                    .topicCode("lmao 4")
+                                    .build())
+                            .trainingProgramCode(trainingProgramDAO.findById(2).get())
+                            .topicCode(syllabusDAO.findById("lmao 4").get())
+                            .build();
+
+                    trainingProgramSyllabusList.add(trainingProgramSyllabus);
+                    trainingProgramSyllabusList.add(trainingProgramSyllabus1);
+                    trainingProgramSyllabusList.add(trainingProgramSyllabus2);
+                    trainingProgramSyllabusList.add(trainingProgramSyllabus3);
+
+                    trainingProgramSyllabusDAO.saveAll(trainingProgramSyllabusList);
+                }
 
 
             }
