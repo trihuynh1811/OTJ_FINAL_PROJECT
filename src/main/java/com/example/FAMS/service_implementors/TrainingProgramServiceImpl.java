@@ -119,7 +119,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
                                         .build())
                         .topicCode(syllabus)
                         .trainingProgramCode(trainingProgram)
-                        .sequence("high")
+                        .deleted(false)
                         .build();
         trainingProgramSyllabusDAO.save(trainingProgramSyllabus);
     }
