@@ -35,7 +35,7 @@ public interface TrainingProgramDAO extends JpaRepository<TrainingProgram, Integ
 
   @Query(
       value =
-          "SELECT tp.name as 'trainingProgramName', tp.modified_by, tp.modified_by, s.course_objective,\n"
+          "SELECT tp.name as 'trainingProgramName', tp.modified_by, tp.modified_date, s.course_objective,\n"
               + "s.topic_name, s.publish_status, tu.unit_name, tu.day_number, tc.content_name, \n"
               + "lo.name as 'objective', tc.duration \n"
               + "FROM training_programs tp\n"
@@ -49,5 +49,5 @@ public interface TrainingProgramDAO extends JpaRepository<TrainingProgram, Integ
               + "s.topic_name, s.publish_status, tu.unit_name, tc.content_name, \n"
               + "lo.name, tc.duration;",
       nativeQuery = true)
-  TrainingProgramDetails getTrainingProgramDetails(@Param("code") int training_program_code);
+  List<TrainingProgramDetails> getTrainingProgramDetails(@Param("code") int training_program_code);
 }

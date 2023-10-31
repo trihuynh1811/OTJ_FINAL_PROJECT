@@ -1,10 +1,7 @@
 package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.dto.requests.UpdateTrainingProgramRequest;
-import com.example.FAMS.dto.responses.ResponseObject;
-import com.example.FAMS.dto.responses.TrainingProgramDTO;
-import com.example.FAMS.dto.responses.TrainingProgramModified;
-import com.example.FAMS.dto.responses.UpdateTrainingProgramResponse;
+import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.models.TrainingProgram;
@@ -17,6 +14,13 @@ import com.example.FAMS.repositories.TrainingProgramSyllabusDAO;
 import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.services.JWTService;
 import com.example.FAMS.services.TrainingProgramService;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,14 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -293,6 +289,20 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
             return trainingProgramByCode;
         }
         return trainingProgramByName;
+    }
+
+    @Override
+    public ResponseEntity<ResponseObjectVersion2> getTrainingProgramByCode(int code) {
+        try {
+            Integer totalSubjectDays = trainingProgramDAO.totalSubjectDays(code);
+            Integer totalTrainingProgramDates = trainingProgramDAO.totalTrainingProgramDates(code);
+
+            List<TrainingProgramDetails> object = trainingProgramDAO.getTrainingProgramDetails(code);
+            return ResponseEntity.ok(new ResponseObjectVersion2("Successful", "Found user",totalSubjectDays,totalTrainingProgramDates, object));
+        } catch (Exception e) {
+            var object = Collections.emptyList();
+            return ResponseEntity.ok(new ResponseObjectVersion2("Failed", "Not found user",0,0, object));
+        }
     }
 
     private TrainingProgram getNameIfExisted(String name, List<TrainingProgram> trainingProgramList) {
