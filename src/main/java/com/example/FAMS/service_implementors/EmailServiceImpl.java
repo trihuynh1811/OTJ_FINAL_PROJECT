@@ -3,6 +3,7 @@ package com.example.FAMS.service_implementors;
 import com.example.FAMS.models.EmailDetails;
 import com.example.FAMS.services.EmailService;
 import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +16,13 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 
 @Service
+@RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
     private final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
     MimeMessage mimeMessage;
-    @Autowired
-    private JavaMailSender javaMailSender;
+
+    private final JavaMailSender javaMailSender;
+
     @Value("${spring.mail.username}")
     private String sender;
 
