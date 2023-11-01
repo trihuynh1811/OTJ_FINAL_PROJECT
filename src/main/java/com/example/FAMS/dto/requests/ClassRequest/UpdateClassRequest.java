@@ -1,4 +1,4 @@
-package com.example.FAMS.dto.requests;
+package com.example.FAMS.dto.requests.ClassRequest;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

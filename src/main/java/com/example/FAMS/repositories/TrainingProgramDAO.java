@@ -14,4 +14,6 @@ import java.util.List;
 @Repository
 public interface TrainingProgramDAO extends JpaRepository<TrainingProgram, Integer> {
   <T> List<T> findBy(Class<T> classType);
+
+  TrainingProgram findByName(String trainingProgramName);
 }

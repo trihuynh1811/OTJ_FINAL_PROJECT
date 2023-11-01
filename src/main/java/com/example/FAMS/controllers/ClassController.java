@@ -2,7 +2,8 @@ package com.example.FAMS.controllers;
 
 import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
-import com.example.FAMS.dto.requests.UpdateClassRequest;
+import com.example.FAMS.dto.requests.ClassRequest.UpdateClassDTO;
+import com.example.FAMS.dto.requests.ClassRequest.UpdateClassRequest;
 import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateCalendarResponse;
@@ -67,24 +68,23 @@ public class ClassController {
         return ResponseEntity.status(400).body(new CreateClassResponse(null, "fail to create class."));
     }
 
-    @GetMapping("/draft/create/{type}")
-    @PreAuthorize("hasAuthority('class:create')")
-    public ResponseEntity<List<Class>> draftCreateClass(@PathVariable("type") String type) {
-        return ResponseEntity.status(HttpStatus.OK).body(classService.getDetailClasses());
-    }
-
     @PutMapping("/update/{classId}")
+    @PreAuthorize("hasAuthority('class:update')")
     public ResponseEntity<UpdateClassResponse> updateClass(
-            @PathVariable int classId, @RequestBody UpdateClassRequest updateClassRequest) {
+            @PathVariable String classId, @RequestBody UpdateClassDTO updateClassRequest) {
         UpdateClassResponse updatedClass = classService.updateClass(updateClassRequest);
-        if (updatedClass != null) {
+        if (updatedClass.getStatus() == 0) {
             return ResponseEntity.ok(updatedClass);
-        } else {
-            return ResponseEntity.notFound().build();
+        } else if(updatedClass.getStatus() == 1) {
+            return ResponseEntity.status(400).body(updatedClass);
+        }
+        else{
+            return ResponseEntity.status(500).body(updatedClass);
         }
     }
 
     @GetMapping("/search/{classId}")
+    @PreAuthorize("hasAuthority('class:read')")
     public ResponseEntity<?> getClassById(@PathVariable String classId) {
         Class classInfo = classService.getClassById(classId);
         if (classInfo != null) {
@@ -95,6 +95,7 @@ public class ClassController {
     }
 
     @PostMapping("/deactivate/{id}")
+    @PreAuthorize("hasAuthority('class:update')")
     public ResponseEntity<DeactivateClassResponse> deactivateClass(@PathVariable("id") String classCode){
         return classService.deactivateClass(classCode);
     }
@@ -105,25 +106,22 @@ public class ClassController {
         return classService.getClassDetail(classCode);
     }
 
-    @GetMapping("/listClass")
-    public ResponseEntity<?> getAll(){
-        return ResponseEntity.ok(classService.getAll());
-
-    }
-
     @GetMapping("/sortCalendar")
+    @PreAuthorize("hasAuthority('class:read')")
     public ResponseEntity<?> sortCalendar(){
         return ResponseEntity.ok(classService.CalendarSort());
 
     }
 
     @GetMapping("/view-calendar/day")
+    @PreAuthorize("hasAuthority('class:read')")
     public ResponseEntity<ResponseObject> getDayCalendar(@RequestParam(name = "currentDate") String currentDate) throws ParseException {
         Date current = new SimpleDateFormat("yyyy-MM-dd").parse(currentDate);
         return classService.getDayCalendar(current);
     }
 
     @GetMapping("/view-calendar/week")
+    @PreAuthorize("hasAuthority('class:read')")
     public ResponseEntity<ResponseObject> getWeekCalendar(
             @RequestParam(name = "startDate") String startDate,
             @RequestParam(name = "endDate") String endDate
@@ -134,7 +132,10 @@ public class ClassController {
     }
 
     @PutMapping("/update-calendar")
+    @PreAuthorize("hasAuthority('class:update')")
     public UpdateCalendarResponse updateClassLearningDay(@RequestBody UpdateCalendarRequest request) throws ParseException {
         return classService.updateClassLearningDay(request);
     }
+
+
 }

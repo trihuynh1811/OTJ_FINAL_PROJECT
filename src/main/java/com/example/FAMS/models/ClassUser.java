@@ -37,5 +37,7 @@ public class ClassUser {
     @Column(nullable = false)
     private String userType;
 
+//    private String location;
+
 
 }

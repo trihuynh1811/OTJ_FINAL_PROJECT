@@ -42,7 +42,7 @@ public class FamsApplication {
     private final ClassUserDAO classUserDAO;
     private final TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
     //    private final FsuDAO fsuDAO;
-    private final LocationDAO locationDAO;
+//    private final LocationDAO locationDAO;
 
   public static void main(String[] args) {
     SpringApplication.run(FamsApplication.class, args);
@@ -186,7 +186,7 @@ public class FamsApplication {
 //
 //                    locationDAO.saveAll(locationList);
 //                }
-                if (userDAO.findAll().size() == 0) {
+                if (userDAO.findAll().isEmpty()) {
                     List<User> userList = new ArrayList<>();
                     userList.add(User.builder()
                             .email("admin@gmail.com")
@@ -260,6 +260,34 @@ public class FamsApplication {
                             .build());
                     userList.add(User.builder()
                             .email("trainer@gmail.com")
+                            .password(passwordEncoder.encode("1"))
+                            .name("Trainer")
+                            .phone("0977545452")
+                            .dob(new Date())
+                            .gender("male")
+                            .role(userPermissionDAO.findUserPermissionByRole(Role.TRAINER).orElse(null))
+                            .status(true)
+                            .createdBy("Hoang Anh")
+                            .createdDate(new Date())
+                            .modifiedBy("Hoang Anh")
+                            .modifiedDate(new Date())
+                            .build());
+                    userList.add(User.builder()
+                            .email("trainer1@gmail.com")
+                            .password(passwordEncoder.encode("1"))
+                            .name("Trainer")
+                            .phone("0977545452")
+                            .dob(new Date())
+                            .gender("male")
+                            .role(userPermissionDAO.findUserPermissionByRole(Role.TRAINER).orElse(null))
+                            .status(true)
+                            .createdBy("Hoang Anh")
+                            .createdDate(new Date())
+                            .modifiedBy("Hoang Anh")
+                            .modifiedDate(new Date())
+                            .build());
+                    userList.add(User.builder()
+                            .email("trainer2@gmail.com")
                             .password(passwordEncoder.encode("1"))
                             .name("Trainer")
                             .phone("0977545452")

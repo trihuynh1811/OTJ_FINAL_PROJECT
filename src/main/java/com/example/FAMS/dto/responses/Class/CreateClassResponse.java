@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreateClassResponse {
 
-    Class createdClass;
+    Object createdClass;
     String message;
 }

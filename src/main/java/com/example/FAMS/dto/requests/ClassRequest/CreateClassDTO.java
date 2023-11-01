@@ -16,7 +16,7 @@ public class CreateClassDTO {
      String classTimeFrom;
      String classTimeTo;
      String status;
-     List<String> location;
+     String location;
      List<String> admin;
      String fsu;
      String startDate;

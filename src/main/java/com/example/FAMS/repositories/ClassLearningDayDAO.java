@@ -11,4 +11,6 @@ public interface ClassLearningDayDAO  extends JpaRepository<ClassLearningDay,Int
     ClassLearningDay findByClassId_ClassIdAndEnrollDate(String id, Date enrollDate);
 
     List<ClassLearningDay> findByClassId_ClassId(String id);
+
+//    List<ClassLearningDay> findByClassId_ClassIdAndLocationId_LocationId(String classId, Long locationId);
 }
