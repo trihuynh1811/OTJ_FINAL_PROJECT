@@ -101,7 +101,7 @@ public class ClassController {
         return classService.getFilter();
     }
 
-    @PostMapping("/deactivate/{id}")
+    @PutMapping("/deactivate/{id}")
     public ResponseEntity<DeactivateClassResponse> deactivateClass(@PathVariable("id") String classCode){
         return classService.deactivateClass(classCode);
     }

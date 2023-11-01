@@ -19,6 +19,7 @@ public class UpdatedClassDTO {
     String classTimeFrom;
     String classTimeTo;
     String status;
+    String location;
     String fsu;
     String startDate;
     String endDate;

@@ -95,7 +95,7 @@ public class ClassServiceImpl implements ClassService {
                     .classCode(classes.get(i).getClassId())
                     .className(classes.get(i).getClassName())
                     .fsu(classes.get(i).getFsu())
-                    .location(classes.get(i).getLocation())
+                    .location(capitalizeLocation(classes.get(i).getLocation()))
                     .createdOn(sdf.format(new Date(classes.get(i).getCreatedDate().getTime())))
                     .createdBy(classes.get(i).getCreatedBy())
                     .duration(classes.get(i).getDuration())
@@ -150,7 +150,7 @@ public class ClassServiceImpl implements ClassService {
                     .timeFrom(Time.valueOf(timeFromStr))
                     .timeTo(Time.valueOf(timeToStr))
                     .fsu(request.getFsu())
-                    .location(request.getLocation())
+                    .location(capitalizeLocation(request.getLocation()))
                     .status(request.getStatus())
                     .trainingProgram(trainingProgramDAO.findByName(request.getTrainingProgram()))
                     .createdDate(new java.util.Date())
@@ -270,6 +270,7 @@ public class ClassServiceImpl implements ClassService {
         Class c = classDAO.findById(classCode).isPresent() ? classDAO.findById(classCode).get() : null;
         if (c != null) {
             c.setDeactivated(true);
+            classDAO.save(c);
             return ResponseEntity.status(200).body(new DeactivateClassResponse("successfully deactivate class with id " + classCode + " (⌐■_■)👍"));
         }
         return ResponseEntity.status(400).body(new DeactivateClassResponse("fail to deactivate class with id " + classCode + " (⌐■⌒■)👎"));
@@ -371,7 +372,7 @@ public class ClassServiceImpl implements ClassService {
 
 
                 ClassDetailResponse res = ClassDetailResponse.builder()
-                        .classId(classCode)
+                        .classId(classCode.split("_")[0])
                         .className(c.getClassName())
                         .createdBy(c.getCreatedBy())
                         .createdDate(convertToMMDDYYYY(c.getCreatedDate().toString().split(" ")[0]))
@@ -400,7 +401,7 @@ public class ClassServiceImpl implements ClassService {
                                 .build())
                         .listDay(listDay)
 //                        .location(locationList)
-                        .location(c.getLocation())
+                        .location(capitalizeLocation(c.getLocation()))
                         .trainerList(trainerList)
                         .attendeeList(attendeeList)
                         .syllabusList(syllabusList)
@@ -571,7 +572,7 @@ public class ClassServiceImpl implements ClassService {
                 }
 
                 UpdatedClassDTO uc = UpdatedClassDTO.builder()
-                        .classCode(updatedClass.getClassId())
+                        .classCode(updatedClass.getClassId().split("_")[0])
                         .className(updatedClass.getClassName())
                         .attendee(updatedClass.getAttendee())
                         .classTimeFrom(timeFrom)
@@ -583,6 +584,7 @@ public class ClassServiceImpl implements ClassService {
                         .listDay(request.getListDay())
                         .attendeeList(u)
                         .adminList(a)
+                        .location(updatedClass.getLocation())
                         .status(updatedClass.getStatus())
                         .fsu(updatedClass.getFsu())
                         .startDate(request.getStartDate())
@@ -873,6 +875,17 @@ public class ClassServiceImpl implements ClassService {
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         String formattedDate = date.format(outputFormatter);
         return formattedDate;
+    }
+
+    private String capitalizeLocation(String locationStr){
+        String[] strArr = locationStr.split(" ");
+        String result = "";
+        for(int i = 0; i < strArr.length; i++){
+            strArr[i] = strArr[i].substring(0, 1).toUpperCase() + strArr[i].substring(1);
+            result += strArr[i] + " ";
+        }
+
+        return  result.trim();
     }
 
 
