@@ -5,15 +5,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class TrainingProgramDTO {
 
-    String trainingProgramCode;
+    int trainingProgramCode;
     String trainingProgramName;
     String modifyDate;
     String modifyBy;
-    String duration;
+    Date startDate;
+    int duration;
+    String status;
+
 }

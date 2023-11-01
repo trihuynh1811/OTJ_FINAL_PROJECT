@@ -1,5 +1,6 @@
 package com.example.FAMS;
 
+import com.example.FAMS.dto.UserDTO;
 import com.example.FAMS.dto.requests.LoginRequest;
 import com.example.FAMS.enums.DateEnum;
 import com.example.FAMS.enums.DayEnum;
@@ -44,9 +45,9 @@ public class FamsApplication {
     //    private final FsuDAO fsuDAO;
 //    private final LocationDAO locationDAO;
 
-  public static void main(String[] args) {
-    SpringApplication.run(FamsApplication.class, args);
-  }
+    public static void main(String[] args) {
+        SpringApplication.run(FamsApplication.class, args);
+    }
 
   @Bean
   public CommandLineRunner initData() {
@@ -177,12 +178,6 @@ public class FamsApplication {
 //                            .fsuId(fsuDAO.findById("FDN").get())
 //                            .build();
 //
-//                    locationList.add(location);
-//                    locationList.add(location1);
-//                    locationList.add(location2);
-//                    locationList.add(location3);
-//                    locationList.add(location4);
-//                    locationList.add(location5);
 //
 //                    locationDAO.saveAll(locationList);
 //                }
@@ -555,8 +550,8 @@ public class FamsApplication {
         };
     }
 
-  @GetMapping("")
-  public String greeting() {
-    return "Hello from FAMS Application made from GROUP 1 WITH LOVE";
-  }
+    @GetMapping("")
+    public String greeting() {
+        return "Hello from FAMS Application made from GROUP 1 WITH LOVE";
+    }
 }

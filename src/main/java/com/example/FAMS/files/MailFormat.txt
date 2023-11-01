@@ -46,7 +46,7 @@
 <tbody>
 <tr>
 <td esdev-links-color="#757575" class="esd-block-text es-p10t es-p40b es-p30r es-p30l" align="center">
-<p style="color: #f1f0f0; font-size: 16px; line-height: 200%;"><strong>Your password is:</strong></p>
+<p style="color: #f1f0f0; font-size: 16px; line-height: 200%;"><strong></strong></p>
 <p style="color: #ffffff; font-size: 20px; line-height: 200%;"><strong><span style="font-size: 25px; line-height: 200%;">@@@@@@@@######</span></strong></p>
 </td>
 </tr>

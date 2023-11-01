@@ -1,12 +1,15 @@
 package com.example.FAMS.controllers;
 
 import com.example.FAMS.dto.requests.UpdateTrainingProgramRequest;
+import com.example.FAMS.dto.responses.ResponseObjectVersion2;
 import com.example.FAMS.dto.responses.TrainingProgramDTO;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateTrainingProgramResponse;
 import com.example.FAMS.models.TrainingProgram;
-import com.example.FAMS.service_implementors.TrainingProgramImpl;
+
 import java.io.IOException;
+
+import com.example.FAMS.services.TrainingProgramService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
 public class TrainingProgramController {
-  private final TrainingProgramImpl trainingProgram;
+
+  private final TrainingProgramService trainingProgram;
 
   @PostMapping("/create")
   @PreAuthorize("hasAuthority('user:create')")
@@ -29,6 +33,11 @@ public class TrainingProgramController {
       @RequestParam(name = "trainerID") int trainerID,
       @RequestParam(name = "topicCode") String topicCode) {
     return trainingProgram.createTrainingProgram(trainingProgramDTO, trainerID, topicCode);
+  }
+  @GetMapping("/get/{id}")
+  @PreAuthorize("hasAuthority('user:read')")
+  public ResponseEntity<ResponseObjectVersion2> getTrainingProgram(@PathVariable int id) {
+    return trainingProgram.getTrainingProgramByCode(id);
   }
 
   @GetMapping("/get-all")

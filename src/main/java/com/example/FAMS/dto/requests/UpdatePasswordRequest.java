@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdatePasswordRequest {
-
-    private String userEmail;
+    private String requesterEmail;
     private String newPassword;
+    private boolean isLoggedIn;
+    private boolean isAuthorized;
 }
