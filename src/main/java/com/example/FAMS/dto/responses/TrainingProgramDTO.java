@@ -14,7 +14,7 @@ import java.util.Date;
 public class TrainingProgramDTO {
 
     String trainingProgramName;
-    int trainerID;
+    String trainerGmail;
     String[] topicCode;
     Date startDate;
     int duration;

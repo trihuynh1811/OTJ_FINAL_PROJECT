@@ -55,7 +55,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
             .substring(7);
     String userEmail = jwtService.extractUserEmail(token);
     var requester = userDAO.findUserByEmail(userEmail).orElse(null);
-    var person = userDAO.findById(trainingProgramDTO.getTrainerID()).orElse(null);
+    var person = userDAO.findByEmail(trainingProgramDTO.getTrainerGmail()).orElse(null);
     if (trainingProgramDAO.getTrainingProgramByName(trainingProgramDTO.getTrainingProgramName()).orElse(null) == null) {
       trainingProgram.setName(trainingProgramDTO.getTrainingProgramName());
     } else {
