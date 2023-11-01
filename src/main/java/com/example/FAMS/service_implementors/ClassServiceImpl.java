@@ -3,6 +3,7 @@ package com.example.FAMS.service_implementors;
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
 import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import com.example.FAMS.dto.requests.ClassRequest.UpdateClassDTO;
+import com.example.FAMS.dto.requests.ClassRequest.UpdateClass3Request;
 import com.example.FAMS.dto.responses.CalendarDayResponse;
 import com.example.FAMS.dto.responses.CalendarWeekResponse;
 import com.example.FAMS.dto.responses.Class.*;
@@ -12,12 +13,15 @@ import com.example.FAMS.models.*;
 import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.models.Class;
 import com.example.FAMS.models.composite_key.ClassUserCompositeKey;
+import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import com.example.FAMS.models.composite_key.UserClassSyllabusCompositeKey;
 import com.example.FAMS.repositories.*;
 import com.example.FAMS.services.ClassService;
 import com.google.common.base.Strings;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -48,6 +52,9 @@ public class ClassServiceImpl implements ClassService {
     @Autowired
     SyllabusDAO syllabusDAO;
 
+    @Autowired
+    TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
+
 //    @Autowired
 //    FsuDAO fsuDAO;
 
@@ -65,6 +72,7 @@ public class ClassServiceImpl implements ClassService {
 
     @Autowired
     UserClassSyllabusDAO userClassSyllabusDAO;
+    List<SearchFilterResponse> filterResponses;
 
     List<CalendarDayResponse> dayCalendars;
     List<CalendarWeekResponse> weekCalendars;
@@ -96,6 +104,16 @@ public class ClassServiceImpl implements ClassService {
             res.add(c);
         }
         return res;
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> getFilter() {
+        try {
+            filterResponses = classDAO.searchByFilter();
+            return ResponseEntity.ok(new ResponseObject("Successful", "List of classroom", filterResponses));
+        } catch(Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't found the list", e.getMessage()));
+        }
     }
 
     @Override
@@ -186,7 +204,6 @@ public class ClassServiceImpl implements ClassService {
                         .userID(user)
                         .classId(classInfo)
                         .userType(user.getRole().getRole().name())
-//                        .location(l.getLocation())
                         .build();
 
                 classUserList.add(classUser);
@@ -454,7 +471,7 @@ public class ClassServiceImpl implements ClassService {
                 log.info("1");
                 List<ClassLearningDay> cldl = classLearningDayDAO.findByClassId_ClassId(existingClass.getClassId());
                 List<ClassUser> cu = classUserDAO.findByClassId_ClassId(existingClass.getClassId());
-                List<UserClassSyllabus> ucs = userClassSyllabusDAO.findByClassCode_ClassId(request.getClassCode());
+                List<UserClassSyllabus> ucs = userClassSyllabusDAO.findByClassCode_ClassId(existingClass.getClassId());
                 classLearningDayDAO.deleteAll(cldl);
                 classUserDAO.deleteAll(cu);
                 userClassSyllabusDAO.deleteAll(ucs);
@@ -607,6 +624,12 @@ public class ClassServiceImpl implements ClassService {
 
 
     @Override
+    public Page<Class> getAllPagenation(Pageable pageable) {
+
+        return classDAO.findAll(pageable);
+    }
+
+    @Override
     public ResponseEntity<ResponseObject> getDayCalendar(java.util.Date currentDate) {
         try {
             dayCalendars = classDAO.getCalendarByDay(currentDate);
@@ -669,6 +692,83 @@ public class ClassServiceImpl implements ClassService {
                     .status("Calendar not found")
                     .updateClassLearningDay(null)
                     .build();
+        }
+    }
+
+    @Override
+    public UpdateClass3Response updateClass3(UpdateClass3Request updateClass3Request) {
+
+        boolean status = updateClass3Request.isDeleted();
+        String topicCode = updateClass3Request.getTopicCode();
+        int trainingProgramCode = updateClass3Request.getTrainingProgramCode();
+
+        var syllabus = syllabusDAO.findById(topicCode).orElse(null);
+        var trainingProgram = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
+
+        TrainingProgramSyllabus trainingProgramSyllabus = trainingProgramSyllabusDAO.findByIdTopicCodeAndIdTrainingProgramCode(topicCode,trainingProgramCode);
+//        TrainingProgramSyllabus topicCode1 = trainingProgramSyllabusDAO.findByIdTopicCode(topicCode);
+//        TrainingProgramSyllabus trainingProgram1= trainingProgramSyllabusDAO.findByIdTrainingProgramCode(trainingProgramCode);
+
+
+        if(trainingProgramSyllabus != null){
+
+            trainingProgramSyllabus.setDeleted(status);
+            trainingProgramSyllabus = trainingProgramSyllabusDAO.save(trainingProgramSyllabus);
+
+            if(trainingProgramSyllabus != null){
+                return UpdateClass3Response.builder()
+                        .status("Update TrainingProgramSyllabus successful")
+                        .updatedClass3(trainingProgramSyllabus)
+                        .build();
+            }else {
+                return UpdateClass3Response.builder()
+                        .status("Update TrainingProgramSyllabus failed")
+                        .updatedClass3(null)
+                        .build();
+            }
+
+        }else {
+            TrainingProgramSyllabus trainingProgramSyllabus2 =
+                    TrainingProgramSyllabus.builder()
+                            .id(
+                                    SyllabusTrainingProgramCompositeKey.builder()
+                                            .topicCode(topicCode)
+                                            .trainingProgramCode(trainingProgramCode)
+                                            .build())
+                            .topicCode(syllabus)
+                            .trainingProgramCode(trainingProgram)
+                            .deleted(true)
+                            .build();
+            trainingProgramSyllabus2 =trainingProgramSyllabusDAO.save(trainingProgramSyllabus2);
+
+            if(trainingProgramSyllabus2 != null){
+                return UpdateClass3Response.builder()
+                        .status("Update TrainingProgramSyllabus successful")
+                        .updatedClass3(trainingProgramSyllabus2)
+                        .build();
+
+            }else {
+                return UpdateClass3Response.builder()
+                        .status("Update TrainingProgramSyllabus failed")
+                        .updatedClass3(null)
+                        .build();
+            }
+
+
+
+        }
+
+
+
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> deleteAllTrainingProgramSyllabus() {
+        try {
+            trainingProgramSyllabusDAO.deleteAll(); // Assuming your DAO has a deleteAll method
+            return new ResponseEntity<>(new ResponseObject("Success", "All TrainingProgramSyllabus have been deleted successfully.", null), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ResponseObject("Error", "Failed to delete TrainingProgramSyllabus.", null), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

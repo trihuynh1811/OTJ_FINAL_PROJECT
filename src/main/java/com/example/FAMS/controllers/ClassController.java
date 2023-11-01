@@ -2,15 +2,18 @@ package com.example.FAMS.controllers;
 
 import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
+import com.example.FAMS.dto.requests.ClassRequest.UpdateClass3Request;
 import com.example.FAMS.dto.requests.ClassRequest.UpdateClassDTO;
 import com.example.FAMS.dto.requests.ClassRequest.UpdateClassRequest;
 import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.models.Class;
+import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import com.example.FAMS.service_implementors.ClassServiceImpl;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -84,7 +87,6 @@ public class ClassController {
     }
 
     @GetMapping("/search/{classId}")
-    @PreAuthorize("hasAuthority('class:read')")
     public ResponseEntity<?> getClassById(@PathVariable String classId) {
         Class classInfo = classService.getClassById(classId);
         if (classInfo != null) {
@@ -94,8 +96,12 @@ public class ClassController {
         }
     }
 
+    @GetMapping("/filterClass")
+    public ResponseEntity<ResponseObject> getFilterClass() {
+        return classService.getFilter();
+    }
+
     @PostMapping("/deactivate/{id}")
-    @PreAuthorize("hasAuthority('class:update')")
     public ResponseEntity<DeactivateClassResponse> deactivateClass(@PathVariable("id") String classCode){
         return classService.deactivateClass(classCode);
     }
@@ -106,6 +112,12 @@ public class ClassController {
         return classService.getClassDetail(classCode);
     }
 
+    @GetMapping("/listClassPagenation")
+    public ResponseEntity<?> getallPagenation(Pageable pageable){
+        return ResponseEntity.ok(classService.getAllPagenation(pageable));
+
+    }
+
     @GetMapping("/sortCalendar")
     @PreAuthorize("hasAuthority('class:read')")
     public ResponseEntity<?> sortCalendar(){
@@ -114,14 +126,12 @@ public class ClassController {
     }
 
     @GetMapping("/view-calendar/day")
-    @PreAuthorize("hasAuthority('class:read')")
     public ResponseEntity<ResponseObject> getDayCalendar(@RequestParam(name = "currentDate") String currentDate) throws ParseException {
         Date current = new SimpleDateFormat("yyyy-MM-dd").parse(currentDate);
         return classService.getDayCalendar(current);
     }
 
     @GetMapping("/view-calendar/week")
-    @PreAuthorize("hasAuthority('class:read')")
     public ResponseEntity<ResponseObject> getWeekCalendar(
             @RequestParam(name = "startDate") String startDate,
             @RequestParam(name = "endDate") String endDate
@@ -137,5 +147,13 @@ public class ClassController {
         return classService.updateClassLearningDay(request);
     }
 
+    @PostMapping("/updateClass3")
+    public UpdateClass3Response updateClass3(@RequestBody UpdateClass3Request updateClass3Request) {
+        return classService.updateClass3(updateClass3Request);
+    }
 
+    @DeleteMapping("/deleteAll")
+    public ResponseEntity<ResponseObject> deleteAllTrainingProgramSyllabus() {
+        return classService.deleteAllTrainingProgramSyllabus();
+    }
 }
