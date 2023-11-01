@@ -3,6 +3,8 @@ package com.example.FAMS.repositories;
 import com.example.FAMS.dto.responses.TrainingProgramDetails;
 import com.example.FAMS.models.TrainingProgram;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +15,8 @@ public interface TrainingProgramDAO extends JpaRepository<TrainingProgram, Integ
   <T> List<T> findBy(Class<T> classType);
 
   TrainingProgram findByName(String trainingProgramName);
+
+  Optional<TrainingProgram> getTrainingProgramByName(String name);
 
   @Query(
       value =

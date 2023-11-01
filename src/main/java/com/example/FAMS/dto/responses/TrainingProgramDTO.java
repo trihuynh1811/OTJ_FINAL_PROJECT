@@ -13,10 +13,9 @@ import java.util.Date;
 @NoArgsConstructor
 public class TrainingProgramDTO {
 
-    int trainingProgramCode;
     String trainingProgramName;
-    Date modifyDate;
-    String modifyBy;
+    String trainerGmail;
+    String[] topicCode;
     Date startDate;
     int duration;
     String status;
