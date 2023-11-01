@@ -468,7 +468,7 @@ public class FamsApplication {
                     List<TrainingProgram> trainingPrograms = new ArrayList<>();
 
                     TrainingProgram trainingProgram = TrainingProgram.builder()
-                            .name("tp_1")
+                            .name("Java")
                             .userID(userDAO.findById(1).get())
                             .startDate(new Date("2001/9/11"))
                             .duration(999)
@@ -477,7 +477,7 @@ public class FamsApplication {
                             .createdDate(new Date())
                             .build();
                     TrainingProgram trainingProgram1 = TrainingProgram.builder()
-                            .name("tp_2")
+                            .name("PHP")
                             .userID(userDAO.findById(2).get())
                             .startDate(new Date("2001/9/11"))
                             .duration(999)
@@ -486,7 +486,7 @@ public class FamsApplication {
                             .createdDate(new Date())
                             .build();
                     TrainingProgram trainingProgram2 = TrainingProgram.builder()
-                            .name("tp_3")
+                            .name("Docker")
                             .userID(userDAO.findById(1).get())
                             .startDate(new Date("2001/9/11"))
                             .duration(999)

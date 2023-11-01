@@ -25,7 +25,7 @@ public interface ClassService {
 
     ResponseEntity<ResponseObject> getFilter();
 
-    Class createClass(CreateClassDTO request, Authentication authentication);
+    CreateClassResponse createClass(CreateClassDTO request, Authentication authentication);
 
     UpdateClassResponse updateClass(UpdateClassDTO updateClassRequest);
 
