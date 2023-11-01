@@ -29,11 +29,10 @@ public class TrainingProgramController {
   @PostMapping("/create")
   @PreAuthorize("hasAuthority('user:create')")
   public ResponseEntity<ResponseObject> createTrainingProgram(
-      @RequestBody TrainingProgramDTO trainingProgramDTO,
-      @RequestParam(name = "trainerID") int trainerID,
-      @RequestParam(name = "topicCode") String topicCode) {
-    return trainingProgram.createTrainingProgram(trainingProgramDTO, trainerID, topicCode);
+      @RequestBody TrainingProgramDTO trainingProgramDTO) {
+    return trainingProgram.createTrainingProgram(trainingProgramDTO);
   }
+
   @GetMapping("/get/{id}")
   @PreAuthorize("hasAuthority('user:read')")
   public ResponseEntity<ResponseObjectVersion2> getTrainingProgram(@PathVariable int id) {
