@@ -18,7 +18,7 @@ public class GetClassesResponse {
     String createdBy;
     String duration;
     String status;
-    List<String> location;
+    String location;
     String fsu;
     String createdOn;
 }

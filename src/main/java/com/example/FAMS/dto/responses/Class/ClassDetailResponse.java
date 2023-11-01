@@ -22,7 +22,8 @@ public class ClassDetailResponse {
     private String status;
     private String timeFrom;
     private String timeTo;
-    private List<String> location;
+//    private List<String> location;
+    private String location;
     private String fsu;
     private String startDate;
     private String endDate;

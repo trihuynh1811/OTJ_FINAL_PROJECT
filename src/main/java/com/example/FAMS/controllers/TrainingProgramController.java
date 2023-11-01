@@ -1,6 +1,7 @@
 package com.example.FAMS.controllers;
 
 import com.example.FAMS.dto.requests.UpdateTrainingProgramRequest;
+import com.example.FAMS.dto.responses.ResponseObjectVersion2;
 import com.example.FAMS.dto.responses.TrainingProgramDTO;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateTrainingProgramResponse;
@@ -32,6 +33,11 @@ public class TrainingProgramController {
       @RequestParam(name = "trainerID") int trainerID,
       @RequestParam(name = "topicCode") String topicCode) {
     return trainingProgram.createTrainingProgram(trainingProgramDTO, trainerID, topicCode);
+  }
+  @GetMapping("/get/{id}")
+  @PreAuthorize("hasAuthority('user:read')")
+  public ResponseEntity<ResponseObjectVersion2> getTrainingProgram(@PathVariable int id) {
+    return trainingProgram.getTrainingProgramByCode(id);
   }
 
   @GetMapping("/get-all")

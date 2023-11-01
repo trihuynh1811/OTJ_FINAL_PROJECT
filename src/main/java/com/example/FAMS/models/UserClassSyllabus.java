@@ -13,11 +13,15 @@ import lombok.*;
 @Table(name = "user_syllabus")
 public class UserClassSyllabus {
 
-    @EmbeddedId
-    UserClassSyllabusCompositeKey id;
+//    @EmbeddedId
+//    UserClassSyllabusCompositeKey id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    int id;
 
     @ManyToOne(cascade = CascadeType.MERGE, optional = false)
-    @MapsId("userId")
+//    @MapsId("userId")
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -25,7 +29,7 @@ public class UserClassSyllabus {
     private User userId;
 
     @ManyToOne(cascade = CascadeType.MERGE, optional = false)
-    @MapsId("topicCode")
+//    @MapsId("topicCode")
     @JoinColumn(name = "topic_code", referencedColumnName = "topic_code")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -33,7 +37,7 @@ public class UserClassSyllabus {
     private Syllabus topicCode;
 
     @ManyToOne(cascade = CascadeType.MERGE, optional = false)
-    @MapsId("classId")
+//    @MapsId("classId")
     @JoinColumn(name = "class_code", referencedColumnName = "class_code")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -42,5 +46,7 @@ public class UserClassSyllabus {
 
     @Column(name = "user_type")
     private String userType;
+
+//    private String location;
 
 }

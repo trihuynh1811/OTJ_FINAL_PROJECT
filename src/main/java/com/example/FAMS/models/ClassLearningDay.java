@@ -41,5 +41,11 @@ public class ClassLearningDay {
     @JsonBackReference
     private Class classId;
 
+//    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "location_id", referencedColumnName = "location_id")
+//    @EqualsAndHashCode.Exclude
+//    @ToString.Exclude
+//    @JsonBackReference
+//    private Location locationId;
 
 }

@@ -15,12 +15,12 @@ public interface TrainingProgramDetails {
 
     public String getUnit_name();
 
-    public int getDay_number();
+    public Integer getDay_number();
 
     public String getContent_name();
 
     public String getObjective();
 
-    public int getDuration();
+    public Integer getDuration();
 
 }

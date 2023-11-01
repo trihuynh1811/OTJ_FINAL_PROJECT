@@ -43,26 +43,27 @@ public class FamsApplication {
     private final ClassUserDAO classUserDAO;
     private final TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
     //    private final FsuDAO fsuDAO;
-    private final LocationDAO locationDAO;
+//    private final LocationDAO locationDAO;
 
     public static void main(String[] args) {
         SpringApplication.run(FamsApplication.class, args);
     }
 
-    @Bean
-    public CommandLineRunner initData() {
-        return new CommandLineRunner() {
-            @Override
-            public void run(String... args) throws Exception {
-                if (standardOutputDAO.findAll().size() == 0) {
-                    List<StandardOutput> standardOutputList = new ArrayList<>();
-                    String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
-                    for (int i = 0; i < objectiveCode.length; i++) {
-                        StandardOutput standardOutput = StandardOutput.builder()
-                                .outputCode(objectiveCode[i].toUpperCase())
-                                .outputName(objectiveCode[i])
-                                .description("some bs description.")
-                                .build();
+  @Bean
+  public CommandLineRunner initData() {
+    return new CommandLineRunner() {
+      @Override
+      public void run(String... args) throws Exception {
+        if (standardOutputDAO.findAll().size() == 0) {
+          List<StandardOutput> standardOutputList = new ArrayList<>();
+          String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
+          for (int i = 0; i < objectiveCode.length; i++) {
+            StandardOutput standardOutput =
+                StandardOutput.builder()
+                    .outputCode(objectiveCode[i].toUpperCase())
+                    .outputName(objectiveCode[i])
+                    .description("some bs description.")
+                    .build();
 
                         standardOutputList.add(standardOutput);
                     }
@@ -177,16 +178,10 @@ public class FamsApplication {
 //                            .fsuId(fsuDAO.findById("FDN").get())
 //                            .build();
 //
-//                    locationList.add(location);
-//                    locationList.add(location1);
-//                    locationList.add(location2);
-//                    locationList.add(location3);
-//                    locationList.add(location4);
-//                    locationList.add(location5);
 //
 //                    locationDAO.saveAll(locationList);
 //                }
-                if (userDAO.findAll().size() == 0) {
+                if (userDAO.findAll().isEmpty()) {
                     List<User> userList = new ArrayList<>();
                     userList.add(User.builder()
                             .email("admin@gmail.com")
@@ -260,6 +255,34 @@ public class FamsApplication {
                             .build());
                     userList.add(User.builder()
                             .email("trainer@gmail.com")
+                            .password(passwordEncoder.encode("1"))
+                            .name("Trainer")
+                            .phone("0977545452")
+                            .dob(new Date())
+                            .gender("male")
+                            .role(userPermissionDAO.findUserPermissionByRole(Role.TRAINER).orElse(null))
+                            .status(true)
+                            .createdBy("Hoang Anh")
+                            .createdDate(new Date())
+                            .modifiedBy("Hoang Anh")
+                            .modifiedDate(new Date())
+                            .build());
+                    userList.add(User.builder()
+                            .email("trainer1@gmail.com")
+                            .password(passwordEncoder.encode("1"))
+                            .name("Trainer")
+                            .phone("0977545452")
+                            .dob(new Date())
+                            .gender("male")
+                            .role(userPermissionDAO.findUserPermissionByRole(Role.TRAINER).orElse(null))
+                            .status(true)
+                            .createdBy("Hoang Anh")
+                            .createdDate(new Date())
+                            .modifiedBy("Hoang Anh")
+                            .modifiedDate(new Date())
+                            .build());
+                    userList.add(User.builder()
+                            .email("trainer2@gmail.com")
                             .password(passwordEncoder.encode("1"))
                             .name("Trainer")
                             .phone("0977545452")
