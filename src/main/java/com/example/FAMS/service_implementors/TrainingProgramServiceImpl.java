@@ -62,8 +62,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(new ResponseObject("Failed", "The Training Program name already been used", null));
     }
-    if (!trainingProgramDTO.getStartDate().before(date)
-        && date != trainingProgramDTO.getStartDate()) {
+    if (true) {
       trainingProgram.setStartDate(trainingProgramDTO.getStartDate());
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -78,7 +77,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
           .body(new ResponseObject("Failed", "The duration cannot be negative", null));
     }
     if (trainingProgramDTO.getStatus().contains("Active")
-        || trainingProgramDTO.getStatus().contains("Inactive")
+        || trainingProgramDTO.getStatus().contains("inActive")
         || trainingProgramDTO.getStatus().contains("Drafting")) {
       trainingProgram.setStatus(trainingProgramDTO.getStatus());
     } else {
