@@ -13,6 +13,7 @@ import com.example.FAMS.models.UserClassSyllabus;
 import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import com.example.FAMS.repositories.UserClassSyllabusDAO;
 import com.example.FAMS.service_implementors.ClassServiceImpl;
+import com.example.FAMS.services.ClassService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +35,7 @@ import java.util.List;
 public class ClassController {
 
     @Autowired
-    ClassServiceImpl classService;
+    ClassService classService;
 
     @Autowired
     UserClassSyllabusDAO userClassSyllabusDAO;

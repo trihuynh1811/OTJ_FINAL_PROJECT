@@ -446,7 +446,7 @@ public class FamsApplication {
 
                     for (int i = 1; i <= 4; i++) {
                         Syllabus s = Syllabus.builder()
-                                .topicCode("lmao " + i)
+                                .topicCode("TOPIC00" + i)
                                 .topicName("lmao " + i)
                                 .version("1.6")
                                 .publishStatus(i % 2 == 0 ? "active" : "inactive")
@@ -473,7 +473,7 @@ public class FamsApplication {
                             .startDate(new Date("2001/9/11"))
                             .duration(999)
                             .status("active")
-                            .createdBy("jotaro")
+                            .createdBy("admin@gmail.com")
                             .createdDate(new Date())
                             .build();
                     TrainingProgram trainingProgram1 = TrainingProgram.builder()
