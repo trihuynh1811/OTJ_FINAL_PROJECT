@@ -62,14 +62,6 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(new ResponseObject("Failed", "The Training Program name already been used", null));
     }
-    if (true) {
-      trainingProgram.setStartDate(trainingProgramDTO.getStartDate());
-    } else {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body(
-              new ResponseObject(
-                  "Failed", "The start day cannot below or equal current day", null));
-    }
     if (trainingProgramDTO.getDuration() > 0) {
       trainingProgram.setDuration(trainingProgramDTO.getDuration());
     } else {
@@ -93,6 +85,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
           .body(new ResponseObject("Failed", "The person is not a trainer or not found", null));
     }
     if (requester != null) {
+      trainingProgram.setStartDate(date);
       trainingProgram.setCreatedBy(requester.getName());
       trainingProgram.setCreatedDate(date);
       trainingProgram.setModifiedBy(requester.getName());

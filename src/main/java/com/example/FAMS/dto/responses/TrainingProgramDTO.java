@@ -16,7 +16,6 @@ public class TrainingProgramDTO {
     String trainingProgramName;
     String trainerGmail;
     String[] topicCode;
-    Date startDate;
     int duration;
     String status;
 
