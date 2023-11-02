@@ -23,12 +23,11 @@ public interface ClassDAO extends JpaRepository<Class, String> {
     @Query(value = "Select * from Class order by modified_date desc", nativeQuery = true)
     List<Class> getAll();
 
-    @Query(value = "SELECT loc.location, fc.time_from as 'timeFrom', fc.time_to as 'timeTo', fc.fsu, fc.status, cu.users_id AS class_user_id, u.name\n" +
+    @Query(value = "SELECT fc.location, fc.time_from as 'timeFrom', fc.time_to as 'timeTo', fc.fsu, fc.status, cu.users_id AS class_user_id, u.name\n" +
             "FROM class AS fc\n" +
             "INNER JOIN class_user AS cu ON fc.class_code = cu.class_id\n" +
             "INNER JOIN users AS u ON cu.users_id = u.user_id\n" +
-            "INNER JOIN location AS loc ON fc.class_code = loc.class_code\n" +
-            "WHERE u.role = 2;", nativeQuery = true)
+            "WHERE  u.role = 2;", nativeQuery = true)
     List<SearchFilterResponse> searchByFilter();
 
     @Query(
