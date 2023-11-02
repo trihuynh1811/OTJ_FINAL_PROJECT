@@ -123,6 +123,15 @@ public class ClassServiceImpl implements ClassService {
     @Override
     public CreateClassResponse createClass(CreateClassDTO request, Authentication authentication) {
         try {
+            boolean existingClass = classDAO.findById(request.getClassCode()).isPresent();
+            if(existingClass){
+                CreateClassResponse res = CreateClassResponse.builder()
+                        .message("class with id: " + request.getClassCode())
+                        .createdClass(null)
+                        .status(1)
+                        .build();
+                return res;
+            }
             log.info(request);
             Class classInfo = null;
             List<ClassUser> classUserList = new ArrayList<>();
@@ -132,11 +141,21 @@ public class ClassServiceImpl implements ClassService {
 //            Fsu fsu = fsuDAO.findById(request.getFsu().toUpperCase()).get();
 //            Location l = null;
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-            User user = userDAO.findByEmail(request.getCreated()).get();
-            String review = userDAO.findByEmail(request.getReview()).get().getName();
-            String approve = userDAO.findByEmail(request.getApprove()).get().getName();
+            Date today = new Date();
+            User user = null;
+//            String review = userDAO.findByEmail(request.getReview()).get().getName();
+//            String approve = userDAO.findByEmail(request.getApprove()).get().getName();
             String timeFromStr = request.getClassTimeFrom().split(":").length == 3 ? request.getClassTimeFrom() : request.getClassTimeFrom() + ":00";
             String timeToStr = request.getClassTimeTo().split(":").length == 3 ? request.getClassTimeTo() : request.getClassTimeTo() + ":00";
+
+            if(sdf.parse(request.getStartDate()).before(today) || sdf.parse(request.getStartDate()) == today){
+                CreateClassResponse res = CreateClassResponse.builder()
+                        .message("start date for this class should be after today")
+                        .createdClass(null)
+                        .status(2)
+                        .build();
+                return res;
+            }
 
             classInfo = Class.builder()
                     .className(request.getNameClass())
@@ -144,9 +163,9 @@ public class ClassServiceImpl implements ClassService {
                     .duration(request.getTotalTimeLearning())
                     .startDate(sdf.parse(request.getStartDate()))
                     .endDate(sdf.parse(request.getEndDate()))
-                    .createdBy(user.getName())
-                    .review(review)
-                    .approve(approve)
+                    .createdBy(request.getCreated())
+                    .review(request.getReview())
+                    .approve(request.getApprove())
                     .attendeeActual(Integer.parseInt(request.getAttendeeActual()))
                     .attendee(request.getAttendee())
                     .attendeePlanned(Integer.parseInt(request.getAttendeePlanned()))
@@ -290,6 +309,7 @@ public class ClassServiceImpl implements ClassService {
             CreateClassResponse res = CreateClassResponse.builder()
                     .message("create class successfully.")
                     .createdClass(createClassDTO)
+                    .status(0)
                     .build();
             return res;
 
@@ -298,6 +318,7 @@ public class ClassServiceImpl implements ClassService {
             return CreateClassResponse.builder()
                     .message("fail to create class.")
                     .createdClass(null)
+                    .status(-1)
                     .build();
         }
 
@@ -322,130 +343,132 @@ public class ClassServiceImpl implements ClassService {
         if (c != null) {
             try {
                 log.info(c.getTrainingProgram().getTrainingProgramSyllabus().size());
-                TrainingProgram tp = trainingProgramDAO.findById(c.getTrainingProgram().getTrainingProgramCode()).get();
-
-//                List<String> locationList = new ArrayList<>();
-//                List<Location> classLocations = c.getLocations().stream().toList();
-
-                List<String> listDay = new ArrayList<>();
-                List<ClassLearningDay> classLearningDays = c.getClassLearningDays().stream().toList();
-
-                List<TrainerDTO> trainerList = new ArrayList<>();
-                List<UserClassSyllabus> userClassSyllabuses = c.getUserClassSyllabus().stream().toList();
-
-                List<UserDTO> attendeeList = new ArrayList<>();
-                List<UserDTO> adminList = new ArrayList<>();
-                List<ClassUser> classUsers = c.getClassUsers().stream().toList();
-
-                List<SyllabusDTO> syllabusList = new ArrayList<>();
-                List<TrainingProgramSyllabus> trainingProgramSyllabuses = tp.getTrainingProgramSyllabus().stream().toList();
-
-                List<User> trainers = new ArrayList<>();
-
-//                for (int i = 0; i < classLocations.size(); i++) {
-//                    locationList.add(classLocations.get(i).getLocation());
+//                TrainingProgram tp = trainingProgramDAO.findById(c.getTrainingProgram().getTrainingProgramCode()).get();
+//
+////                List<String> locationList = new ArrayList<>();
+////                List<Location> classLocations = c.getLocations().stream().toList();
+//
+//                List<String> listDay = new ArrayList<>();
+//                List<ClassLearningDay> classLearningDays = c.getClassLearningDays().stream().toList();
+//
+//                List<TrainerDTO> trainerList = new ArrayList<>();
+//                List<UserClassSyllabus> userClassSyllabuses = c.getUserClassSyllabus().stream().toList();
+//
+//                List<UserDTO> attendeeList = new ArrayList<>();
+//                List<UserDTO> adminList = new ArrayList<>();
+//                List<ClassUser> classUsers = c.getClassUsers().stream().toList();
+//
+//                List<SyllabusDTO> syllabusList = new ArrayList<>();
+//                List<TrainingProgramSyllabus> trainingProgramSyllabuses = tp.getTrainingProgramSyllabus().stream().toList();
+//
+//                List<User> trainers = new ArrayList<>();
+//
+////                for (int i = 0; i < classLocations.size(); i++) {
+////                    locationList.add(classLocations.get(i).getLocation());
+////                }
+//                for (int i = 0; i < classLearningDays.size(); i++) {
+//                    listDay.add(convertToMMDDYYYY(classLearningDays.get(i).getEnrollDate().toString().split(" ")[0]));
 //                }
-                for (int i = 0; i < classLearningDays.size(); i++) {
-                    listDay.add(convertToMMDDYYYY(classLearningDays.get(i).getEnrollDate().toString().split(" ")[0]));
-                }
-                for (int i = 0; i < userClassSyllabuses.size(); i++) {
-                    List<String> syllabusCodeList;
-                    if (trainerSyllabusMap.containsKey(userClassSyllabuses.get(i).getUserId().getUserId())) {
-                        syllabusCodeList = trainerSyllabusMap.get(userClassSyllabuses.get(i).getUserId().getUserId());
-                    } else {
-                        syllabusCodeList = new ArrayList<>();
-                        trainers.add(userClassSyllabuses.get(i).getUserId());
-                    }
-                    syllabusCodeList.add(userClassSyllabuses.get(i).getTopicCode().getTopicCode());
-                    trainerSyllabusMap.put(userClassSyllabuses.get(i).getUserId().getUserId(), syllabusCodeList);
-                }
-                for (int i = 0; i < trainers.size(); i++) {
-                    TrainerDTO trainer = TrainerDTO.builder()
-                            .userId(trainers.get(i).getUserId())
-                            .userName(trainers.get(i).getName())
-                            .userEmail(trainers.get(i).getEmail())
-                            .syllabusList(trainerSyllabusMap.get(trainers.get(i).getUserId()))
-                            .build();
-                    trainerList.add(trainer);
-                }
-                log.info(trainerSyllabusMap);
-                for (int i = 0; i < classUsers.size(); i++) {
-                    if (classUsers.get(i).getUserType().equalsIgnoreCase("user")) {
-                        UserDTO trainee = UserDTO.builder()
-                                .userId(classUsers.get(i).getUserID().getUserId())
-                                .userName(classUsers.get(i).getUserID().getName())
-                                .userEmail(classUsers.get(i).getUserID().getEmail())
-                                .build();
-                        attendeeList.add(trainee);
-                    } else {
-                        UserDTO admin = UserDTO.builder()
-                                .userId(classUsers.get(i).getUserID().getUserId())
-                                .userName(classUsers.get(i).getUserID().getName())
-                                .userEmail(classUsers.get(i).getUserID().getEmail())
-                                .build();
-                        adminList.add(admin);
-                    }
-                }
-                for (int i = 0; i < trainingProgramSyllabuses.size(); i++) {
-                    SyllabusDTO syllabus = SyllabusDTO.builder()
-                            .numberOfDay(trainingProgramSyllabuses.get(i).getTopicCode().getNumberOfDay())
-                            .version(trainingProgramSyllabuses.get(i).getTopicCode().getVersion())
-                            .createdDate(convertToMMDDYYYY(trainingProgramSyllabuses.get(i).getTopicCode().getCreatedDate().toString().split(" ")[0]))
-                            .createdBy(trainingProgramSyllabuses.get(i).getTopicCode().getCreatedBy().getName())
-                            .topicName(trainingProgramSyllabuses.get(i).getTopicCode().getTopicName())
-                            .publishStatus(trainingProgramSyllabuses.get(i).getTopicCode().getPublishStatus())
-                            .topicCode(trainingProgramSyllabuses.get(i).getTopicCode().getTopicCode())
-                            .build();
-
-                    syllabusList.add(syllabus);
-                }
-
-                log.info(c.getTimeFrom().toString());
-                log.info(c.getTimeTo().toString());
-
-                String timeFrom = c.getTimeFrom().toString();
-                timeFrom = timeFrom.substring(0, timeFrom.lastIndexOf(":"));
-                String timeTo = c.getTimeTo().toString();
-                timeTo = timeTo.substring(0, timeTo.lastIndexOf(":"));
-
-
-                ClassDetailResponse res = ClassDetailResponse.builder()
-                        .classCode(classCode.split("_")[0])
-                        .nameClass(c.getClassName())
-                        .created(c.getCreatedBy())
-                        .createdDate(convertToMMDDYYYY(c.getCreatedDate().toString().split(" ")[0]))
-                        .deactivated(c.isDeactivated())
-                        .totalTimeLearning(c.getDuration())
-                        .endDate(convertToMMDDYYYY(c.getEndDate().toString().split(" ")[0]))
-                        .modifiedBy(c.getModifiedBy())
-                        .modifiedDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getModifiedDate().toString().split(" ")[0]) : "")
-                        .startDate(convertToMMDDYYYY(c.getStartDate().toString().split(" ")[0]))
-                        .status(c.getStatus())
-                        .classTimeFrom(timeFrom)
-                        .classTimeTo(timeTo)
-                        .approve(c.getApprove())
-                        .review(c.getReview())
-                        .fsu(c.getFsu())
-                        .attendee(c.getAttendee())
-                        .attendeeAccepted(Integer.toString(c.getAttendeeAccepted()))
-                        .attendeePlanned(Integer.toString(c.getAttendeePlanned()))
-                        .attendeeActual(Integer.toString(c.getAttendeeActual()))
-                        .trainingProgram(TrainingProgramDTO.builder()
-                                .trainingProgramCode(c.getTrainingProgram().getTrainingProgramCode())
-                                .trainingProgramName(c.getTrainingProgram().getName())
-                                .modifyBy(c.getTrainingProgram().getModifiedBy())
-                                .modifyDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getTrainingProgram().getModifiedDate().toString().split(" ")[0]) : "")
-                                .duration(tp.getDuration())
-                                .build())
-                        .listDay(listDay)
-//                        .location(locationList)
-                        .location(capitalizeLocation(c.getLocation()))
-                        .trainer(trainerList)
-                        .attendeeList(attendeeList)
-                        .syllabusList(syllabusList)
-                        .admin(adminList)
-                        .message("found class with id " + classCode)
-                        .build();
+//                for (int i = 0; i < userClassSyllabuses.size(); i++) {
+//                    List<String> syllabusCodeList;
+//                    if (trainerSyllabusMap.containsKey(userClassSyllabuses.get(i).getUserId().getUserId())) {
+//                        syllabusCodeList = trainerSyllabusMap.get(userClassSyllabuses.get(i).getUserId().getUserId());
+//                    } else {
+//                        syllabusCodeList = new ArrayList<>();
+//                        trainers.add(userClassSyllabuses.get(i).getUserId());
+//                    }
+//                    syllabusCodeList.add(userClassSyllabuses.get(i).getTopicCode().getTopicCode());
+//                    trainerSyllabusMap.put(userClassSyllabuses.get(i).getUserId().getUserId(), syllabusCodeList);
+//                }
+//                for (int i = 0; i < trainers.size(); i++) {
+//                    TrainerDTO trainer = TrainerDTO.builder()
+//                            .userId(trainers.get(i).getUserId())
+//                            .userName(trainers.get(i).getName())
+//                            .userEmail(trainers.get(i).getEmail())
+//                            .syllabusList(trainerSyllabusMap.get(trainers.get(i).getUserId()))
+//                            .build();
+//                    trainerList.add(trainer);
+//                }
+//                log.info(trainerSyllabusMap);
+//                for (int i = 0; i < classUsers.size(); i++) {
+//                    if (classUsers.get(i).getUserType().equalsIgnoreCase("user")) {
+//                        UserDTO trainee = UserDTO.builder()
+//                                .userId(classUsers.get(i).getUserID().getUserId())
+//                                .userName(classUsers.get(i).getUserID().getName())
+//                                .userEmail(classUsers.get(i).getUserID().getEmail())
+//                                .build();
+//                        attendeeList.add(trainee);
+//                    } else {
+//                        UserDTO admin = UserDTO.builder()
+//                                .userId(classUsers.get(i).getUserID().getUserId())
+//                                .userName(classUsers.get(i).getUserID().getName())
+//                                .userEmail(classUsers.get(i).getUserID().getEmail())
+//                                .build();
+//                        adminList.add(admin);
+//                    }
+//                }
+//                for (int i = 0; i < trainingProgramSyllabuses.size(); i++) {
+//                    SyllabusDTO syllabus = SyllabusDTO.builder()
+//                            .numberOfDay(trainingProgramSyllabuses.get(i).getTopicCode().getNumberOfDay())
+//                            .version(trainingProgramSyllabuses.get(i).getTopicCode().getVersion())
+//                            .createdDate(convertToMMDDYYYY(trainingProgramSyllabuses.get(i).getTopicCode().getCreatedDate().toString().split(" ")[0]))
+//                            .createdBy(trainingProgramSyllabuses.get(i).getTopicCode().getCreatedBy().getName())
+//                            .topicName(trainingProgramSyllabuses.get(i).getTopicCode().getTopicName())
+//                            .publishStatus(trainingProgramSyllabuses.get(i).getTopicCode().getPublishStatus())
+//                            .topicCode(trainingProgramSyllabuses.get(i).getTopicCode().getTopicCode())
+//                            .build();
+//
+//                    syllabusList.add(syllabus);
+//                }
+//
+//                log.info(c.getTimeFrom().toString());
+//                log.info(c.getTimeTo().toString());
+//
+//                String timeFrom = c.getTimeFrom().toString();
+//                timeFrom = timeFrom.substring(0, timeFrom.lastIndexOf(":"));
+//                String timeTo = c.getTimeTo().toString();
+//                timeTo = timeTo.substring(0, timeTo.lastIndexOf(":"));
+//
+//
+//                ClassDetailResponse res = ClassDetailResponse.builder()
+//                        .classCode(classCode.split("_")[0])
+//                        .nameClass(c.getClassName())
+//                        .created(c.getCreatedBy())
+//                        .createdDate(convertToMMDDYYYY(c.getCreatedDate().toString().split(" ")[0]))
+//                        .deactivated(c.isDeactivated())
+//                        .totalTimeLearning(c.getDuration())
+//                        .endDate(convertToMMDDYYYY(c.getEndDate().toString().split(" ")[0]))
+//                        .modifiedBy(c.getModifiedBy())
+//                        .modifiedDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getModifiedDate().toString().split(" ")[0]) : "")
+//                        .startDate(convertToMMDDYYYY(c.getStartDate().toString().split(" ")[0]))
+//                        .status(c.getStatus())
+//                        .classTimeFrom(timeFrom)
+//                        .classTimeTo(timeTo)
+//                        .approve(c.getApprove())
+//                        .review(c.getReview())
+//                        .fsu(c.getFsu())
+//                        .attendee(c.getAttendee())
+//                        .attendeeAccepted(Integer.toString(c.getAttendeeAccepted()))
+//                        .attendeePlanned(Integer.toString(c.getAttendeePlanned()))
+//                        .attendeeActual(Integer.toString(c.getAttendeeActual()))
+//                        .trainingProgram(TrainingProgramDTO.builder()
+//                                .trainingProgramCode(c.getTrainingProgram().getTrainingProgramCode())
+//                                .trainingProgramName(c.getTrainingProgram().getName())
+//                                .modifyBy(c.getTrainingProgram().getModifiedBy())
+//                                .modifyDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getTrainingProgram().getModifiedDate().toString().split(" ")[0]) : "")
+//                                .duration(tp.getDuration())
+//                                .status(c.getTrainingProgram().getStatus())
+//                                .build())
+//                        .listDay(listDay)
+////                        .location(locationList)
+//                        .location(capitalizeLocation(c.getLocation()))
+//                        .trainer(trainerList)
+//                        .attendeeList(attendeeList)
+//                        .syllabusList(syllabusList)
+//                        .admin(adminList)
+//                        .message("found class with id " + classCode)
+//                        .build();
+                ClassDetailResponse res = getFullClassDetail(classCode);
                 return ResponseEntity.status(200).body(res);
             } catch (Exception err) {
                 err.printStackTrace();
@@ -474,8 +497,18 @@ public class ClassServiceImpl implements ClassService {
                 User user = null;
                 boolean trainingProgramChanges = false;
                 SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+                Date today = new Date();
                 String timeFromStr = request.getClassTimeFrom().split(":").length == 3 ? request.getClassTimeFrom() : request.getClassTimeFrom() + ":00";
                 String timeToStr = request.getClassTimeTo().split(":").length == 3 ? request.getClassTimeTo() : request.getClassTimeTo() + ":00";
+
+                if(sdf.parse(request.getStartDate()).before(today) || sdf.parse(request.getStartDate()) == today){
+                    UpdateClassResponse res = UpdateClassResponse.builder()
+                            .message("start date for this class should be after today")
+                            .updatedClass(null)
+                            .status(2)
+                            .build();
+                    return res;
+                }
 
                 existingClass.setClassId(existingClass.getClassId());
                 existingClass.setClassName(request.getNameClass());
@@ -1018,11 +1051,33 @@ public class ClassServiceImpl implements ClassService {
         String timeTo = c.getTimeTo().toString();
         timeTo = timeTo.substring(0, timeTo.lastIndexOf(":"));
 
+        User creator = userDAO.findByEmail(c.getCreatedBy()).get();
+        User reviewer = userDAO.findByEmail(c.getReview()).get();
+        User approver = userDAO.findByEmail(c.getApprove()).get();
+
+        UserDTO created = UserDTO.builder()
+                .userEmail(creator.getEmail())
+                .userName(creator.getName())
+                .userId(creator.getUserId())
+                .build();
+
+        UserDTO review = UserDTO.builder()
+                .userId(reviewer.getUserId())
+                .userEmail(reviewer.getEmail())
+                .userName(reviewer.getName())
+                .build();
+
+        UserDTO approve = UserDTO.builder()
+                .userName(approver.getName())
+                .userEmail(approver.getEmail())
+                .userId(approver.getUserId())
+                .build();
+
 
         ClassDetailResponse res = ClassDetailResponse.builder()
                 .classCode(classCode.split("_")[0])
                 .nameClass(c.getClassName())
-                .created(c.getCreatedBy())
+                .created(created)
                 .createdDate(convertToMMDDYYYY(c.getCreatedDate().toString().split(" ")[0]))
                 .deactivated(c.isDeactivated())
                 .totalTimeLearning(c.getDuration())
@@ -1033,8 +1088,8 @@ public class ClassServiceImpl implements ClassService {
                 .status(c.getStatus())
                 .classTimeFrom(timeFrom)
                 .classTimeTo(timeTo)
-                .approve(c.getApprove())
-                .review(c.getReview())
+                .approve(approve)
+                .review(review)
                 .fsu(c.getFsu())
                 .attendee(c.getAttendee())
                 .attendeeAccepted(Integer.toString(c.getAttendeeAccepted()))
@@ -1046,6 +1101,7 @@ public class ClassServiceImpl implements ClassService {
                         .modifyBy(c.getTrainingProgram().getModifiedBy())
                         .modifyDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getTrainingProgram().getModifiedDate().toString().split(" ")[0]) : "")
                         .duration(tp.getDuration())
+                        .status(c.getTrainingProgram().getStatus())
                         .build())
                 .listDay(listDay)
 //                        .location(locationList)
