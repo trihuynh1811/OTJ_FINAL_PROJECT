@@ -62,8 +62,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(new ResponseObject("Failed", "The Training Program name already been used", null));
     }
-    if (!trainingProgramDTO.getStartDate().before(date)
-        && date != trainingProgramDTO.getStartDate()) {
+    if (true) {
       trainingProgram.setStartDate(trainingProgramDTO.getStartDate());
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
