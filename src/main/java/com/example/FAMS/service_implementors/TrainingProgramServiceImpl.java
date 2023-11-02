@@ -78,7 +78,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
           .body(new ResponseObject("Failed", "The duration cannot be negative", null));
     }
     if (trainingProgramDTO.getStatus().contains("Active")
-        || trainingProgramDTO.getStatus().contains("Inactive")
+        || trainingProgramDTO.getStatus().contains("inActive")
         || trainingProgramDTO.getStatus().contains("Drafting")) {
       trainingProgram.setStatus(trainingProgramDTO.getStatus());
     } else {
