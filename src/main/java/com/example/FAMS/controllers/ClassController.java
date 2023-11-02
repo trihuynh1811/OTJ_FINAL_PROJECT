@@ -64,10 +64,13 @@ public class ClassController {
             Authentication authentication) {
         // Xử lý tạo lớp học dựa trên thông tin từ request
         CreateClassResponse result = classService.createClass(createClassDTO, authentication);
-        if (result != null) {
+        if (result.getStatus() == 0) {
             return ResponseEntity.status(200).body(result);
         }
-        return ResponseEntity.status(400).body(result);
+        else if(result.getStatus() > 0){
+            return ResponseEntity.status(418).body(result);
+        }
+        return ResponseEntity.status(500).body(result);
     }
 
     @PutMapping("/update")
@@ -76,7 +79,7 @@ public class ClassController {
         UpdateClassResponse updatedClass = classService.updateClass(updateClassRequest);
         if (updatedClass.getStatus() == 0) {
             return ResponseEntity.ok(updatedClass);
-        } else if (updatedClass.getStatus() == 1) {
+        } else if (updatedClass.getStatus() > 0) {
             return ResponseEntity.status(400).body(updatedClass);
         } else {
             return ResponseEntity.status(500).body(updatedClass);

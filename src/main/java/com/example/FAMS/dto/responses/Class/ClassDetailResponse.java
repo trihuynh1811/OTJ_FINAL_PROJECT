@@ -21,14 +21,13 @@ public class ClassDetailResponse {
     private String status;
     private String classTimeFrom;
     private String classTimeTo;
-//    private List<String> location;
     private String location;
     private String fsu;
     private String startDate;
     private String endDate;
-    private String created;
-    private String review;
-    private String approve;
+    private UserDTO created;
+    private UserDTO review;
+    private UserDTO approve;
     private String attendee;
     private String attendeePlanned;
     private String attendeeAccepted;

@@ -13,5 +13,6 @@ import lombok.NoArgsConstructor;
 public class CreateClassResponse {
 
     String message;
+    int status;
     CreateClassDTO createdClass;
 }
