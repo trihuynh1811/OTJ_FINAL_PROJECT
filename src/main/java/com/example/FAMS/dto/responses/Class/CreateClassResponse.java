@@ -1,6 +1,6 @@
 package com.example.FAMS.dto.responses.Class;
 
-import com.example.FAMS.models.Class;
+import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreateClassResponse {
 
-    Object createdClass;
     String message;
+    CreateClassDTO createdClass;
 }

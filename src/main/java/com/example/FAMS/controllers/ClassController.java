@@ -9,7 +9,9 @@ import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.models.Class;
+import com.example.FAMS.models.UserClassSyllabus;
 import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
+import com.example.FAMS.repositories.UserClassSyllabusDAO;
 import com.example.FAMS.service_implementors.ClassServiceImpl;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,9 @@ public class ClassController {
     @Autowired
     ClassServiceImpl classService;
 
+    @Autowired
+    UserClassSyllabusDAO userClassSyllabusDAO;
+
     @GetMapping
     @PreAuthorize("hasAuthority('class:read')")
     public ResponseEntity<List<GetClassesResponse>> getClasses() {
@@ -46,29 +51,17 @@ public class ClassController {
 //        return ResponseEntity.ok(classService.getDetailClasses());
 //    }
 
-    @PostMapping("/create/{type}")
+    @PostMapping("/create")
     @PreAuthorize("hasAuthority('class:create')")
     public ResponseEntity<CreateClassResponse> createClass(
-            @PathVariable(name = "type", required = false) String type,
             @RequestBody CreateClassDTO createClassDTO,
             Authentication authentication) {
-
-        switch (type) {
-            case "general":
-                // Xử lý tạo lớp học dựa trên thông tin từ request
-                Class result = classService.createClass(createClassDTO, authentication);
-                if(result == null){
-                    return ResponseEntity.status(400).body(new CreateClassResponse(null, "fail create class."));
-                }
-                return ResponseEntity.status(200).body(new CreateClassResponse(result, "successfully create class."));
-            case "schedule":
-                // Xử lý tạo lịch trình cho lớp học
-                break;
-            case "other":
-                // Xử lý tạo thông tin khác cho lớp học
-                break;
+        // Xử lý tạo lớp học dựa trên thông tin từ request
+        CreateClassResponse result = classService.createClass(createClassDTO, authentication);
+        if (result != null) {
+            return ResponseEntity.status(200).body(result);
         }
-        return ResponseEntity.status(400).body(new CreateClassResponse(null, "fail to create class."));
+        return ResponseEntity.status(400).body(result);
     }
 
     @PutMapping("/update/{classId}")
@@ -78,10 +71,9 @@ public class ClassController {
         UpdateClassResponse updatedClass = classService.updateClass(updateClassRequest);
         if (updatedClass.getStatus() == 0) {
             return ResponseEntity.ok(updatedClass);
-        } else if(updatedClass.getStatus() == 1) {
+        } else if (updatedClass.getStatus() == 1) {
             return ResponseEntity.status(400).body(updatedClass);
-        }
-        else{
+        } else {
             return ResponseEntity.status(500).body(updatedClass);
         }
     }
@@ -102,7 +94,7 @@ public class ClassController {
     }
 
     @PutMapping("/deactivate/{id}")
-    public ResponseEntity<DeactivateClassResponse> deactivateClass(@PathVariable("id") String classCode){
+    public ResponseEntity<DeactivateClassResponse> deactivateClass(@PathVariable("id") String classCode) {
         return classService.deactivateClass(classCode);
     }
 
@@ -113,14 +105,14 @@ public class ClassController {
     }
 
     @GetMapping("/listClassPagenation")
-    public ResponseEntity<?> getallPagenation(Pageable pageable){
+    public ResponseEntity<?> getallPagenation(Pageable pageable) {
         return ResponseEntity.ok(classService.getAllPagenation(pageable));
 
     }
 
     @GetMapping("/sortCalendar")
     @PreAuthorize("hasAuthority('class:read')")
-    public ResponseEntity<?> sortCalendar(){
+    public ResponseEntity<?> sortCalendar() {
         return ResponseEntity.ok(classService.CalendarSort());
 
     }
