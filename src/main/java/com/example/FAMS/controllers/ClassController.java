@@ -3,12 +3,15 @@ package com.example.FAMS.controllers;
 import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
 import com.example.FAMS.dto.requests.ClassRequest.UpdateClass3Request;
-import com.example.FAMS.dto.requests.UpdateClassRequest;
+import com.example.FAMS.dto.requests.ClassRequest.UpdateClassDTO;
+import com.example.FAMS.dto.requests.ClassRequest.UpdateClassRequest;
 import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.models.Class;
+import com.example.FAMS.models.UserClassSyllabus;
 import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
+import com.example.FAMS.repositories.UserClassSyllabusDAO;
 import com.example.FAMS.service_implementors.ClassServiceImpl;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +31,23 @@ import java.util.List;
 @RequestMapping("/api/class")
 @PreAuthorize("hasRole('CLASS_ADMIN') or hasRole('SUPER_ADMIN') or hasRole('TRAINER')")
 @Log4j2
-public class    ClassController {
+public class ClassController {
 
     @Autowired
     ClassServiceImpl classService;
 
+    @Autowired
+    UserClassSyllabusDAO userClassSyllabusDAO;
+
+//    @GetMapping
+//    @PreAuthorize("hasAuthority('class:read')")
+//    public ResponseEntity<List<GetClassesResponse>> getClasses() {
+//        return ResponseEntity.status(HttpStatus.OK).body(classService.getClasses());
+//    }
 
     @GetMapping
     @PreAuthorize("hasAuthority('class:read')")
-    public ResponseEntity<List<GetClassesResponse>> getClasses() {
+    public ResponseEntity<List<ClassDetailResponse>> getClasses() {
         return ResponseEntity.status(HttpStatus.OK).body(classService.getClasses());
     }
 
@@ -46,45 +57,29 @@ public class    ClassController {
 //        return ResponseEntity.ok(classService.getDetailClasses());
 //    }
 
-    @PostMapping("/create/{type}")
+    @PostMapping("/create")
     @PreAuthorize("hasAuthority('class:create')")
     public ResponseEntity<CreateClassResponse> createClass(
-            @PathVariable(name = "type", required = false) String type,
             @RequestBody CreateClassDTO createClassDTO,
             Authentication authentication) {
-
-        switch (type) {
-            case "general":
-                // Xử lý tạo lớp học dựa trên thông tin từ request
-                Class result = classService.createClass(createClassDTO, authentication);
-                if(result == null){
-                    return ResponseEntity.status(400).body(new CreateClassResponse(null, "fail create class."));
-                }
-                return ResponseEntity.status(200).body(new CreateClassResponse(result, "successfully create class."));
-            case "schedule":
-                // Xử lý tạo lịch trình cho lớp học
-                break;
-            case "other":
-                // Xử lý tạo thông tin khác cho lớp học
-                break;
+        // Xử lý tạo lớp học dựa trên thông tin từ request
+        CreateClassResponse result = classService.createClass(createClassDTO, authentication);
+        if (result != null) {
+            return ResponseEntity.status(200).body(result);
         }
-        return ResponseEntity.status(400).body(new CreateClassResponse(null, "fail to create class."));
+        return ResponseEntity.status(400).body(result);
     }
 
-    @GetMapping("/draft/create/{type}")
-    @PreAuthorize("hasAuthority('class:create')")
-    public ResponseEntity<List<Class>> draftCreateClass(@PathVariable("type") String type) {
-        return ResponseEntity.status(HttpStatus.OK).body(classService.getDetailClasses());
-    }
-
-    @PutMapping("/update/{classId}")
-    public ResponseEntity<UpdateClassResponse> updateClass(
-            @PathVariable int classId, @RequestBody UpdateClassRequest updateClassRequest) {
+    @PutMapping("/update")
+    @PreAuthorize("hasAuthority('class:update')")
+    public ResponseEntity<UpdateClassResponse> updateClass(@RequestBody UpdateClassDTO updateClassRequest) {
         UpdateClassResponse updatedClass = classService.updateClass(updateClassRequest);
-        if (updatedClass != null) {
+        if (updatedClass.getStatus() == 0) {
             return ResponseEntity.ok(updatedClass);
+        } else if (updatedClass.getStatus() == 1) {
+            return ResponseEntity.status(400).body(updatedClass);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(500).body(updatedClass);
         }
     }
 
@@ -103,8 +98,8 @@ public class    ClassController {
         return classService.getFilter();
     }
 
-    @PostMapping("/deactivate/{id}")
-    public ResponseEntity<DeactivateClassResponse> deactivateClass(@PathVariable("id") String classCode){
+    @PutMapping("/deactivate/{id}")
+    public ResponseEntity<DeactivateClassResponse> deactivateClass(@PathVariable("id") String classCode) {
         return classService.deactivateClass(classCode);
     }
 
@@ -114,20 +109,15 @@ public class    ClassController {
         return classService.getClassDetail(classCode);
     }
 
-    @GetMapping("/listClass")
-    public ResponseEntity<?> getall(){
-        return ResponseEntity.ok(classService.getAll());
-
-    }
-
     @GetMapping("/listClassPagenation")
-    public ResponseEntity<?> getallPagenation(Pageable pageable){
+    public ResponseEntity<?> getallPagenation(Pageable pageable) {
         return ResponseEntity.ok(classService.getAllPagenation(pageable));
 
     }
 
     @GetMapping("/sortCalendar")
-    public ResponseEntity<?> sortCalendar(){
+    @PreAuthorize("hasAuthority('class:read')")
+    public ResponseEntity<?> sortCalendar() {
         return ResponseEntity.ok(classService.CalendarSort());
 
     }
@@ -149,6 +139,7 @@ public class    ClassController {
     }
 
     @PutMapping("/update-calendar")
+    @PreAuthorize("hasAuthority('class:update')")
     public UpdateCalendarResponse updateClassLearningDay(@RequestBody UpdateCalendarRequest request) throws ParseException {
         return classService.updateClassLearningDay(request);
     }

@@ -2,8 +2,8 @@ package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
 import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
+import com.example.FAMS.dto.requests.ClassRequest.UpdateClassDTO;
 import com.example.FAMS.dto.requests.ClassRequest.UpdateClass3Request;
-import com.example.FAMS.dto.requests.UpdateClassRequest;
 import com.example.FAMS.dto.responses.CalendarDayResponse;
 import com.example.FAMS.dto.responses.CalendarWeekResponse;
 import com.example.FAMS.dto.responses.Class.*;
@@ -14,7 +14,6 @@ import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.models.Class;
 import com.example.FAMS.models.composite_key.ClassUserCompositeKey;
 import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
-import com.example.FAMS.models.composite_key.UserClassSyllabusCompositeKey;
 import com.example.FAMS.repositories.*;
 import com.example.FAMS.services.ClassService;
 import com.google.common.base.Strings;
@@ -63,8 +62,8 @@ public class ClassServiceImpl implements ClassService {
     @Autowired
     ClassUserDAO classUserDAO;
 
-    @Autowired
-    LocationDAO locationDAO;
+//    @Autowired
+//    LocationDAO locationDAO;
 
 //    @Autowired
 //    ClassLocationDAO classLocationDAO;
@@ -77,27 +76,36 @@ public class ClassServiceImpl implements ClassService {
     List<CalendarWeekResponse> weekCalendars;
 
     @Override
-    public List<GetClassesResponse> getClasses() {
+    public List<ClassDetailResponse> getClasses() {
         List<Class> classes = classDAO.findTop1000ByOrderByCreatedDateDesc();
-        List<GetClassesResponse> res = new ArrayList<>();
+//        List<GetClassesResponse> res = new ArrayList<>();
+        List<ClassDetailResponse> res = new ArrayList<>();
         List<String> location = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
 
+//        log.info(classLearningDayDAO.findByClassId_ClassIdAndLocationId_LocationId("lmao", 2L));
+
         for (int i = 0; i < classes.size(); i++) {
-            for (int j = 0; j < classes.get(i).getLocations().stream().toList().size(); j++) {
-                location.add(classes.get(i).getLocations().stream().toList().get(j).getLocation());
+//            for (int j = 0; j < classes.get(i).getLocations().stream().toList().size(); j++) {
+//                location.add(classes.get(i).getLocations().stream().toList().get(j).getLocation());
+//            }
+            if (!classes.get(i).isDeactivated()) {
+//                GetClassesResponse c = GetClassesResponse.builder()
+//                        .classCode(classes.get(i).getClassId().split("_")[0])
+//                        .className(classes.get(i).getClassName())
+//                        .fsu(classes.get(i).getFsu())
+//                        .location(capitalizeLocation(classes.get(i).getLocation()))
+//                        .createdOn(sdf.format(new Date(classes.get(i).getCreatedDate().getTime())))
+//                        .createdBy(classes.get(i).getCreatedBy())
+//                        .duration(classes.get(i).getDuration())
+//                        .status(classes.get(i).getStatus())
+//                        .isDeactivated(Boolean.toString(classes.get(i).isDeactivated()))
+//                        .build();
+
+                ClassDetailResponse detail = getFullClassDetail(classes.get(i).getClassId());
+//                res.add(c);
+                res.add(detail);
             }
-            GetClassesResponse c = GetClassesResponse.builder()
-                    .classCode(classes.get(i).getClassId())
-                    .className(classes.get(i).getClassName())
-                    .fsu(classes.get(i).getFsu())
-                    .location(location)
-                    .createdOn(sdf.format(new Date(classes.get(i).getCreatedDate().getTime())))
-                    .createdBy(classes.get(i).getCreatedBy())
-                    .duration(classes.get(i).getDuration())
-                    .status(classes.get(i).getStatus())
-                    .build();
-            res.add(c);
         }
         return res;
     }
@@ -107,13 +115,13 @@ public class ClassServiceImpl implements ClassService {
         try {
             filterResponses = classDAO.searchByFilter();
             return ResponseEntity.ok(new ResponseObject("Successful", "List of classroom", filterResponses));
-        } catch(Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't found the list", e.getMessage()));
         }
     }
 
     @Override
-    public Class createClass(CreateClassDTO request, Authentication authentication) {
+    public CreateClassResponse createClass(CreateClassDTO request, Authentication authentication) {
         try {
             log.info(request);
             Class classInfo = null;
@@ -122,7 +130,7 @@ public class ClassServiceImpl implements ClassService {
             List<ClassLearningDay> classLearningDayList = new ArrayList<>();
 //            List<ClassLocation> classLocationList = new ArrayList<>();
 //            Fsu fsu = fsuDAO.findById(request.getFsu().toUpperCase()).get();
-            List<Location> locationList = new ArrayList<>();
+//            Location l = null;
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
             User user = userDAO.findByEmail(request.getCreated()).get();
             String review = userDAO.findByEmail(request.getReview()).get().getName();
@@ -146,28 +154,49 @@ public class ClassServiceImpl implements ClassService {
                     .timeFrom(Time.valueOf(timeFromStr))
                     .timeTo(Time.valueOf(timeToStr))
                     .fsu(request.getFsu())
+                    .location(capitalizeLocation(request.getLocation()))
                     .status(request.getStatus())
-                    .trainingProgram(trainingProgramDAO.findById(Integer.parseInt(request.getTrainingProgram())).get())
+                    .trainingProgram(trainingProgramDAO.findByName(request.getTrainingProgram()))
                     .createdDate(new java.util.Date())
                     .build();
 
             classDAO.save(classInfo);
 
-            for (int i = 0; i < request.getListDay().size(); i++) {
-                Date date = sdf.parse(request.getListDay().get(i));
-                String[] getDate = request.getListDay().get(i).split("/");
+//                Location location = locationDAO.findById(Long.parseLong(request.getLocation().get(i))).get();
+//                ClassLocation cl = ClassLocation.builder()
+//                        .id(ClassLocationCompositeKey.builder()
+//                                .classCode(classInfo.getClassId())
+//                                .locationId(location.getLocationId())
+//                                .build())
+//                        .locationCode(location)
+//                        .classCode(classInfo)
+//                        .build();
+
+//                l = Location.builder()
+//                        .location(request.getLocation())
+//                        .classId(classInfo)
+//                        .build();
+
+//                classLocationList.add(cl);
+//            l = locationDAO.save(l);
+
+            for (int j = 0; j < request.getListDay().size(); j++) {
+                Date date = sdf.parse(request.getListDay().get(j));
+                String[] getDate = request.getListDay().get(j).split("/");
                 ClassLearningDay learningDay = ClassLearningDay.builder()
                         .classId(classInfo)
                         .date(Integer.parseInt(getDate[1]))
                         .month(Integer.parseInt(getDate[0]))
                         .year(Integer.parseInt(getDate[2]))
                         .enrollDate(date)
+//                            .locationId(l)
                         .timeFrom(classInfo.getTimeFrom())
                         .timeTo(classInfo.getTimeTo())
                         .build();
 
                 classLearningDayList.add(learningDay);
             }
+
 
             for (int i = 0; i < request.getAttendeeList().size(); i++) {
                 user = userDAO.findByEmail(request.getAttendeeList().get(i)).get();
@@ -183,7 +212,7 @@ public class ClassServiceImpl implements ClassService {
 
                 classUserList.add(classUser);
             }
-            for(int i = 0; i < request.getAdmin().size(); i++){
+            for (int i = 0; i < request.getAdmin().size(); i++) {
                 user = userDAO.findByEmail(request.getAdmin().get(i)).get();
                 ClassUser classAdmin = ClassUser.builder()
                         .id(ClassUserCompositeKey.builder()
@@ -193,6 +222,7 @@ public class ClassServiceImpl implements ClassService {
                         .userID(user)
                         .classId(classInfo)
                         .userType(user.getRole().getRole().name())
+//                        .location(l.getLocation())
                         .build();
 
                 classUserList.add(classAdmin);
@@ -204,14 +234,15 @@ public class ClassServiceImpl implements ClassService {
                     Syllabus s = syllabusDAO.findById(request.getTrainer().get(i).getClassCode().get(j)).get();
 
                     UserClassSyllabus userClassSyllabus = UserClassSyllabus.builder()
-                            .id(UserClassSyllabusCompositeKey.builder()
-                                    .classCode(classInfo.getClassId())
-                                    .userId(user.getUserId())
-                                    .topicCode(s.getTopicCode())
-                                    .build())
+//                            .id(UserClassSyllabusCompositeKey.builder()
+//                                    .classCode(classInfo.getClassId())
+//                                    .userId(user.getUserId())
+//                                    .topicCode(s.getTopicCode())
+//                                    .build())
                             .classCode(classInfo)
                             .topicCode(s)
                             .userId(user)
+//                            .location(l.getLocation())
                             .userType(user.getRole().getRole().name())
                             .build();
 
@@ -219,41 +250,55 @@ public class ClassServiceImpl implements ClassService {
                 }
             }
 
-            for (int i = 0; i < request.getLocation().size(); i++) {
-//                Location location = locationDAO.findById(Long.parseLong(request.getLocation().get(i))).get();
-//                ClassLocation cl = ClassLocation.builder()
-//                        .id(ClassLocationCompositeKey.builder()
-//                                .classCode(classInfo.getClassId())
-//                                .locationId(location.getLocationId())
-//                                .build())
-//                        .locationCode(location)
-//                        .classCode(classInfo)
-//                        .build();
-
-                Location l = Location.builder()
-                        .location(request.getLocation().get(i))
-                        .classId(classInfo)
-                        .build();
-
-//                classLocationList.add(cl);
-                locationList.add(l);
-            }
 
             classLearningDayDAO.saveAll(classLearningDayList);
             classUserDAO.saveAll(classUserList);
             userClassSyllabusDAO.saveAll(userSyllabusList);
 //            classLocationDAO.saveAll(classLocationList);
-            locationDAO.saveAll(locationList);
+
+            String timeFrom = classInfo.getTimeFrom().toString();
+            timeFrom = timeFrom.substring(0, timeFrom.lastIndexOf(":"));
+            String timeTo = classInfo.getTimeTo().toString();
+            timeTo = timeTo.substring(0, timeTo.lastIndexOf(":"));
+
+            CreateClassDTO createClassDTO = CreateClassDTO.builder()
+                    .classCode(classInfo.getClassId())
+                    .nameClass(classInfo.getClassName())
+                    .totalTimeLearning(classInfo.getDuration())
+                    .classTimeTo(timeTo)
+                    .classTimeFrom(timeFrom)
+                    .location(classInfo.getLocation())
+                    .status(classInfo.getStatus())
+                    .fsu(classInfo.getFsu())
+                    .startDate(request.getStartDate())
+                    .endDate(request.getEndDate())
+                    .created(request.getCreated())
+                    .review(request.getReview())
+                    .approve(request.getApprove())
+                    .attendee(request.getAttendee())
+                    .attendeePlanned(request.getAttendeePlanned())
+                    .attendeeAccepted(request.getAttendeeAccepted())
+                    .attendeeActual(request.getAttendeeActual())
+                    .trainingProgram(request.getTrainingProgram())
+                    .attendeeList(request.getAttendeeList())
+                    .listDay(request.getListDay())
+                    .trainer(request.getTrainer())
+                    .admin(request.getAdmin())
+
+                    .build();
 
             CreateClassResponse res = CreateClassResponse.builder()
-                    .createdClass(classInfo)
                     .message("create class successfully.")
+                    .createdClass(createClassDTO)
                     .build();
-            return classInfo;
+            return res;
 
         } catch (Exception err) {
             err.printStackTrace();
-            return null;
+            return CreateClassResponse.builder()
+                    .message("fail to create class.")
+                    .createdClass(null)
+                    .build();
         }
 
     }
@@ -263,6 +308,7 @@ public class ClassServiceImpl implements ClassService {
         Class c = classDAO.findById(classCode).isPresent() ? classDAO.findById(classCode).get() : null;
         if (c != null) {
             c.setDeactivated(true);
+            classDAO.save(c);
             return ResponseEntity.status(200).body(new DeactivateClassResponse("successfully deactivate class with id " + classCode + " (⌐■_■)👍"));
         }
         return ResponseEntity.status(400).body(new DeactivateClassResponse("fail to deactivate class with id " + classCode + " (⌐■⌒■)👎"));
@@ -278,8 +324,8 @@ public class ClassServiceImpl implements ClassService {
                 log.info(c.getTrainingProgram().getTrainingProgramSyllabus().size());
                 TrainingProgram tp = trainingProgramDAO.findById(c.getTrainingProgram().getTrainingProgramCode()).get();
 
-                List<String> locationList = new ArrayList<>();
-                List<Location> classLocations = c.getLocations().stream().toList();
+//                List<String> locationList = new ArrayList<>();
+//                List<Location> classLocations = c.getLocations().stream().toList();
 
                 List<String> listDay = new ArrayList<>();
                 List<ClassLearningDay> classLearningDays = c.getClassLearningDays().stream().toList();
@@ -296,25 +342,24 @@ public class ClassServiceImpl implements ClassService {
 
                 List<User> trainers = new ArrayList<>();
 
-                for (int i = 0; i < classLocations.size(); i++) {
-                    locationList.add(classLocations.get(i).getLocation());
-                }
+//                for (int i = 0; i < classLocations.size(); i++) {
+//                    locationList.add(classLocations.get(i).getLocation());
+//                }
                 for (int i = 0; i < classLearningDays.size(); i++) {
                     listDay.add(convertToMMDDYYYY(classLearningDays.get(i).getEnrollDate().toString().split(" ")[0]));
                 }
                 for (int i = 0; i < userClassSyllabuses.size(); i++) {
                     List<String> syllabusCodeList;
-                    if(trainerSyllabusMap.containsKey(userClassSyllabuses.get(i).getUserId().getUserId())){
+                    if (trainerSyllabusMap.containsKey(userClassSyllabuses.get(i).getUserId().getUserId())) {
                         syllabusCodeList = trainerSyllabusMap.get(userClassSyllabuses.get(i).getUserId().getUserId());
-                    }
-                    else{
+                    } else {
                         syllabusCodeList = new ArrayList<>();
                         trainers.add(userClassSyllabuses.get(i).getUserId());
                     }
                     syllabusCodeList.add(userClassSyllabuses.get(i).getTopicCode().getTopicCode());
                     trainerSyllabusMap.put(userClassSyllabuses.get(i).getUserId().getUserId(), syllabusCodeList);
                 }
-                for(int i = 0; i < trainers.size(); i++){
+                for (int i = 0; i < trainers.size(); i++) {
                     TrainerDTO trainer = TrainerDTO.builder()
                             .userId(trainers.get(i).getUserId())
                             .userName(trainers.get(i).getName())
@@ -325,15 +370,14 @@ public class ClassServiceImpl implements ClassService {
                 }
                 log.info(trainerSyllabusMap);
                 for (int i = 0; i < classUsers.size(); i++) {
-                    if(classUsers.get(i).getUserType().equalsIgnoreCase("user")){
+                    if (classUsers.get(i).getUserType().equalsIgnoreCase("user")) {
                         UserDTO trainee = UserDTO.builder()
                                 .userId(classUsers.get(i).getUserID().getUserId())
                                 .userName(classUsers.get(i).getUserID().getName())
                                 .userEmail(classUsers.get(i).getUserID().getEmail())
                                 .build();
                         attendeeList.add(trainee);
-                    }
-                    else{
+                    } else {
                         UserDTO admin = UserDTO.builder()
                                 .userId(classUsers.get(i).getUserID().getUserId())
                                 .userName(classUsers.get(i).getUserID().getName())
@@ -366,19 +410,19 @@ public class ClassServiceImpl implements ClassService {
 
 
                 ClassDetailResponse res = ClassDetailResponse.builder()
-                        .classId(classCode)
-                        .className(c.getClassName())
-                        .createdBy(c.getCreatedBy())
+                        .classCode(classCode.split("_")[0])
+                        .nameClass(c.getClassName())
+                        .created(c.getCreatedBy())
                         .createdDate(convertToMMDDYYYY(c.getCreatedDate().toString().split(" ")[0]))
                         .deactivated(c.isDeactivated())
-                        .duration(c.getDuration())
+                        .totalTimeLearning(c.getDuration())
                         .endDate(convertToMMDDYYYY(c.getEndDate().toString().split(" ")[0]))
                         .modifiedBy(c.getModifiedBy())
                         .modifiedDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getModifiedDate().toString().split(" ")[0]) : "")
                         .startDate(convertToMMDDYYYY(c.getStartDate().toString().split(" ")[0]))
                         .status(c.getStatus())
-                        .timeFrom(timeFrom)
-                        .timeTo(timeTo)
+                        .classTimeFrom(timeFrom)
+                        .classTimeTo(timeTo)
                         .approve(c.getApprove())
                         .review(c.getReview())
                         .fsu(c.getFsu())
@@ -394,11 +438,12 @@ public class ClassServiceImpl implements ClassService {
                                 .duration(tp.getDuration())
                                 .build())
                         .listDay(listDay)
-                        .location(locationList)
-                        .trainerList(trainerList)
+//                        .location(locationList)
+                        .location(capitalizeLocation(c.getLocation()))
+                        .trainer(trainerList)
                         .attendeeList(attendeeList)
                         .syllabusList(syllabusList)
-                        .adminList(adminList)
+                        .admin(adminList)
                         .message("found class with id " + classCode)
                         .build();
                 return ResponseEntity.status(200).body(res);
@@ -412,47 +457,202 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public UpdateClassResponse updateClass(UpdateClassRequest updateClassRequest) {
-        Optional<Class> optionalClass = classDAO.findById(updateClassRequest.getClassCode());
-        Class existingClass = optionalClass.orElse(null);
-        if (existingClass != null) {
-            existingClass =
-                    Class.builder()
-                            .classId(existingClass.getClassId())
-                            .className(updateClassRequest.getClassName())
-                            .classId(updateClassRequest.getClassCode())
-                            .duration(updateClassRequest.getDuration())
-                            .startDate(updateClassRequest.getStartDate())
-                            .endDate(updateClassRequest.getEndDate())
-                            .createdBy(existingClass.getCreatedBy())
-                            .createdDate(existingClass.getCreatedDate())
-                            .modifiedBy(existingClass.getModifiedBy())
-                            .modifiedDate(existingClass.getModifiedDate())
-                            .classLearningDays(
-                                    existingClass.getClassLearningDays()) // Bổ sung cập nhật danh sách ngày học
+    public UpdateClassResponse updateClass(UpdateClassDTO request) {
+        Class existingClass = classDAO.findById(request.getClassCode()).get();
+        try {
+            if (existingClass != null) {
+                if (!request.getLocation().equalsIgnoreCase(existingClass.getLocation()) && classDAO.findByLocation(request.getLocation()) != null) {
+                    return UpdateClassResponse.builder()
+                            .status(1)
+                            .updatedClass(null)
+                            .message("class with id: " + request.getClassCode() + " already exist in this location.")
+                            .build();
+                }
+                List<ClassUser> classUserList = new ArrayList<>();
+                List<UserClassSyllabus> userSyllabusList = new ArrayList<>();
+                List<ClassLearningDay> classLearningDayList = new ArrayList<>();
+                User user = null;
+                boolean trainingProgramChanges = false;
+                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+                String timeFromStr = request.getClassTimeFrom().split(":").length == 3 ? request.getClassTimeFrom() : request.getClassTimeFrom() + ":00";
+                String timeToStr = request.getClassTimeTo().split(":").length == 3 ? request.getClassTimeTo() : request.getClassTimeTo() + ":00";
+
+                existingClass.setClassId(existingClass.getClassId());
+                existingClass.setClassName(request.getNameClass());
+                existingClass.setDuration(request.getTotalTimeLearning());
+                existingClass.setStartDate(sdf.parse(request.getStartDate()));
+                existingClass.setEndDate(sdf.parse(request.getEndDate()));
+                existingClass.setAttendeeActual(Integer.parseInt(request.getAttendeeActual()));
+                existingClass.setAttendee(request.getAttendee());
+                existingClass.setAttendeePlanned(Integer.parseInt(request.getAttendeePlanned()));
+                existingClass.setAttendeeAccepted(Integer.parseInt(request.getAttendeeAccepted()));
+                existingClass.setTimeFrom(Time.valueOf(timeFromStr));
+                existingClass.setTimeTo(Time.valueOf(timeToStr));
+                existingClass.setFsu(request.getFsu());
+                existingClass.setLocation(request.getLocation());
+                existingClass.setStatus(request.getStatus());
+//                existingClass.setTrainingProgram(trainingProgramDAO.findById(Integer.parseInt(request.getTrainingProgram())).get());
+
+//                if (!existingClass.getTrainingProgram().getName().equalsIgnoreCase(request.getTrainingProgram())) {
+//                    existingClass.setTrainingProgram(trainingProgramDAO.findByName(request.getTrainingProgram()));
+//                    log.info("change training program");
+//                    log.info(ucs.size());
+//                } else {
+//                    log.info("not changing training program");
+//                    List<UserClassSyllabus> ucs = userClassSyllabusDAO.findByClassCode_ClassId(request.getClassCode());
+//                    log.info(ucs.size());
+//                    userClassSyllabusDAO.deleteAll(ucs);
+//
+//                }
+
+                Class updatedClass = classDAO.save(existingClass);
+
+                log.info("1");
+                List<ClassLearningDay> cldl = classLearningDayDAO.findByClassId_ClassId(existingClass.getClassId());
+                List<ClassUser> cu = classUserDAO.findByClassId_ClassId(existingClass.getClassId());
+                List<UserClassSyllabus> ucs = userClassSyllabusDAO.findByClassCode_ClassId(request.getClassCode());
+                log.info(ucs.size());
+                classLearningDayDAO.deleteAll(cldl);
+                classUserDAO.deleteAll(cu);
+                userClassSyllabusDAO.deleteAllInBatch(ucs);
+                userClassSyllabusDAO.deleteAll(ucs);
+                userClassSyllabusDAO.flush();
+//                Location l = locationDAO.findById(Long.parseLong(request.getLocation())).get();
+                log.info("2");
+
+                for (int i = 0; i < request.getListDay().size(); i++) {
+                    Date date = sdf.parse(request.getListDay().get(i));
+                    String[] getDate = request.getListDay().get(i).split("/");
+                    ClassLearningDay learningDay = ClassLearningDay.builder()
+                            .classId(existingClass)
+                            .date(Integer.parseInt(getDate[1]))
+                            .month(Integer.parseInt(getDate[0]))
+                            .year(Integer.parseInt(getDate[2]))
+                            .enrollDate(date)
+//                            .locationId(l)
+                            .timeFrom(existingClass.getTimeFrom())
+                            .timeTo(existingClass.getTimeTo())
+                            .build();
+                    classLearningDayList.add(learningDay);
+                }
+
+                for (int i = 0; i < request.getAttendeeList().size(); i++) {
+                    user = userDAO.findByEmail(request.getAttendeeList().get(i)).get();
+                    ClassUser classUser = ClassUser.builder()
+                            .id(ClassUserCompositeKey.builder()
+                                    .userId(user.getUserId())
+                                    .classId(updatedClass.getClassId())
+                                    .build())
+                            .userID(user)
+                            .classId(updatedClass)
+                            .userType(user.getRole().getRole().name())
+//                        .location(l.getLocation())
                             .build();
 
-            Class updatedClass = classDAO.save(existingClass);
+                    classUserList.add(classUser);
+                }
+                for (int i = 0; i < request.getAdmin().size(); i++) {
+                    user = userDAO.findByEmail(request.getAdmin().get(i)).get();
+                    ClassUser classAdmin = ClassUser.builder()
+                            .id(ClassUserCompositeKey.builder()
+                                    .userId(user.getUserId())
+                                    .classId(updatedClass.getClassId())
+                                    .build())
+                            .userID(user)
+                            .classId(updatedClass)
+                            .userType(user.getRole().getRole().name())
+//                        .location(l.getLocation())
+                            .build();
 
-            if (updatedClass != null) {
-                return UpdateClassResponse.builder()
-                        .status("Update Class successful")
-                        .updatedClass(updatedClass)
+                    classUserList.add(classAdmin);
+                }
+
+                for (int i = 0; i < request.getTrainer().size(); i++) {
+                    user = userDAO.findByEmail(request.getTrainer().get(i).getGmail()).get();
+                    for (int j = 0; j < request.getTrainer().get(i).getClassCode().size(); j++) {
+                        Syllabus s = syllabusDAO.findById(request.getTrainer().get(i).getClassCode().get(j)).get();
+
+                        UserClassSyllabus userClassSyllabus = UserClassSyllabus.builder()
+//                                .id(UserClassSyllabusCompositeKey.builder()
+//                                        .classCode(existingClass.getClassId())
+//                                        .userId(user.getUserId())
+//                                        .topicCode(s.getTopicCode())
+//                                        .build())
+                                .classCode(existingClass)
+                                .topicCode(s)
+                                .userId(user)
+//                            .location(l.getLocation())
+                                .userType(user.getRole().getRole().name())
+                                .build();
+
+                        userSyllabusList.add(userClassSyllabus);
+                    }
+                }
+
+
+                classLearningDayDAO.saveAll(classLearningDayList);
+                classUserDAO.saveAll(classUserList);
+                userClassSyllabusDAO.saveAll(userSyllabusList);
+                log.info("3");
+                String timeFrom = updatedClass.getTimeFrom().toString();
+                timeFrom = timeFrom.substring(0, timeFrom.lastIndexOf(":"));
+                String timeTo = updatedClass.getTimeTo().toString();
+                timeTo = timeTo.substring(0, timeTo.lastIndexOf(":"));
+
+                List<ClassUser> userList = classUserDAO.findByClassId_ClassIdAndUserType(existingClass.getClassId(), "user");
+                List<String> u = new ArrayList<>();
+                List<ClassUser> adminList = classUserDAO.findByClassId_ClassIdAndUserType(existingClass.getClassId(), "class_admin");
+                List<String> a = new ArrayList<>();
+
+                for (int i = 0; i < userList.size(); i++) {
+                    u.add(userList.get(i).getUserID().getEmail());
+                }
+
+                for (int i = 0; i < adminList.size(); i++) {
+                    a.add(adminList.get(i).getUserID().getEmail());
+                }
+
+                UpdatedClassDTO uc = UpdatedClassDTO.builder()
+                        .classCode(updatedClass.getClassId().split("_")[0])
+                        .className(updatedClass.getClassName())
+                        .attendee(updatedClass.getAttendee())
+                        .classTimeFrom(timeFrom)
+                        .classTimeTo(timeTo)
+                        .attendeeAccepted(Integer.toString(updatedClass.getAttendeeAccepted()))
+                        .attendeeActual(Integer.toString(updatedClass.getAttendeeActual()))
+                        .attendeePlanned(Integer.toString(updatedClass.getAttendeePlanned()))
+                        .totalLearningTime(updatedClass.getDuration())
+                        .listDay(request.getListDay())
+                        .attendeeList(u)
+                        .adminList(a)
+                        .location(updatedClass.getLocation())
+                        .status(updatedClass.getStatus())
+                        .fsu(updatedClass.getFsu())
+                        .startDate(request.getStartDate())
+                        .endDate(request.getEndDate())
                         .build();
-            } else {
                 return UpdateClassResponse.builder()
-                        .status("Update Class failed")
-                        .updatedClass(null)
+                        .status(0)
+                        .updatedClass(uc)
+                        .message("update class with id: " + existingClass.getClassId() + " successfully")
                         .build();
             }
-        } else {
-            return UpdateClassResponse.builder().status("Class not found").updatedClass(null).build();
+
+        } catch (Exception err) {
+            err.printStackTrace();
+            return UpdateClassResponse.builder()
+                    .status(-1)
+                    .updatedClass(null)
+                    .message("server error")
+                    .build();
         }
+        return UpdateClassResponse.builder()
+                .status(1)
+                .updatedClass(null)
+                .message("class with id: " + request.getClassCode() + " doesn't exist")
+                .build();
     }
 
-    public List<Class> getDetailClasses() {
-        return classDAO.findAll();
-    }
 
     @Override
     public Class getClassById(String classId) {
@@ -465,10 +665,6 @@ public class ClassServiceImpl implements ClassService {
         return classDAO.getCalendarSort();
     }
 
-    @Override
-    public List<Class> getAll() {
-        return classDAO.getAll();
-    }
 
     @Override
     public Page<Class> getAllPagenation(Pageable pageable) {
@@ -552,29 +748,29 @@ public class ClassServiceImpl implements ClassService {
         var syllabus = syllabusDAO.findById(topicCode).orElse(null);
         var trainingProgram = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
 
-        TrainingProgramSyllabus trainingProgramSyllabus = trainingProgramSyllabusDAO.findByIdTopicCodeAndIdTrainingProgramCode(topicCode,trainingProgramCode);
+        TrainingProgramSyllabus trainingProgramSyllabus = trainingProgramSyllabusDAO.findByIdTopicCodeAndIdTrainingProgramCode(topicCode, trainingProgramCode);
 //        TrainingProgramSyllabus topicCode1 = trainingProgramSyllabusDAO.findByIdTopicCode(topicCode);
 //        TrainingProgramSyllabus trainingProgram1= trainingProgramSyllabusDAO.findByIdTrainingProgramCode(trainingProgramCode);
 
 
-        if(trainingProgramSyllabus != null){
+        if (trainingProgramSyllabus != null) {
 
 //            trainingProgramSyllabus.setDeleted(status);
             trainingProgramSyllabus = trainingProgramSyllabusDAO.save(trainingProgramSyllabus);
 
-            if(trainingProgramSyllabus != null){
+            if (trainingProgramSyllabus != null) {
                 return UpdateClass3Response.builder()
                         .status("Update TrainingProgramSyllabus successful")
                         .updatedClass3(trainingProgramSyllabus)
                         .build();
-            }else {
+            } else {
                 return UpdateClass3Response.builder()
                         .status("Update TrainingProgramSyllabus failed")
                         .updatedClass3(null)
                         .build();
             }
 
-        }else {
+        } else {
             TrainingProgramSyllabus trainingProgramSyllabus2 =
                     TrainingProgramSyllabus.builder()
                             .id(
@@ -586,15 +782,15 @@ public class ClassServiceImpl implements ClassService {
                             .trainingProgramCode(trainingProgram)
 //                            .deleted(true)
                             .build();
-            trainingProgramSyllabus2 =trainingProgramSyllabusDAO.save(trainingProgramSyllabus2);
+            trainingProgramSyllabus2 = trainingProgramSyllabusDAO.save(trainingProgramSyllabus2);
 
-            if(trainingProgramSyllabus2 != null){
+            if (trainingProgramSyllabus2 != null) {
                 return UpdateClass3Response.builder()
                         .status("Update TrainingProgramSyllabus successful")
                         .updatedClass3(trainingProgramSyllabus2)
                         .build();
 
-            }else {
+            } else {
                 return UpdateClass3Response.builder()
                         .status("Update TrainingProgramSyllabus failed")
                         .updatedClass3(null)
@@ -602,9 +798,7 @@ public class ClassServiceImpl implements ClassService {
             }
 
 
-
         }
-
 
 
     }
@@ -713,13 +907,158 @@ public class ClassServiceImpl implements ClassService {
         return null;
     }
 
-    public String convertToMMDDYYYY(String dateStr){
+    public String convertToMMDDYYYY(String dateStr) {
         DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse(dateStr, inputFormatter);
 
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         String formattedDate = date.format(outputFormatter);
         return formattedDate;
+    }
+
+    private String capitalizeLocation(String locationStr) {
+        String[] strArr = locationStr.split(" ");
+        String result = "";
+        for (int i = 0; i < strArr.length; i++) {
+            strArr[i] = strArr[i].substring(0, 1).toUpperCase() + strArr[i].substring(1);
+            result += strArr[i] + " ";
+        }
+
+        return result.trim();
+    }
+
+    private ClassDetailResponse getFullClassDetail(String classCode) {
+        Class c = classDAO.findById(classCode).isPresent() ? classDAO.findById(classCode).get() : null;
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+        Map<Integer, List<String>> trainerSyllabusMap = new HashMap<>();
+        log.info(c.getTrainingProgram().getTrainingProgramSyllabus().size());
+        TrainingProgram tp = trainingProgramDAO.findById(c.getTrainingProgram().getTrainingProgramCode()).get();
+
+//                List<String> locationList = new ArrayList<>();
+//                List<Location> classLocations = c.getLocations().stream().toList();
+
+        List<String> listDay = new ArrayList<>();
+        List<ClassLearningDay> classLearningDays = c.getClassLearningDays().stream().toList();
+
+        List<TrainerDTO> trainerList = new ArrayList<>();
+        List<UserClassSyllabus> userClassSyllabuses = c.getUserClassSyllabus().stream().toList();
+
+        List<UserDTO> attendeeList = new ArrayList<>();
+        List<UserDTO> adminList = new ArrayList<>();
+        List<ClassUser> classUsers = c.getClassUsers().stream().toList();
+
+        List<SyllabusDTO> syllabusList = new ArrayList<>();
+        List<TrainingProgramSyllabus> trainingProgramSyllabuses = tp.getTrainingProgramSyllabus().stream().toList();
+
+        List<User> trainers = new ArrayList<>();
+
+//                for (int i = 0; i < classLocations.size(); i++) {
+//                    locationList.add(classLocations.get(i).getLocation());
+//                }
+        for (int i = 0; i < classLearningDays.size(); i++) {
+            listDay.add(convertToMMDDYYYY(classLearningDays.get(i).getEnrollDate().toString().split(" ")[0]));
+        }
+        for (int i = 0; i < userClassSyllabuses.size(); i++) {
+            List<String> syllabusCodeList;
+            if (trainerSyllabusMap.containsKey(userClassSyllabuses.get(i).getUserId().getUserId())) {
+                syllabusCodeList = trainerSyllabusMap.get(userClassSyllabuses.get(i).getUserId().getUserId());
+            } else {
+                syllabusCodeList = new ArrayList<>();
+                trainers.add(userClassSyllabuses.get(i).getUserId());
+            }
+            syllabusCodeList.add(userClassSyllabuses.get(i).getTopicCode().getTopicCode());
+            trainerSyllabusMap.put(userClassSyllabuses.get(i).getUserId().getUserId(), syllabusCodeList);
+        }
+        for (int i = 0; i < trainers.size(); i++) {
+            TrainerDTO trainer = TrainerDTO.builder()
+                    .userId(trainers.get(i).getUserId())
+                    .userName(trainers.get(i).getName())
+                    .userEmail(trainers.get(i).getEmail())
+                    .syllabusList(trainerSyllabusMap.get(trainers.get(i).getUserId()))
+                    .build();
+            trainerList.add(trainer);
+        }
+        log.info(trainerSyllabusMap);
+        for (int i = 0; i < classUsers.size(); i++) {
+            if (classUsers.get(i).getUserType().equalsIgnoreCase("user")) {
+                UserDTO trainee = UserDTO.builder()
+                        .userId(classUsers.get(i).getUserID().getUserId())
+                        .userName(classUsers.get(i).getUserID().getName())
+                        .userEmail(classUsers.get(i).getUserID().getEmail())
+                        .build();
+                attendeeList.add(trainee);
+            } else {
+                UserDTO admin = UserDTO.builder()
+                        .userId(classUsers.get(i).getUserID().getUserId())
+                        .userName(classUsers.get(i).getUserID().getName())
+                        .userEmail(classUsers.get(i).getUserID().getEmail())
+                        .build();
+                adminList.add(admin);
+            }
+        }
+        for (int i = 0; i < trainingProgramSyllabuses.size(); i++) {
+            SyllabusDTO syllabus = SyllabusDTO.builder()
+                    .numberOfDay(trainingProgramSyllabuses.get(i).getTopicCode().getNumberOfDay())
+                    .version(trainingProgramSyllabuses.get(i).getTopicCode().getVersion())
+                    .createdDate(convertToMMDDYYYY(trainingProgramSyllabuses.get(i).getTopicCode().getCreatedDate().toString().split(" ")[0]))
+                    .createdBy(trainingProgramSyllabuses.get(i).getTopicCode().getCreatedBy().getName())
+                    .topicName(trainingProgramSyllabuses.get(i).getTopicCode().getTopicName())
+                    .publishStatus(trainingProgramSyllabuses.get(i).getTopicCode().getPublishStatus())
+                    .topicCode(trainingProgramSyllabuses.get(i).getTopicCode().getTopicCode())
+                    .build();
+
+            syllabusList.add(syllabus);
+        }
+
+        log.info(c.getTimeFrom().toString());
+        log.info(c.getTimeTo().toString());
+
+        String timeFrom = c.getTimeFrom().toString();
+        timeFrom = timeFrom.substring(0, timeFrom.lastIndexOf(":"));
+        String timeTo = c.getTimeTo().toString();
+        timeTo = timeTo.substring(0, timeTo.lastIndexOf(":"));
+
+
+        ClassDetailResponse res = ClassDetailResponse.builder()
+                .classCode(classCode.split("_")[0])
+                .nameClass(c.getClassName())
+                .created(c.getCreatedBy())
+                .createdDate(convertToMMDDYYYY(c.getCreatedDate().toString().split(" ")[0]))
+                .deactivated(c.isDeactivated())
+                .totalTimeLearning(c.getDuration())
+                .endDate(convertToMMDDYYYY(c.getEndDate().toString().split(" ")[0]))
+                .modifiedBy(c.getModifiedBy())
+                .modifiedDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getModifiedDate().toString().split(" ")[0]) : "")
+                .startDate(convertToMMDDYYYY(c.getStartDate().toString().split(" ")[0]))
+                .status(c.getStatus())
+                .classTimeFrom(timeFrom)
+                .classTimeTo(timeTo)
+                .approve(c.getApprove())
+                .review(c.getReview())
+                .fsu(c.getFsu())
+                .attendee(c.getAttendee())
+                .attendeeAccepted(Integer.toString(c.getAttendeeAccepted()))
+                .attendeePlanned(Integer.toString(c.getAttendeePlanned()))
+                .attendeeActual(Integer.toString(c.getAttendeeActual()))
+                .trainingProgram(TrainingProgramDTO.builder()
+                        .trainingProgramCode(c.getTrainingProgram().getTrainingProgramCode())
+                        .trainingProgramName(c.getTrainingProgram().getName())
+                        .modifyBy(c.getTrainingProgram().getModifiedBy())
+                        .modifyDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getTrainingProgram().getModifiedDate().toString().split(" ")[0]) : "")
+                        .duration(tp.getDuration())
+                        .build())
+                .listDay(listDay)
+//                        .location(locationList)
+                .location(capitalizeLocation(c.getLocation()))
+                .trainer(trainerList)
+                .attendeeList(attendeeList)
+                .syllabusList(syllabusList)
+                .admin(adminList)
+                .message("found class with id " + classCode)
+                .build();
+
+        return res;
+
     }
 
 

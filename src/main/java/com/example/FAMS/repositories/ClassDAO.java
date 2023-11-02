@@ -15,7 +15,9 @@ public interface ClassDAO extends JpaRepository<Class, String> {
 
     List<Class> findTop1000ByOrderByCreatedDateDesc();
 
-    @Query(value = "select * from fams.class order by start_date asc, time_from asc", nativeQuery = true)
+    Class findByLocation(String location);
+
+    @Query(value = "select * from fams.class order by start_date asc, time_from asc",nativeQuery = true)
     List<Class> getCalendarSort();
 
     @Query(value = "Select * from Class order by modified_date desc", nativeQuery = true)

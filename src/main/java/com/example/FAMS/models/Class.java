@@ -112,9 +112,11 @@ public class Class {
 //    @JsonManagedReference
 //    private Set<ClassLocation> classLocations = new HashSet<>();
 
-    @OneToMany(mappedBy = "classId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private Set<Location> locations = new HashSet<>();
+//    @OneToMany(mappedBy = "classId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JsonManagedReference
+//    private Set<Location> locations = new HashSet<>();
+
+    private String location;
 
 
 }

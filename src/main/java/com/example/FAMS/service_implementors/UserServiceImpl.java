@@ -60,6 +60,7 @@ public class UserServiceImpl implements UserService {
             logger.info("Return list of user");
             return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
         } catch (Exception e) {
+            e.printStackTrace();
             userList = Collections.emptyList();
             return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
         }

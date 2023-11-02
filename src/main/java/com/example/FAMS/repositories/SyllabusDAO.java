@@ -16,4 +16,6 @@ public interface SyllabusDAO extends JpaRepository<Syllabus, String> {
     int countByTopicCodeLike(String topicCode);
 //    @Query(value = "SELECT top 1 * from syllabus where topic_code like %:topicCode order by topic_code desc",nativeQuery = true)
 //    Syllabus getLastSyllabusByTopicCode(String topicCode);
+
+    Optional<Syllabus> findByTopicName(String topicName);
 }
