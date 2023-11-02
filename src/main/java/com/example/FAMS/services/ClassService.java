@@ -19,7 +19,9 @@ import java.text.ParseException;
 import java.util.List;
 
 public interface ClassService {
-    List<GetClassesResponse> getClasses();
+//    List<GetClassesResponse> getClasses();
+
+    List<ClassDetailResponse> getClasses();
 
     ResponseEntity<ClassDetailResponse> getClassDetail(String classCode) throws InterruptedException;
 

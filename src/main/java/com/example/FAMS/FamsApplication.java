@@ -49,20 +49,21 @@ public class FamsApplication {
         SpringApplication.run(FamsApplication.class, args);
     }
 
-    @Bean
-    public CommandLineRunner initData() {
-        return new CommandLineRunner() {
-            @Override
-            public void run(String... args) throws Exception {
-                if (standardOutputDAO.findAll().size() == 0) {
-                    List<StandardOutput> standardOutputList = new ArrayList<>();
-                    String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
-                    for (int i = 0; i < objectiveCode.length; i++) {
-                        StandardOutput standardOutput = StandardOutput.builder()
-                                .outputCode(objectiveCode[i].toUpperCase())
-                                .outputName(objectiveCode[i])
-                                .description("some bs description.")
-                                .build();
+  @Bean
+  public CommandLineRunner initData() {
+    return new CommandLineRunner() {
+      @Override
+      public void run(String... args) throws Exception {
+        if (standardOutputDAO.findAll().size() == 0) {
+          List<StandardOutput> standardOutputList = new ArrayList<>();
+          String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
+          for (int i = 0; i < objectiveCode.length; i++) {
+            StandardOutput standardOutput =
+                StandardOutput.builder()
+                    .outputCode(objectiveCode[i].toUpperCase())
+                    .outputName(objectiveCode[i])
+                    .description("some bs description.")
+                    .build();
 
                         standardOutputList.add(standardOutput);
                     }
@@ -116,77 +117,71 @@ public class FamsApplication {
                             .build());
                     userPermissionDAO.saveAll(permissionList);
                 }
+
+//                if (fsuDAO.findAll().isEmpty()) {
+//                    List<Fsu> fsuList = new ArrayList<>();
 //
-////                if (fsuDAO.findAll().isEmpty()) {
-////                    List<Fsu> fsuList = new ArrayList<>();
-////
-////                    Fsu fsu = Fsu.builder()
-////                            .fsuId("FHCM")
-////                            .fsuName("FPT HO CHI MINH")
-////                            .build();
-////                    Fsu fsu1 = Fsu.builder()
-////                            .fsuId("FHN")
-////                            .fsuName("FPT HA NOI")
-////                            .build();
-////                    Fsu fsu2 = Fsu.builder()
-////                            .fsuId("FDN")
-////                            .fsuName("FPT DA NANG")
-////                            .build();
-////                    Fsu fsu3 = Fsu.builder()
-////                            .fsuId("FVT")
-////                            .fsuName("FPT VUNG TAU")
-////                            .build();
-////
-////                    fsuList.add(fsu);
-////                    fsuList.add(fsu1);
-////                    fsuList.add(fsu2);
-////                    fsuList.add(fsu3);
-////
-////                    fsuDAO.saveAll(fsuList);
-////                }
-////                if (locationDAO.findAll().isEmpty()) {
-////                    List<Location> locationList = new ArrayList<>();
-////
-////                    Location location = Location.builder()
-////                            .location("FTOWN LMAO 1")
-////                            .fsuId(fsuDAO.findById("FHCM").get())
-////                            .build();
-////
-////                    Location location1 = Location.builder()
-////                            .location("FTOWN LMAO 2")
-////                            .fsuId(fsuDAO.findById("FHCM").get())
-////                            .build();
-////
-////                    Location location2 = Location.builder()
-////                            .location("123, lmao street hehe")
-////                            .fsuId(fsuDAO.findById("FHN").get())
-////                            .build();
-////
-////                    Location location3 = Location.builder()
-////                            .location("123, lmao 2 street hihi")
-////                            .fsuId(fsuDAO.findById("FHN").get())
-////                            .build();
-////
-////                    Location location4 = Location.builder()
-////                            .location("234, cj house")
-////                            .fsuId(fsuDAO.findById("FDN").get())
-////                            .build();
-////
-////                    Location location5 = Location.builder()
-////                            .location("234, smoke house")
-////                            .fsuId(fsuDAO.findById("FDN").get())
-////                            .build();
-////
-////                    locationList.add(location);
-////                    locationList.add(location1);
-////                    locationList.add(location2);
-////                    locationList.add(location3);
-////                    locationList.add(location4);
-////                    locationList.add(location5);
-////
-////                    locationDAO.saveAll(locationList);
-////                }
-                if (userDAO.findAll().size() == 0) {
+//                    Fsu fsu = Fsu.builder()
+//                            .fsuId("FHCM")
+//                            .fsuName("FPT HO CHI MINH")
+//                            .build();
+//                    Fsu fsu1 = Fsu.builder()
+//                            .fsuId("FHN")
+//                            .fsuName("FPT HA NOI")
+//                            .build();
+//                    Fsu fsu2 = Fsu.builder()
+//                            .fsuId("FDN")
+//                            .fsuName("FPT DA NANG")
+//                            .build();
+//                    Fsu fsu3 = Fsu.builder()
+//                            .fsuId("FVT")
+//                            .fsuName("FPT VUNG TAU")
+//                            .build();
+//
+//                    fsuList.add(fsu);
+//                    fsuList.add(fsu1);
+//                    fsuList.add(fsu2);
+//                    fsuList.add(fsu3);
+//
+//                    fsuDAO.saveAll(fsuList);
+//                }
+//                if (locationDAO.findAll().isEmpty()) {
+//                    List<Location> locationList = new ArrayList<>();
+//
+//                    Location location = Location.builder()
+//                            .location("FTOWN LMAO 1")
+//                            .fsuId(fsuDAO.findById("FHCM").get())
+//                            .build();
+//
+//                    Location location1 = Location.builder()
+//                            .location("FTOWN LMAO 2")
+//                            .fsuId(fsuDAO.findById("FHCM").get())
+//                            .build();
+//
+//                    Location location2 = Location.builder()
+//                            .location("123, lmao street hehe")
+//                            .fsuId(fsuDAO.findById("FHN").get())
+//                            .build();
+//
+//                    Location location3 = Location.builder()
+//                            .location("123, lmao 2 street hihi")
+//                            .fsuId(fsuDAO.findById("FHN").get())
+//                            .build();
+//
+//                    Location location4 = Location.builder()
+//                            .location("234, cj house")
+//                            .fsuId(fsuDAO.findById("FDN").get())
+//                            .build();
+//
+//                    Location location5 = Location.builder()
+//                            .location("234, smoke house")
+//                            .fsuId(fsuDAO.findById("FDN").get())
+//                            .build();
+//
+//
+//                    locationDAO.saveAll(locationList);
+//                }
+                if (userDAO.findAll().isEmpty()) {
                     List<User> userList = new ArrayList<>();
                     userList.add(User.builder()
                             .email("admin@gmail.com")
@@ -219,11 +214,11 @@ public class FamsApplication {
                     userList.add(User.builder()
                             .email("classadmin1@gmail.com")
                             .password(passwordEncoder.encode("1"))
-                            .name("Trainer")
+                            .name("Class Admin1")
                             .phone("0977545451")
                             .dob(new Date())
                             .gender("male")
-                            .role(userPermissionDAO.findUserPermissionByRole(Role.TRAINER).orElse(null))
+                            .role(userPermissionDAO.findUserPermissionByRole(Role.CLASS_ADMIN).orElse(null))
                             .status(true)
                             .createdBy("Hoang Anh")
                             .createdDate(new Date())
@@ -260,6 +255,34 @@ public class FamsApplication {
                             .build());
                     userList.add(User.builder()
                             .email("trainer@gmail.com")
+                            .password(passwordEncoder.encode("1"))
+                            .name("Trainer")
+                            .phone("0977545452")
+                            .dob(new Date())
+                            .gender("male")
+                            .role(userPermissionDAO.findUserPermissionByRole(Role.TRAINER).orElse(null))
+                            .status(true)
+                            .createdBy("Hoang Anh")
+                            .createdDate(new Date())
+                            .modifiedBy("Hoang Anh")
+                            .modifiedDate(new Date())
+                            .build());
+                    userList.add(User.builder()
+                            .email("trainer1@gmail.com")
+                            .password(passwordEncoder.encode("1"))
+                            .name("Trainer")
+                            .phone("0977545452")
+                            .dob(new Date())
+                            .gender("male")
+                            .role(userPermissionDAO.findUserPermissionByRole(Role.TRAINER).orElse(null))
+                            .status(true)
+                            .createdBy("Hoang Anh")
+                            .createdDate(new Date())
+                            .modifiedBy("Hoang Anh")
+                            .modifiedDate(new Date())
+                            .build());
+                    userList.add(User.builder()
+                            .email("trainer2@gmail.com")
                             .password(passwordEncoder.encode("1"))
                             .name("Trainer")
                             .phone("0977545452")
@@ -445,7 +468,7 @@ public class FamsApplication {
                     List<TrainingProgram> trainingPrograms = new ArrayList<>();
 
                     TrainingProgram trainingProgram = TrainingProgram.builder()
-                            .name("Java")
+                            .name("tp_1")
                             .userID(userDAO.findById(1).get())
                             .startDate(new Date("2001/9/11"))
                             .duration(999)
@@ -454,7 +477,7 @@ public class FamsApplication {
                             .createdDate(new Date())
                             .build();
                     TrainingProgram trainingProgram1 = TrainingProgram.builder()
-                            .name("PHP")
+                            .name("tp_2")
                             .userID(userDAO.findById(2).get())
                             .startDate(new Date("2001/9/11"))
                             .duration(999)
@@ -463,7 +486,7 @@ public class FamsApplication {
                             .createdDate(new Date())
                             .build();
                     TrainingProgram trainingProgram2 = TrainingProgram.builder()
-                            .name("Docker")
+                            .name("tp_3")
                             .userID(userDAO.findById(1).get())
                             .startDate(new Date("2001/9/11"))
                             .duration(999)

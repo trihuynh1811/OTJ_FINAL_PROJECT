@@ -1,6 +1,5 @@
 package com.example.FAMS.dto.responses.Class;
 
-import com.example.FAMS.dto.responses.Class.TrainingProgramDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,19 +15,18 @@ import java.util.List;
 public class ClassDetailResponse {
 
     private String message = "";
-    private String classId;
-    private String className;
-    private String duration;
+    private String classCode;
+    private String nameClass;
+    private String totalTimeLearning;
     private String status;
-    private String timeFrom;
-    private String timeTo;
+    private String classTimeFrom;
+    private String classTimeTo;
 //    private List<String> location;
     private String location;
     private String fsu;
     private String startDate;
     private String endDate;
-    private String admin;
-    private String createdBy;
+    private String created;
     private String review;
     private String approve;
     private String attendee;
@@ -40,8 +38,8 @@ public class ClassDetailResponse {
     private String modifiedDate = null;
     private boolean deactivated = false;
 
-    private List<TrainerDTO> trainerList = new ArrayList<>();
-    private List<UserDTO> adminList = new ArrayList<>();
+    private List<TrainerDTO> trainer = new ArrayList<>();
+    private List<UserDTO> admin = new ArrayList<>();
     private List<UserDTO> attendeeList = new ArrayList<>();
 
     TrainingProgramDTO trainingProgram;

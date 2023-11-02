@@ -39,9 +39,15 @@ public class ClassController {
     @Autowired
     UserClassSyllabusDAO userClassSyllabusDAO;
 
+//    @GetMapping
+//    @PreAuthorize("hasAuthority('class:read')")
+//    public ResponseEntity<List<GetClassesResponse>> getClasses() {
+//        return ResponseEntity.status(HttpStatus.OK).body(classService.getClasses());
+//    }
+
     @GetMapping
     @PreAuthorize("hasAuthority('class:read')")
-    public ResponseEntity<List<GetClassesResponse>> getClasses() {
+    public ResponseEntity<List<ClassDetailResponse>> getClasses() {
         return ResponseEntity.status(HttpStatus.OK).body(classService.getClasses());
     }
 
@@ -64,10 +70,9 @@ public class ClassController {
         return ResponseEntity.status(400).body(result);
     }
 
-    @PutMapping("/update/{classId}")
+    @PutMapping("/update")
     @PreAuthorize("hasAuthority('class:update')")
-    public ResponseEntity<UpdateClassResponse> updateClass(
-            @PathVariable String classId, @RequestBody UpdateClassDTO updateClassRequest) {
+    public ResponseEntity<UpdateClassResponse> updateClass(@RequestBody UpdateClassDTO updateClassRequest) {
         UpdateClassResponse updatedClass = classService.updateClass(updateClassRequest);
         if (updatedClass.getStatus() == 0) {
             return ResponseEntity.ok(updatedClass);
