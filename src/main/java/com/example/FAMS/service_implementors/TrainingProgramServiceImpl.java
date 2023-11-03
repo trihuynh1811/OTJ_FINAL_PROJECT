@@ -126,9 +126,11 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
   @Override
   public ResponseEntity<ResponseObject> getAll() {
-    List<TrainingProgramModified> userList;
+//    List<TrainingProgramModified> userList;
+    List<TrainingProgram> userList;
     try {
-      userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
+//      userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
+      userList = trainingProgramDAO.findBy(TrainingProgram.class);
       return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
     } catch (Exception e) {
       userList = Collections.emptyList();
