@@ -126,7 +126,7 @@ public class ClassServiceImpl implements ClassService {
             boolean existingClass = classDAO.findById(request.getClassCode()).isPresent();
             if(existingClass){
                 CreateClassResponse res = CreateClassResponse.builder()
-                        .message("class with id: " + request.getClassCode())
+                        .message("class with id: " + request.getClassCode() + " already exist.")
                         .createdClass(null)
                         .status(1)
                         .build();
@@ -541,8 +541,8 @@ public class ClassServiceImpl implements ClassService {
                 Class updatedClass = classDAO.save(existingClass);
 
                 log.info("1");
-                List<ClassLearningDay> cldl = classLearningDayDAO.findByClassId_ClassId(existingClass.getClassId());
-                List<ClassUser> cu = classUserDAO.findByClassId_ClassId(existingClass.getClassId());
+                List<ClassLearningDay> cldl = classLearningDayDAO.findByClassId_ClassId(request.getClassCode());
+                List<ClassUser> cu = classUserDAO.findByClassId_ClassId(request.getClassCode());
                 List<UserClassSyllabus> ucs = userClassSyllabusDAO.findByClassCode_ClassId(request.getClassCode());
                 log.info(ucs.size());
                 classLearningDayDAO.deleteAll(cldl);
@@ -1095,14 +1095,15 @@ public class ClassServiceImpl implements ClassService {
                 .attendeeAccepted(Integer.toString(c.getAttendeeAccepted()))
                 .attendeePlanned(Integer.toString(c.getAttendeePlanned()))
                 .attendeeActual(Integer.toString(c.getAttendeeActual()))
-                .trainingProgram(TrainingProgramDTO.builder()
-                        .trainingProgramCode(c.getTrainingProgram().getTrainingProgramCode())
-                        .trainingProgramName(c.getTrainingProgram().getName())
-                        .modifyBy(c.getTrainingProgram().getModifiedBy())
-                        .modifyDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getTrainingProgram().getModifiedDate().toString().split(" ")[0]) : "")
-                        .duration(tp.getDuration())
-                        .status(c.getTrainingProgram().getStatus())
-                        .build())
+//                .trainingProgram(TrainingProgramDTO.builder()
+//                        .trainingProgramCode(c.getTrainingProgram().getTrainingProgramCode())
+//                        .trainingProgramName(c.getTrainingProgram().getName())
+//                        .modifyBy(c.getTrainingProgram().getModifiedBy())
+//                        .modifyDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getTrainingProgram().getModifiedDate().toString().split(" ")[0]) : "")
+//                        .duration(tp.getDuration())
+//                        .status(c.getTrainingProgram().getStatus())
+//                        .build())
+                .trainingProgram(c.getTrainingProgram().getName())
                 .listDay(listDay)
 //                        .location(locationList)
                 .location(capitalizeLocation(c.getLocation()))
