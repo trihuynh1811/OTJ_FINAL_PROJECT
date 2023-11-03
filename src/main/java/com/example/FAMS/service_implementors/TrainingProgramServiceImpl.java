@@ -252,7 +252,6 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
                                     .trainingProgramCode(Integer.parseInt(data[6]))
                                     .build());
                 }
-
             } else {
                 if (trainingProgramOption == null) {
                     count++;
