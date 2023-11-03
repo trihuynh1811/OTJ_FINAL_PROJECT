@@ -14,6 +14,7 @@ import com.example.FAMS.repositories.TrainingProgramSyllabusDAO;
 import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.services.JWTService;
 import com.example.FAMS.services.TrainingProgramService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -161,30 +163,24 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
             trainingProgramExisted.setDuration(updateTrainingProgramRequest.getDuration());
 
             String status = trainingProgramExisted.getStatus();
-            if (status != null && (status.contains("Active") || status.contains("Inactive") || status.contains("Drafting"))) {
-                trainingProgramExisted.setCreatedBy(updateTrainingProgramRequest.getCreatedBy());
+            if (status != null && (status.equalsIgnoreCase("active"))) {
+                trainingProgramExisted.setStatus(updateTrainingProgramRequest.getStatus());
             }
-
+            trainingProgramExisted.setCreatedBy(updateTrainingProgramRequest.getCreatedBy());
             trainingProgramExisted.setCreatedDate(updateTrainingProgramRequest.getCreatedDate());
             trainingProgramExisted.setModifiedBy(updateTrainingProgramRequest.getModifiedBy());
             trainingProgramExisted.setModifiedDate(new Date());
-
-//      TrainingProgram updatedTrainingProgram = trainingProgramDAO.save(trainingProgramExisted);
-
             if (syllabusExisted != null) {
                 TrainingProgramSyllabus trainingProgramSyllabus =
                         trainingProgramSyllabusDAO
                                 .findByIdTopicCodeAndIdTrainingProgramCode(syllabusExisted.getTopicCode(), trainingProgramExisted.getTrainingProgramCode());
-
                 trainingProgramSyllabus.setDeleted(updateTrainingProgramRequest.isDeleted());
-
                 trainingProgramDAO.save(trainingProgramExisted);
                 trainingProgramSyllabusDAO.save(trainingProgramSyllabus);
 
                 return UpdateTrainingProgramResponse.builder()
                         .messager("Update training program success")
                         .updateTrainingProgram(trainingProgramExisted)
-//                .trainingProgramSyllabus(trainingProgramSyllabus)
                         .build();
             } else {
                 return UpdateTrainingProgramResponse.builder()
@@ -203,20 +199,20 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
     @Override
     public TrainingProgram duplicateTrainingProgram(int trainingProgramCode) {
-        TrainingProgram originalTraining =
-                trainingProgramDAO.findById(trainingProgramCode).orElseThrow(null);
-        TrainingProgram newTrainingProgram =
-                TrainingProgram.builder()
-                        .name(originalTraining.getName())
-                        .duration(originalTraining.getDuration())
-                        .userID(originalTraining.getUserID())
-                        .startDate(originalTraining.getStartDate())
-                        .createdBy(originalTraining.getCreatedBy())
-                        .createdDate(originalTraining.getCreatedDate())
-                        .modifiedDate(originalTraining.getModifiedDate())
-                        .modifiedBy(originalTraining.getModifiedBy())
-                        .status(originalTraining.getStatus())
-                        .build();
+        TrainingProgram originalTraining = trainingProgramDAO.findById(trainingProgramCode)
+                .orElseThrow(() -> new EntityNotFoundException("Training program not found with code: " + trainingProgramCode));
+
+        TrainingProgram newTrainingProgram = TrainingProgram.builder()
+                .name(originalTraining.getName() + LocalTime.now().toString())
+                .duration(originalTraining.getDuration())
+                .userID(originalTraining.getUserID())
+                .startDate(originalTraining.getStartDate())
+                .createdBy(originalTraining.getCreatedBy())
+                .createdDate(originalTraining.getCreatedDate())
+                .modifiedDate(originalTraining.getModifiedDate())
+                .modifiedBy(originalTraining.getModifiedBy())
+                .status(originalTraining.getStatus())
+                .build();
         return trainingProgramDAO.save(newTrainingProgram);
     }
 
