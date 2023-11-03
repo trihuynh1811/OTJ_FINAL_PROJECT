@@ -7,11 +7,18 @@ import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateTrainingProgramResponse;
 import com.example.FAMS.models.TrainingProgram;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import com.example.FAMS.services.TrainingProgramService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -101,5 +108,26 @@ public class TrainingProgramController {
   public ResponseEntity<ResponseObject> deactivateTrainingProgram(
       @PathVariable int trainingProgramCode) {
     return trainingProgram.changeTrainingProgramStatus(trainingProgramCode, "De-activate");
+  }
+
+  @GetMapping("/TemplateCSV")
+  public ResponseEntity<InputStreamResource> downloadTemplateCSV() {
+    String csvData = "trainingProgramCode,name,userID,startDate,duration,status,createdBy,createdDate,modifiedBy,modifiedDate";
+    String saveDirectory = "D:\\";
+    try {
+      File file = new File(saveDirectory + "TemplateCSV.csv");
+      FileOutputStream outputStream = new FileOutputStream(file);
+      outputStream.write(csvData.getBytes());
+      outputStream.close();
+      HttpHeaders headers = new HttpHeaders();
+      headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=TemplateCSV.csv");
+      return ResponseEntity.ok()
+              .headers(headers)
+              .contentType(MediaType.APPLICATION_OCTET_STREAM)
+              .body(new InputStreamResource(new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8))));
+    } catch (Exception e) {
+      e.printStackTrace();
+      return ResponseEntity.badRequest().build();
+    }
   }
 }

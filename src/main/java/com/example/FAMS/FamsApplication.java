@@ -510,7 +510,7 @@ public class FamsApplication {
                                     .topicCode("lmao 1")
                                     .build())
                             .trainingProgramCode(trainingProgramDAO.findById(1).get())
-                            .topicCode(syllabusDAO.findById("lmao 1").get())
+                            .topicCode(syllabusDAO.findByTopicName("lmao 1").get())
                             .build();
                     TrainingProgramSyllabus trainingProgramSyllabus1 = TrainingProgramSyllabus.builder()
                             .id(SyllabusTrainingProgramCompositeKey.builder()
@@ -518,7 +518,7 @@ public class FamsApplication {
                                     .topicCode("lmao 3")
                                     .build())
                             .trainingProgramCode(trainingProgramDAO.findById(1).get())
-                            .topicCode(syllabusDAO.findById("lmao 3").get())
+                            .topicCode(syllabusDAO.findByTopicName("lmao 3").get())
                             .build();
                     TrainingProgramSyllabus trainingProgramSyllabus2 = TrainingProgramSyllabus.builder()
                             .id(SyllabusTrainingProgramCompositeKey.builder()
@@ -526,7 +526,7 @@ public class FamsApplication {
                                     .topicCode("lmao 2")
                                     .build())
                             .trainingProgramCode(trainingProgramDAO.findById(2).get())
-                            .topicCode(syllabusDAO.findById("lmao 2").get())
+                            .topicCode(syllabusDAO.findByTopicName("lmao 2").get())
                             .build();
                     TrainingProgramSyllabus trainingProgramSyllabus3 = TrainingProgramSyllabus.builder()
                             .id(SyllabusTrainingProgramCompositeKey.builder()
@@ -534,7 +534,7 @@ public class FamsApplication {
                                     .topicCode("lmao 4")
                                     .build())
                             .trainingProgramCode(trainingProgramDAO.findById(2).get())
-                            .topicCode(syllabusDAO.findById("lmao 4").get())
+                            .topicCode(syllabusDAO.findByTopicName("lmao 4").get())
                             .build();
 
                     trainingProgramSyllabusList.add(trainingProgramSyllabus);
