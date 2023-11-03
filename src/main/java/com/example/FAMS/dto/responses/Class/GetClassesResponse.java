@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -18,7 +16,8 @@ public class GetClassesResponse {
     String createdBy;
     String duration;
     String status;
-    List<String> location;
+    String location;
     String fsu;
     String createdOn;
+    String isDeactivated;
 }

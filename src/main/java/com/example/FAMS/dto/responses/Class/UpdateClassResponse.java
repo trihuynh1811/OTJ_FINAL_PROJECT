@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateClassResponse {
-    private String status;
-    private Class updatedClass;
+    private int status;
+    private String message = "";
+    private UpdatedClassDTO updatedClass;
 }

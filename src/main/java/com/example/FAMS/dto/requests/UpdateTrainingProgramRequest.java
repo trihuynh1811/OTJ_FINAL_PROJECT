@@ -23,4 +23,5 @@ public class UpdateTrainingProgramRequest {
     private String modifiedBy;
     private Date modifiedDate;
     private int  userId;
+    boolean deleted;
 }
