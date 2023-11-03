@@ -1,10 +1,6 @@
 package com.example.FAMS;
 
-import com.example.FAMS.dto.UserDTO;
 import com.example.FAMS.dto.requests.LoginRequest;
-import com.example.FAMS.enums.DateEnum;
-import com.example.FAMS.enums.DayEnum;
-import com.example.FAMS.enums.MonthEnum;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.*;
 import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
