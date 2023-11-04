@@ -69,8 +69,15 @@ public class SyllabusServiceImpl implements SyllabusService {
 //        log.info(trainingUnitDAO.countDayNumberBySyllabus_TopicCode("lmao"));
         List<GetAllSyllabusResponse> syllabuses = new ArrayList<>();
         List<Syllabus> syllabusList = syllabusDAO.findTop1000ByOrderByCreatedDateDesc();
+        List<String> objectiveList = null;
+        List<SyllabusObjective> syllabusObjectiveList = null;
 
         for(int i = 0; i < syllabusList.size(); i++){
+            objectiveList = new ArrayList<>();
+            syllabusObjectiveList = syllabusList.get(i).getSyllabusObjectives().stream().toList();
+            for(int j = 0; j < syllabusObjectiveList.size(); j++){
+                objectiveList.add(syllabusObjectiveList.get(j).getOutputCode().getOutputCode());
+            }
             GetAllSyllabusResponse res = GetAllSyllabusResponse.builder()
                     .syllabusName(syllabusList.get(i).getTopicName())
                     .syllabusCode(syllabusList.get(i).getTopicCode())
@@ -78,7 +85,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                     .createdBy(syllabusList.get(i).getCreatedBy().getName())
                     .duration(syllabusList.get(i).getNumberOfDay())
                     .status(syllabusList.get(i).getPublishStatus())
-                    .syllabusObjectiveList(syllabusList.get(i).getSyllabusObjectives().stream().toList())
+                    .syllabusObjectiveList(objectiveList)
                     .build();
 
             syllabuses.add(res);

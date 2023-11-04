@@ -22,5 +22,5 @@ public class GetAllSyllabusResponse {
     String createdBy;
     int duration;
     String status;
-    List<SyllabusObjective> syllabusObjectiveList = new ArrayList<>();
+    List<String> syllabusObjectiveList = new ArrayList<>();
 }

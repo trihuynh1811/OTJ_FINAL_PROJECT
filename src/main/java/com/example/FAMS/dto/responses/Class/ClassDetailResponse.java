@@ -41,8 +41,8 @@ public class ClassDetailResponse {
     private List<UserDTO> admin = new ArrayList<>();
     private List<UserDTO> attendeeList = new ArrayList<>();
 
-    TrainingProgramDTO trainingProgram;
-
+//    TrainingProgramDTO trainingProgram;
+    String trainingProgram;
     List<SyllabusDTO> syllabusList = new ArrayList<>();
     List<String> listDay = new ArrayList<>();
 
