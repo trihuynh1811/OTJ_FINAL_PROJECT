@@ -2,6 +2,7 @@ package com.example.FAMS.dto.responses;
 
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.models.TrainingProgram;
+import com.example.FAMS.models.TrainingProgramSyllabus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,6 @@ import java.util.List;
 public class UpdateTrainingProgramResponse {
     private String messager;
     private TrainingProgram updateTrainingProgram;
-    private List<Syllabus> Syllabuslist;
+//    private TrainingProgramSyllabus trainingProgramSyllabus;
 
 }

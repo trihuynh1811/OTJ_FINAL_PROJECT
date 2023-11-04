@@ -40,7 +40,7 @@ public class TrainingContent {
     @Column(nullable = false, name = "delivery_type")
     private String deliveryType;
 
-    @Column(nullable = false, name = "duration")
+            @Column(nullable = false, name = "duration")
     private int duration;
 
     @Column(nullable = false, name = "training_format")

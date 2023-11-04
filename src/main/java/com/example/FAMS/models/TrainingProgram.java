@@ -32,10 +32,9 @@ public class TrainingProgram {
     @Column(nullable = false, name = "name")
     private String name;
 
-    @JsonIgnore
-    @ManyToOne(optional = false, cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+
+    @ManyToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "userId", nullable = false)
-    @JsonBackReference
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private User userID;
@@ -68,5 +67,6 @@ public class TrainingProgram {
     @OneToMany(mappedBy = "trainingProgram", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private final Set<Class> classes = new HashSet<>();
+
 
 }
