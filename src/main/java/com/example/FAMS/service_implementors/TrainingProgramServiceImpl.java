@@ -145,16 +145,8 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
     @Override
     public UpdateTrainingProgramResponse updateTrainingProgram(
             int trainingProgramCode,
-            int userId,
             String topicCode,
             UpdateTrainingProgramRequest updateTrainingProgramRequest) {
-
-        User userExisted = userDAO.findById(userId).orElse(null);
-
-        if (userExisted == null) {
-            return UpdateTrainingProgramResponse.builder().messager("User not found").build();
-        }
-
         TrainingProgram trainingProgramExisted = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
         Syllabus syllabusExisted = syllabusDAO.findById(topicCode).orElse(null);
 
