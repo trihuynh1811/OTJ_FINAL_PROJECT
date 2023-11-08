@@ -556,4 +556,3 @@ public class FamsApplication {
         return "Hello from FAMS Application made from GROUP 1 WITH LOVE";
     }
 }
-
