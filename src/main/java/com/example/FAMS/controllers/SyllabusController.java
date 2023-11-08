@@ -2,10 +2,13 @@ package com.example.FAMS.controllers;
 
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
+import com.example.FAMS.dto.requests.SyllbusRequest.FileNameDTO;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
+import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.Syllabus.CreateSyllabusGeneralResponse;
 import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
+import com.example.FAMS.dto.responses.Syllabus.PresignedUrlResponse;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.repositories.SyllabusDAO;
@@ -47,6 +50,30 @@ public class SyllabusController {
     public ResponseEntity<List<GetAllSyllabusResponse>> get() {
         List<GetAllSyllabusResponse> syllabusList = syllabusService.getSyllabuses();
         log.info(syllabusList);
+        return ResponseEntity.status(200).body(syllabusList);
+    }
+
+    @PostMapping("/get-presigned-url")
+    @PreAuthorize("hasAuthority('syllabus:read')")
+    public ResponseEntity<PresignedUrlResponse> get(@RequestBody FileNameDTO request) {
+        PresignedUrlResponse res = syllabusService.generatePresignedUrl(request.getFiles());
+        if(res.getStatus() < 0){
+            return ResponseEntity.status(500).body(res);
+        }
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/page")
+    @PreAuthorize("hasAuthority('syllabus:read')")
+    public ResponseEntity<GetSyllabusByPage> get(@RequestParam int amount, @RequestParam int pageNumber) {
+        GetSyllabusByPage syllabusList = syllabusService.paging(amount, pageNumber);
+        log.info(syllabusList);
+        if(syllabusList.getStatus() > 0){
+            return ResponseEntity.status(400).body(syllabusList);
+        }
+        else if(syllabusList.getStatus() < 0){
+            return ResponseEntity.status(500).body(syllabusList);
+        }
         return ResponseEntity.status(200).body(syllabusList);
     }
 

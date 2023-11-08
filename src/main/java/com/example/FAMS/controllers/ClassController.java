@@ -51,6 +51,20 @@ public class ClassController {
         return ResponseEntity.status(HttpStatus.OK).body(classService.getClasses());
     }
 
+    @GetMapping("/page")
+    @PreAuthorize("hasAuthority('class:read')")
+    public ResponseEntity<GetClassesByPage> getClasses(@RequestParam int amount, @RequestParam int pageNumber) {
+        GetClassesByPage classList = classService.paging(amount, pageNumber);
+
+        if(classList.getStatus() > 0){
+            return ResponseEntity.status(400).body(classList);
+        }
+        else if(classList.getStatus() < 0){
+            return ResponseEntity.status(500).body(classList);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(classList);
+    }
+
 //    @GetMapping("/detail")
 //    @PreAuthorize("hasAuthority('class:read')")
 //    public ResponseEntity<List<Class>> getDetailClasses() {

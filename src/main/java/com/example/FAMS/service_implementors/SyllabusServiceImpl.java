@@ -1,9 +1,12 @@
 package com.example.FAMS.service_implementors;
 
+import com.amazonaws.HttpMethod;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.StandardOutputDTO;
+import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
 import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
+import com.example.FAMS.dto.responses.Syllabus.PresignedUrlResponse;
 import com.example.FAMS.models.*;
 import com.example.FAMS.models.composite_key.SyllabusStandardOutputCompositeKey;
 import com.example.FAMS.models.composite_key.SyllabusTrainingUnitCompositeKey;
@@ -12,6 +15,7 @@ import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.repositories.SyllabusDAO;
+import com.example.FAMS.services.FileService;
 import com.example.FAMS.services.SyllabusService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +62,9 @@ public class SyllabusServiceImpl implements SyllabusService {
     @Autowired
     UserClassSyllabusDAO userSyllabusDAO;
 
+    @Autowired
+    FileService fileService;
+
     String line = "";
 
     @Autowired
@@ -67,15 +74,15 @@ public class SyllabusServiceImpl implements SyllabusService {
     public List<GetAllSyllabusResponse> getSyllabuses() {
 //        log.info(userDAO.findAll());
 //        log.info(trainingUnitDAO.countDayNumberBySyllabus_TopicCode("lmao"));
-        List<GetAllSyllabusResponse> syllabuses = new ArrayList<>();
         List<Syllabus> syllabusList = syllabusDAO.findTop1000ByOrderByCreatedDateDesc();
+        List<GetAllSyllabusResponse> syllabuses = new ArrayList<>();
         List<String> objectiveList = null;
         List<SyllabusObjective> syllabusObjectiveList = null;
 
-        for(int i = 0; i < syllabusList.size(); i++){
+        for (int i = 0; i < syllabusList.size(); i++) {
             objectiveList = new ArrayList<>();
             syllabusObjectiveList = syllabusList.get(i).getSyllabusObjectives().stream().toList();
-            for(int j = 0; j < syllabusObjectiveList.size(); j++){
+            for (int j = 0; j < syllabusObjectiveList.size(); j++) {
                 objectiveList.add(syllabusObjectiveList.get(j).getOutputCode().getOutputCode());
             }
             GetAllSyllabusResponse res = GetAllSyllabusResponse.builder()
@@ -95,11 +102,107 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
+    public GetSyllabusByPage paging(int amount, int pageNumber) {
+        try {
+            List<Syllabus> syllabusList = syllabusDAO.findTop1000ByOrderByCreatedDateDesc();
+            List<GetAllSyllabusResponse> syllabuses = new ArrayList<>();
+            List<String> objectiveList = null;
+            List<SyllabusObjective> syllabusObjectiveList = null;
+            int totalNumberOfPages = syllabusList.size() == amount ? 1 : syllabusList.size() % amount == 0 ? syllabusList.size() / amount : (syllabusList.size() / amount) + 1;
+            log.info(syllabusList.size() / amount);
+            if (pageNumber < 0 || pageNumber > totalNumberOfPages) {
+                return GetSyllabusByPage.builder()
+                        .message("found 0 result.")
+                        .totalNumberOfPages(totalNumberOfPages)
+                        .status(1)
+                        .pageNumber(pageNumber)
+                        .syllabusList(syllabuses)
+                        .build();
+            }
+
+            if (amount > syllabusList.size()) {
+                for (int i = 0; i < syllabusList.size(); i++) {
+                    objectiveList = new ArrayList<>();
+                    syllabusObjectiveList = syllabusList.get(i).getSyllabusObjectives().stream().toList();
+                    for (int j = 0; j < syllabusObjectiveList.size(); j++) {
+                        objectiveList.add(syllabusObjectiveList.get(j).getOutputCode().getOutputCode());
+                    }
+                    GetAllSyllabusResponse res = GetAllSyllabusResponse.builder()
+                            .syllabusName(syllabusList.get(i).getTopicName())
+                            .syllabusCode(syllabusList.get(i).getTopicCode())
+                            .createdOn(syllabusList.get(i).getCreatedDate().getTime())
+                            .createdBy(syllabusList.get(i).getCreatedBy().getName())
+                            .duration(syllabusList.get(i).getNumberOfDay())
+                            .status(syllabusList.get(i).getPublishStatus())
+                            .syllabusObjectiveList(objectiveList)
+                            .build();
+
+                    syllabuses.add(res);
+                }
+
+                return GetSyllabusByPage.builder()
+                        .message("found " + syllabuses.size() + " result.")
+                        .totalNumberOfPages(1)
+                        .status(0)
+                        .pageNumber(1)
+                        .syllabusList(syllabuses)
+                        .build();
+
+            }
+            int maxContent = pageNumber * amount;
+            int pageTo = Math.min(maxContent, syllabusList.size());
+            int pageFrom = pageNumber * amount > syllabusList.size() ? maxContent - amount : pageTo - amount;
+            log.info(maxContent);
+            log.info("syllabus size: " + syllabusList.size());
+            log.info(pageNumber * amount > syllabusList.size());
+            log.info(pageTo - ((pageNumber * amount) - syllabusList.size()));
+            log.info("page from: " + pageFrom);
+            log.info("page to: " + pageTo);
+            List<Syllabus> syllabusSubList = syllabusList.subList(pageFrom, pageTo);
+
+            for (int i = 0; i < syllabusSubList.size(); i++) {
+                objectiveList = new ArrayList<>();
+                syllabusObjectiveList = syllabusSubList.get(i).getSyllabusObjectives().stream().toList();
+                for (int j = 0; j < syllabusObjectiveList.size(); j++) {
+                    objectiveList.add(syllabusObjectiveList.get(j).getOutputCode().getOutputCode());
+                }
+                GetAllSyllabusResponse res = GetAllSyllabusResponse.builder()
+                        .syllabusName(syllabusSubList.get(i).getTopicName())
+                        .syllabusCode(syllabusSubList.get(i).getTopicCode())
+                        .createdOn(syllabusSubList.get(i).getCreatedDate().getTime())
+                        .createdBy(syllabusSubList.get(i).getCreatedBy().getName())
+                        .duration(syllabusSubList.get(i).getNumberOfDay())
+                        .status(syllabusSubList.get(i).getPublishStatus())
+                        .syllabusObjectiveList(objectiveList)
+                        .build();
+
+                syllabuses.add(res);
+            }
+            return GetSyllabusByPage.builder()
+                    .message("found " + syllabuses.size() + " result.")
+                    .totalNumberOfPages(totalNumberOfPages)
+                    .status(0)
+                    .pageNumber(pageNumber)
+                    .syllabusList(syllabuses)
+                    .build();
+
+        } catch (Exception err) {
+            err.printStackTrace();
+            return GetSyllabusByPage.builder()
+                    .message("found 0 result.")
+                    .totalNumberOfPages(0)
+                    .status(-1)
+                    .pageNumber(pageNumber)
+                    .syllabusList(null)
+                    .build();
+        }
+    }
+
+    @Override
     public Syllabus getDetailSyllabus(String topicCode) {
         Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
         return optionalSyllabus.orElse(null);
     }
-
 
 
     @Override
@@ -107,7 +210,7 @@ public class SyllabusServiceImpl implements SyllabusService {
         if (syllabusDAO.findById(request.getTopicCode()).isPresent() && !request.isUpdated()) {
             return 1;
         }
-        try{
+        try {
             Syllabus syllabus = null;
             if (request.isUpdated()) {
                 syllabus = syllabusDAO.findById(request.getTopicCode()).get();
@@ -146,8 +249,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             syllabusDAO.save(syllabus);
 
             return 0;
-        }
-        catch (Exception err){
+        } catch (Exception err) {
             err.printStackTrace();
             return -1;
         }
@@ -320,13 +422,13 @@ public class SyllabusServiceImpl implements SyllabusService {
     @Override
     public int createSyllabusOther(CreateSyllabusGeneralRequest request) {
 
-        try{
+        try {
             Syllabus syllabus = syllabusDAO.findById(request.getTopicCode()).get();
 
             syllabus.setTrainingPrinciples(request.getTrainingPrinciple());
             syllabusDAO.save(syllabus);
             return 0;
-        }catch (Exception err){
+        } catch (Exception err) {
             err.printStackTrace();
             return -1;
         }
@@ -449,7 +551,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                         syllabusList.add(c);
                         syllabusDAO.saveAll(syllabusList);
                     }
-                } else if (choice.equals("Skip")){
+                } else if (choice.equals("Skip")) {
                     if (syllabusexits != null) {
 
                     } else {
@@ -552,12 +654,41 @@ public class SyllabusServiceImpl implements SyllabusService {
         }
         return syllabusList;
     }
+
     public User getCreator(Authentication authentication) {
         Object creator = authentication.getPrincipal();
         if (creator instanceof User) {
             return (User) creator;
         }
         return null;
+    }
+
+    public PresignedUrlResponse generatePresignedUrl(List<String> files) {
+        List<String> putPresignedUrlList = new ArrayList<>();
+        List<String> getPresignedUrlList = new ArrayList<>();
+        try {
+            for (int i = 0; i < files.size(); i++) {
+                String putPresignedUrl = fileService.generateUrl(files.get(i), HttpMethod.PUT);
+                String getPresignedUrl = fileService.generateUrl(files.get(i), HttpMethod.GET);
+                putPresignedUrlList.add(putPresignedUrl);
+                getPresignedUrlList.add(getPresignedUrl);
+            }
+            return PresignedUrlResponse.builder()
+                    .putPresignedUrl(putPresignedUrlList)
+                    .getPresignedUrl(getPresignedUrlList)
+                    .message("successfully generate presigned url.")
+                    .status(0)
+                    .build();
+        } catch (Exception err) {
+            err.printStackTrace();
+            return PresignedUrlResponse.builder()
+                    .putPresignedUrl(putPresignedUrlList)
+                    .getPresignedUrl(getPresignedUrlList)
+                    .message("fail to generate presigned url.")
+                    .status(-1)
+                    .build();
+        }
+
     }
 
 }
