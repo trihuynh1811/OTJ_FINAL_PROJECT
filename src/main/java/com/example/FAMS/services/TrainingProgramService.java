@@ -15,7 +15,7 @@ public interface TrainingProgramService {
 
     ResponseEntity<ResponseObject> getAll();
 
-    UpdateTrainingProgramResponse updateTrainingProgram(int trainingProgramCode, String topicCode, UpdateTrainingProgramRequest updateTrainingProgramRequest);
+    UpdateTrainingProgramResponse updateTrainingProgram(int trainingProgramCode, UpdateTrainingProgramRequest updateTrainingProgramRequest);
 
     TrainingProgram duplicateTrainingProgram(int trainingProgramCode);
 

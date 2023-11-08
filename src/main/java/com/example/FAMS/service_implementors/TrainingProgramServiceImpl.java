@@ -145,10 +145,8 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
     @Override
     public UpdateTrainingProgramResponse updateTrainingProgram(
             int trainingProgramCode,
-            String topicCode,
             UpdateTrainingProgramRequest updateTrainingProgramRequest) {
         TrainingProgram trainingProgramExisted = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
-        Syllabus syllabusExisted = syllabusDAO.findById(topicCode).orElse(null);
 
         if (trainingProgramExisted != null) {
             trainingProgramExisted.setName(updateTrainingProgramRequest.getName());
@@ -163,24 +161,12 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
             trainingProgramExisted.setCreatedDate(updateTrainingProgramRequest.getCreatedDate());
             trainingProgramExisted.setModifiedBy(updateTrainingProgramRequest.getModifiedBy());
             trainingProgramExisted.setModifiedDate(new Date());
-            if (syllabusExisted != null) {
-                TrainingProgramSyllabus trainingProgramSyllabus =
-                        trainingProgramSyllabusDAO
-                                .findByIdTopicCodeAndIdTrainingProgramCode(syllabusExisted.getTopicCode(), trainingProgramExisted.getTrainingProgramCode());
-                trainingProgramSyllabus.setDeleted(updateTrainingProgramRequest.isDeleted());
-                trainingProgramDAO.save(trainingProgramExisted);
-                trainingProgramSyllabusDAO.save(trainingProgramSyllabus);
+            trainingProgramDAO.save(trainingProgramExisted);
 
-                return UpdateTrainingProgramResponse.builder()
-                        .messager("Update training program success")
-                        .updateTrainingProgram(trainingProgramExisted)
-                        .build();
-            } else {
-                return UpdateTrainingProgramResponse.builder()
-                        .messager("Syllabus not found")
-                        .updateTrainingProgram(trainingProgramExisted)
-                        .build();
-            }
+            return UpdateTrainingProgramResponse.builder()
+                    .messager("Update training program success")
+                    .updateTrainingProgram(trainingProgramExisted)
+                    .build();
         } else {
             return UpdateTrainingProgramResponse.builder()
                     .messager("Training program not found")
@@ -188,6 +174,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
                     .build();
         }
     }
+
 
 
     @Override
