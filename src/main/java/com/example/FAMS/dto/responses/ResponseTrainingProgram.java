@@ -6,20 +6,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
 import java.util.List;
 
-@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TrainingProgramDTO {
+@Builder
+public class ResponseTrainingProgram {
+    private String status;
+    private String message;
+    private int numberOfPage;
+    private Object payload;
+    private List<TrainingProgramSyllabus> trainingProgramSyllabusList;
 
-    String trainingProgramName;
-    String trainerGmail;
-    String[] topicCode;
-    int duration;
-    String status;
 
 
 }
