@@ -522,9 +522,9 @@ public class SyllabusServiceImpl implements SyllabusService {
                         syllabusexits.setTopicOutline(data[7]);
                         syllabusexits.setTrainingAudience(Integer.parseInt(data[8]));
 //                        syllabusexits.setTrainingMaterials(data[9]);
-                        syllabusexits.setTrainingPrinciples(data[10]);
-                        syllabusexits.setVersion(data[11]);
-                        syllabusexits.setCourseObjective(data[12]);
+                        syllabusexits.setTrainingPrinciples(data[9]);
+                        syllabusexits.setVersion(data[10]);
+                        syllabusexits.setCourseObjective(data[11]);
 //                        syllabusexits.setUserID(getCreator(authentication));
                         syllabusDAO.save(syllabusexits);
                     } else {
@@ -544,9 +544,9 @@ public class SyllabusServiceImpl implements SyllabusService {
                         c.setTopicOutline(data[7]);
                         c.setTrainingAudience(Integer.parseInt(data[8]));
 //                        c.setTrainingMaterials(data[9]);
-                        c.setTrainingPrinciples(data[10]);
-                        c.setVersion(data[11]);
-                        c.setCourseObjective(data[12]);
+                        c.setTrainingPrinciples(data[9]);
+                        c.setVersion(data[10]);
+                        c.setCourseObjective(data[11]);
 //                        c.setUserID(getCreator(authentication));
                         syllabusList.add(c);
                         syllabusDAO.saveAll(syllabusList);
@@ -571,9 +571,9 @@ public class SyllabusServiceImpl implements SyllabusService {
                         c.setTopicOutline(data[7]);
                         c.setTrainingAudience(Integer.parseInt(data[8]));
 //                        c.setTrainingMaterials(data[9]);
-                        c.setTrainingPrinciples(data[10]);
-                        c.setVersion(data[11]);
-                        c.setCourseObjective(data[12]);
+                        c.setTrainingPrinciples(data[9]);
+                        c.setVersion(data[10]);
+                        c.setCourseObjective(data[11]);
 //                        c.setUserID(getCreator(authentication));
                         syllabusList.add(c);
                         syllabusDAO.saveAll(syllabusList);
@@ -599,7 +599,7 @@ public class SyllabusServiceImpl implements SyllabusService {
         BufferedWriter out = new BufferedWriter(fileWriter);
 
         // Thêm nội dung vào tệp
-        out.write("topic_code, created_date, Modified Date, priority, publishStatus, technicalGroup, topic_name, topicOutline, TrainingAudience, TrainingMaterials, TrainingPrinciples, Version, CourseObjective");
+        out.write("topic_code, created_date, Modified Date, priority, publishStatus, technicalGroup, topic_name, topicOutline, TrainingAudience, TrainingPrinciples, Version, CourseObjective");
         out.newLine(); // Xuống dòng
         // Đóng BufferedWriter
         out.close();
@@ -641,7 +641,7 @@ public class SyllabusServiceImpl implements SyllabusService {
         return syllabusDAO.save(syllabus);
     }
 
-    public List<Syllabus> searchSyllabus(String createdDate, String searchValue, String orderBy) {
+    public List<Syllabus> searchSyllabus(String createdDate, String searchValue) {
         List<Syllabus> syllabusList = syllabusDAO.findAll();
         if (!Strings.isNullOrEmpty(createdDate)) {
             syllabusList = syllabusList.stream().filter(n -> {
