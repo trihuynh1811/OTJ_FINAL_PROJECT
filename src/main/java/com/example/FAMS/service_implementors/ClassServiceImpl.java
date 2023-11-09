@@ -8,6 +8,8 @@ import com.example.FAMS.dto.responses.CalendarDayResponse;
 import com.example.FAMS.dto.responses.CalendarWeekResponse;
 import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.dto.responses.Class.TrainingProgramDTO;
+import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
+import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
 import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.models.*;
 import com.example.FAMS.dto.responses.*;
@@ -111,6 +113,77 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
+    public GetClassesByPage paging(int amount, int pageNumber) {
+        try{
+            List<Class> classList = classDAO.findTop1000ByOrderByCreatedDateDesc();
+            List<ClassDetailResponse> classDetailList = new ArrayList<>();
+            int totalNumberOfPages = classList.size() == amount ? 1 : classList.size() % amount == 0 ? classList.size() / amount : (classList.size() / amount) + 1;
+            log.info(classList.size() / amount);
+            if(pageNumber < 0 || pageNumber > totalNumberOfPages){
+                return GetClassesByPage.builder()
+                        .message("found 0 result.")
+                        .totalNumberOfPages(totalNumberOfPages)
+                        .status(1)
+                        .pageNumber(pageNumber)
+                        .classList(classDetailList)
+                        .build();
+            }
+
+            if (amount > classList.size()) {
+                for (int i = 0; i < classList.size(); i++) {
+                    if (!classList.get(i).isDeactivated()) {
+                        ClassDetailResponse detail = getFullClassDetail(classList.get(i).getClassId());
+                        classDetailList.add(detail);
+                    }
+                }
+
+                return GetClassesByPage.builder()
+                        .message("found " + classDetailList.size() + " result.")
+                        .totalNumberOfPages(1)
+                        .status(0)
+                        .pageNumber(1)
+                        .classList(classDetailList)
+                        .build();
+
+            }
+            int maxContent = pageNumber * amount;
+            int pageTo = Math.min(maxContent, classList.size());
+            int pageFrom = pageNumber * amount > classList.size() ? maxContent - amount : pageTo - amount;
+            log.info(maxContent);
+            log.info("class size: " + classList.size());
+            log.info(pageNumber * amount > classList.size());
+            log.info(pageTo - ((pageNumber * amount) - classList.size()));
+            log.info("page from: " + pageFrom);
+            log.info("page to: " + pageTo);
+            List<Class> classSubList = classList.subList(pageFrom, pageTo);
+
+            for (int i = 0; i < classSubList.size(); i++) {
+                if (!classSubList.get(i).isDeactivated()) {
+                    ClassDetailResponse detail = getFullClassDetail(classSubList.get(i).getClassId());
+                    classDetailList.add(detail);
+                }
+            }
+            return GetClassesByPage.builder()
+                    .message("found " + classDetailList.size() + " result.")
+                    .totalNumberOfPages(totalNumberOfPages)
+                    .status(0)
+                    .pageNumber(pageNumber)
+                    .classList(classDetailList)
+                    .build();
+
+        }catch (Exception err){
+            err.printStackTrace();
+            return GetClassesByPage.builder()
+                    .message("found 0 result.")
+                    .totalNumberOfPages(0)
+                    .status(-1)
+                    .pageNumber(pageNumber)
+                    .classList(null)
+                    .build();
+        }
+    }
+
+    @Override
     public ResponseEntity<ResponseObject> getFilter() {
         try {
             filterResponses = classDAO.searchByFilter();
@@ -126,7 +199,7 @@ public class ClassServiceImpl implements ClassService {
             boolean existingClass = classDAO.findById(request.getClassCode()).isPresent();
             if(existingClass){
                 CreateClassResponse res = CreateClassResponse.builder()
-                        .message("class with id: " + request.getClassCode())
+                        .message("class with id: " + request.getClassCode() + " already exist.")
                         .createdClass(null)
                         .status(1)
                         .build();
@@ -484,13 +557,16 @@ public class ClassServiceImpl implements ClassService {
         Class existingClass = classDAO.findById(request.getClassCode()).get();
         try {
             if (existingClass != null) {
-                if (!request.getLocation().equalsIgnoreCase(existingClass.getLocation()) && classDAO.findByLocation(request.getLocation()) != null) {
-                    return UpdateClassResponse.builder()
-                            .status(1)
-                            .updatedClass(null)
-                            .message("class with id: " + request.getClassCode() + " already exist in this location.")
-                            .build();
-                }
+//                String[] strArr = request.getClassCode().split("_");
+//                String existedClassCode = strArr[strArr.length - 1];
+//                if (!request.getLocation().equalsIgnoreCase(existingClass.getLocation()) && classDAO.findByLocation(request.getLocation()) != null
+//                        && !request.getClassCode().equalsIgnoreCase(classDAO.findById())) {
+//                    return UpdateClassResponse.builder()
+//                            .status(1)
+//                            .updatedClass(null)
+//                            .message("class with id: " + request.getClassCode() + " already exist in this location.")
+//                            .build();
+//                }
                 List<ClassUser> classUserList = new ArrayList<>();
                 List<UserClassSyllabus> userSyllabusList = new ArrayList<>();
                 List<ClassLearningDay> classLearningDayList = new ArrayList<>();
@@ -541,8 +617,8 @@ public class ClassServiceImpl implements ClassService {
                 Class updatedClass = classDAO.save(existingClass);
 
                 log.info("1");
-                List<ClassLearningDay> cldl = classLearningDayDAO.findByClassId_ClassId(existingClass.getClassId());
-                List<ClassUser> cu = classUserDAO.findByClassId_ClassId(existingClass.getClassId());
+                List<ClassLearningDay> cldl = classLearningDayDAO.findByClassId_ClassId(request.getClassCode());
+                List<ClassUser> cu = classUserDAO.findByClassId_ClassId(request.getClassCode());
                 List<UserClassSyllabus> ucs = userClassSyllabusDAO.findByClassCode_ClassId(request.getClassCode());
                 log.info(ucs.size());
                 classLearningDayDAO.deleteAll(cldl);
@@ -1095,14 +1171,15 @@ public class ClassServiceImpl implements ClassService {
                 .attendeeAccepted(Integer.toString(c.getAttendeeAccepted()))
                 .attendeePlanned(Integer.toString(c.getAttendeePlanned()))
                 .attendeeActual(Integer.toString(c.getAttendeeActual()))
-                .trainingProgram(TrainingProgramDTO.builder()
-                        .trainingProgramCode(c.getTrainingProgram().getTrainingProgramCode())
-                        .trainingProgramName(c.getTrainingProgram().getName())
-                        .modifyBy(c.getTrainingProgram().getModifiedBy())
-                        .modifyDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getTrainingProgram().getModifiedDate().toString().split(" ")[0]) : "")
-                        .duration(tp.getDuration())
-                        .status(c.getTrainingProgram().getStatus())
-                        .build())
+//                .trainingProgram(TrainingProgramDTO.builder()
+//                        .trainingProgramCode(c.getTrainingProgram().getTrainingProgramCode())
+//                        .trainingProgramName(c.getTrainingProgram().getName())
+//                        .modifyBy(c.getTrainingProgram().getModifiedBy())
+//                        .modifyDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getTrainingProgram().getModifiedDate().toString().split(" ")[0]) : "")
+//                        .duration(tp.getDuration())
+//                        .status(c.getTrainingProgram().getStatus())
+//                        .build())
+                .trainingProgram(c.getTrainingProgram().getName())
                 .listDay(listDay)
 //                        .location(locationList)
                 .location(capitalizeLocation(c.getLocation()))

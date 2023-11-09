@@ -45,21 +45,21 @@ public class FamsApplication {
         SpringApplication.run(FamsApplication.class, args);
     }
 
-  @Bean
-  public CommandLineRunner initData() {
-    return new CommandLineRunner() {
-      @Override
-      public void run(String... args) throws Exception {
-        if (standardOutputDAO.findAll().size() == 0) {
-          List<StandardOutput> standardOutputList = new ArrayList<>();
-          String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
-          for (int i = 0; i < objectiveCode.length; i++) {
-            StandardOutput standardOutput =
-                StandardOutput.builder()
-                    .outputCode(objectiveCode[i].toUpperCase())
-                    .outputName(objectiveCode[i])
-                    .description("some bs description.")
-                    .build();
+    @Bean
+    public CommandLineRunner initData() {
+        return new CommandLineRunner() {
+            @Override
+            public void run(String... args) throws Exception {
+                if (standardOutputDAO.findAll().size() == 0) {
+                    List<StandardOutput> standardOutputList = new ArrayList<>();
+                    String[] objectiveCode = {"h4sd", "h6sd", "k6sd", "hk416", "mp5k", "mac10", "m4a1"};
+                    for (int i = 0; i < objectiveCode.length; i++) {
+                        StandardOutput standardOutput =
+                                StandardOutput.builder()
+                                        .outputCode(objectiveCode[i].toUpperCase())
+                                        .outputName(objectiveCode[i])
+                                        .description("some bs description.")
+                                        .build();
 
                         standardOutputList.add(standardOutput);
                     }
@@ -442,12 +442,13 @@ public class FamsApplication {
 
                     for (int i = 1; i <= 4; i++) {
                         Syllabus s = Syllabus.builder()
-                                .topicCode("lmao " + i)
+                                .topicCode("TOPIC00" + i)
                                 .topicName("lmao " + i)
                                 .version("1.6")
                                 .publishStatus(i % 2 == 0 ? "active" : "inactive")
                                 .technicalGroup("mao ze dong picture at home.")
                                 .priority("low")
+                                .numberOfDay(4)
                                 .courseObjective("glory to ccp.")
                                 .trainingAudience(10)
                                 .createdBy(userDAO.findByEmail("admin@gmail.com").get())
@@ -460,86 +461,86 @@ public class FamsApplication {
 
                 }
 
-                if (trainingProgramDAO.findAll().isEmpty()) {
-                    List<TrainingProgram> trainingPrograms = new ArrayList<>();
-
-                    TrainingProgram trainingProgram = TrainingProgram.builder()
-                            .name("tp_1")
-                            .userID(userDAO.findById(1).get())
-                            .startDate(new Date("2001/9/11"))
-                            .duration(999)
-                            .status("active")
-                            .createdBy("jotaro")
-                            .createdDate(new Date())
-                            .build();
-                    TrainingProgram trainingProgram1 = TrainingProgram.builder()
-                            .name("tp_2")
-                            .userID(userDAO.findById(2).get())
-                            .startDate(new Date("2001/9/11"))
-                            .duration(999)
-                            .status("inactive")
-                            .createdBy("dio")
-                            .createdDate(new Date())
-                            .build();
-                    TrainingProgram trainingProgram2 = TrainingProgram.builder()
-                            .name("tp_3")
-                            .userID(userDAO.findById(1).get())
-                            .startDate(new Date("2001/9/11"))
-                            .duration(999)
-                            .status("drafting")
-                            .createdBy("jojo")
-                            .createdDate(new Date())
-                            .build();
-
-                    trainingPrograms.add(trainingProgram);
-                    trainingPrograms.add(trainingProgram1);
-                    trainingPrograms.add(trainingProgram2);
-
-                    trainingProgramDAO.saveAll(trainingPrograms);
-                }
-                if (trainingProgramSyllabusDAO.findAll().isEmpty()) {
-                    List<TrainingProgramSyllabus> trainingProgramSyllabusList = new ArrayList<>();
-
-                    TrainingProgramSyllabus trainingProgramSyllabus = TrainingProgramSyllabus.builder()
-                            .id(SyllabusTrainingProgramCompositeKey.builder()
-                                    .trainingProgramCode(1)
-                                    .topicCode("lmao 1")
-                                    .build())
-                            .trainingProgramCode(trainingProgramDAO.findById(1).get())
-                            .topicCode(syllabusDAO.findById("lmao 1").get())
-                            .build();
-                    TrainingProgramSyllabus trainingProgramSyllabus1 = TrainingProgramSyllabus.builder()
-                            .id(SyllabusTrainingProgramCompositeKey.builder()
-                                    .trainingProgramCode(1)
-                                    .topicCode("lmao 3")
-                                    .build())
-                            .trainingProgramCode(trainingProgramDAO.findById(1).get())
-                            .topicCode(syllabusDAO.findById("lmao 3").get())
-                            .build();
-                    TrainingProgramSyllabus trainingProgramSyllabus2 = TrainingProgramSyllabus.builder()
-                            .id(SyllabusTrainingProgramCompositeKey.builder()
-                                    .trainingProgramCode(2)
-                                    .topicCode("lmao 2")
-                                    .build())
-                            .trainingProgramCode(trainingProgramDAO.findById(2).get())
-                            .topicCode(syllabusDAO.findById("lmao 2").get())
-                            .build();
-                    TrainingProgramSyllabus trainingProgramSyllabus3 = TrainingProgramSyllabus.builder()
-                            .id(SyllabusTrainingProgramCompositeKey.builder()
-                                    .trainingProgramCode(2)
-                                    .topicCode("lmao 4")
-                                    .build())
-                            .trainingProgramCode(trainingProgramDAO.findById(2).get())
-                            .topicCode(syllabusDAO.findById("lmao 4").get())
-                            .build();
-
-                    trainingProgramSyllabusList.add(trainingProgramSyllabus);
-                    trainingProgramSyllabusList.add(trainingProgramSyllabus1);
-                    trainingProgramSyllabusList.add(trainingProgramSyllabus2);
-                    trainingProgramSyllabusList.add(trainingProgramSyllabus3);
-
-                    trainingProgramSyllabusDAO.saveAll(trainingProgramSyllabusList);
-                }
+//                if (trainingProgramDAO.findAll().isEmpty()) {
+//                    List<TrainingProgram> trainingPrograms = new ArrayList<>();
+//
+//                    TrainingProgram trainingProgram = TrainingProgram.builder()
+//                            .name("tp_1")
+//                            .userID(userDAO.findById(1).get())
+//                            .startDate(new Date("2001/9/11"))
+//                            .duration(999)
+//                            .status("active")
+//                            .createdBy("admin@gmail.com")
+//                            .createdDate(new Date())
+//                            .build();
+//                    TrainingProgram trainingProgram1 = TrainingProgram.builder()
+//                            .name("tp_2")
+//                            .userID(userDAO.findById(2).get())
+//                            .startDate(new Date("2001/9/11"))
+//                            .duration(999)
+//                            .status("inactive")
+//                            .createdBy("dio")
+//                            .createdDate(new Date())
+//                            .build();
+//                    TrainingProgram trainingProgram2 = TrainingProgram.builder()
+//                            .name("tp_3")
+//                            .userID(userDAO.findById(1).get())
+//                            .startDate(new Date("2001/9/11"))
+//                            .duration(999)
+//                            .status("drafting")
+//                            .createdBy("jojo")
+//                            .createdDate(new Date())
+//                            .build();
+//
+//                    trainingPrograms.add(trainingProgram);
+//                    trainingPrograms.add(trainingProgram1);
+//                    trainingPrograms.add(trainingProgram2);
+//
+//                    trainingProgramDAO.saveAll(trainingPrograms);
+//                }
+//                if (trainingProgramSyllabusDAO.findAll().isEmpty()) {
+//                    List<TrainingProgramSyllabus> trainingProgramSyllabusList = new ArrayList<>();
+//
+//                    TrainingProgramSyllabus trainingProgramSyllabus = TrainingProgramSyllabus.builder()
+//                            .id(SyllabusTrainingProgramCompositeKey.builder()
+//                                    .trainingProgramCode(1)
+//                                    .topicCode("lmao 1")
+//                                    .build())
+//                            .trainingProgramCode(trainingProgramDAO.findById(1).get())
+//                            .topicCode(syllabusDAO.findByTopicName("lmao 1").get())
+//                            .build();
+//                    TrainingProgramSyllabus trainingProgramSyllabus1 = TrainingProgramSyllabus.builder()
+//                            .id(SyllabusTrainingProgramCompositeKey.builder()
+//                                    .trainingProgramCode(1)
+//                                    .topicCode("lmao 3")
+//                                    .build())
+//                            .trainingProgramCode(trainingProgramDAO.findById(1).get())
+//                            .topicCode(syllabusDAO.findByTopicName("lmao 3").get())
+//                            .build();
+//                    TrainingProgramSyllabus trainingProgramSyllabus2 = TrainingProgramSyllabus.builder()
+//                            .id(SyllabusTrainingProgramCompositeKey.builder()
+//                                    .trainingProgramCode(2)
+//                                    .topicCode("lmao 2")
+//                                    .build())
+//                            .trainingProgramCode(trainingProgramDAO.findById(2).get())
+//                            .topicCode(syllabusDAO.findByTopicName("lmao 2").get())
+//                            .build();
+//                    TrainingProgramSyllabus trainingProgramSyllabus3 = TrainingProgramSyllabus.builder()
+//                            .id(SyllabusTrainingProgramCompositeKey.builder()
+//                                    .trainingProgramCode(2)
+//                                    .topicCode("lmao 4")
+//                                    .build())
+//                            .trainingProgramCode(trainingProgramDAO.findById(2).get())
+//                            .topicCode(syllabusDAO.findByTopicName("lmao 4").get())
+//                            .build();
+//
+//                    trainingProgramSyllabusList.add(trainingProgramSyllabus);
+//                    trainingProgramSyllabusList.add(trainingProgramSyllabus1);
+//                    trainingProgramSyllabusList.add(trainingProgramSyllabus2);
+//                    trainingProgramSyllabusList.add(trainingProgramSyllabus3);
+//
+//                    trainingProgramSyllabusDAO.saveAll(trainingProgramSyllabusList);
+//                }
 
 
             }

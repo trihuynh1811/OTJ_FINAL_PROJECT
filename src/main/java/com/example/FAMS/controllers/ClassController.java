@@ -13,6 +13,7 @@ import com.example.FAMS.models.UserClassSyllabus;
 import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import com.example.FAMS.repositories.UserClassSyllabusDAO;
 import com.example.FAMS.service_implementors.ClassServiceImpl;
+import com.example.FAMS.services.ClassService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +35,7 @@ import java.util.List;
 public class ClassController {
 
     @Autowired
-    ClassServiceImpl classService;
+    ClassService classService;
 
     @Autowired
     UserClassSyllabusDAO userClassSyllabusDAO;
@@ -49,6 +50,20 @@ public class ClassController {
     @PreAuthorize("hasAuthority('class:read')")
     public ResponseEntity<List<ClassDetailResponse>> getClasses() {
         return ResponseEntity.status(HttpStatus.OK).body(classService.getClasses());
+    }
+
+    @GetMapping("/page")
+    @PreAuthorize("hasAuthority('class:read')")
+    public ResponseEntity<GetClassesByPage> getClasses(@RequestParam int amount, @RequestParam int pageNumber) {
+        GetClassesByPage classList = classService.paging(amount, pageNumber);
+
+        if(classList.getStatus() > 0){
+            return ResponseEntity.status(400).body(classList);
+        }
+        else if(classList.getStatus() < 0){
+            return ResponseEntity.status(500).body(classList);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(classList);
     }
 
 //    @GetMapping("/detail")

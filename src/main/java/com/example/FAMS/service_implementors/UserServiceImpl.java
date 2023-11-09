@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<ResponseObject> pagination(int pageNo) {
         int totalPage = getNumberOfUsers();
 
-        Pageable paging = PageRequest.of(pageNo, 2);
+        Pageable paging = PageRequest.of(pageNo, 5);
         Page<ListUserResponse> pagedResult = userDAO.findAllUsersBy(paging);
 
         if (pagedResult.hasContent()) {

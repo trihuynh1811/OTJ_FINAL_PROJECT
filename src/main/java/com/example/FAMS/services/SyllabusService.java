@@ -1,9 +1,9 @@
 package com.example.FAMS.services;
 
-import com.example.FAMS.dto.requests.CsvRequest;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
+import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
 import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
@@ -24,6 +24,7 @@ public interface SyllabusService {
 
     public int createSyllabusOther(CreateSyllabusGeneralRequest request);
 
+    public GetSyllabusByPage paging(int amount, int pageNumber);
 
     UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest, String topicCode);
 

@@ -15,4 +15,6 @@ public class ResponseObjectVersion2 {
     private int totalSubjectDays;
     private int totalTrainingProgramDates;
     private Object payload;
+
+
 }
