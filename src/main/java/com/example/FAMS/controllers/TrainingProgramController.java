@@ -53,13 +53,12 @@ public class TrainingProgramController {
 
     @PutMapping("/update-program/{trainingProgramCode}")
     @PreAuthorize("hasAnyAuthority('training:update')")
-    public ResponseEntity<UpdateTrainingProgramResponse> updateTrainingProgramRequest(
+    public ResponseEntity<ResponseObject> updateTrainingProgram(
             @PathVariable int trainingProgramCode,
-            @RequestBody UpdateTrainingProgramRequest updateTrainingProgramRequest) {
-        return ResponseEntity.ok(
-                trainingProgram.updateTrainingProgram(
-                        trainingProgramCode, updateTrainingProgramRequest));
+            @RequestBody TrainingProgramDTO trainingProgramDTO) {
+        return trainingProgram.updateTrainingProgram(trainingProgramCode, trainingProgramDTO);
     }
+
 
     @GetMapping("/duplicate/{trainingProgramCode}")
     @PreAuthorize("hasAuthority('training:read')")

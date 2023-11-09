@@ -1,9 +1,7 @@
 package com.example.FAMS.service_implementors;
 
-import com.example.FAMS.dto.requests.UpdateTrainingProgramRequest;
 import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.enums.Role;
-import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.models.TrainingProgram;
 import com.example.FAMS.models.TrainingProgramSyllabus;
 import com.example.FAMS.models.User;
@@ -16,7 +14,6 @@ import com.example.FAMS.services.JWTService;
 import com.example.FAMS.services.TrainingProgramService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -128,53 +125,83 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         }
     }
 
-  @Override
-  public ResponseEntity<ResponseObject> getAll() {
-//    List<TrainingProgramModified> userList;
-    List<TrainingProgram> userList;
-    try {
-//      userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
-      userList = trainingProgramDAO.findBy(TrainingProgram.class);
-      return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
-    } catch (Exception e) {
-      userList = Collections.emptyList();
-      return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
-    }
-  }
-
     @Override
-    public UpdateTrainingProgramResponse updateTrainingProgram(
-            int trainingProgramCode,
-            UpdateTrainingProgramRequest updateTrainingProgramRequest) {
-        TrainingProgram trainingProgramExisted = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
-
-        if (trainingProgramExisted != null) {
-            trainingProgramExisted.setName(updateTrainingProgramRequest.getName());
-            trainingProgramExisted.setStartDate(updateTrainingProgramRequest.getStartDate());
-            trainingProgramExisted.setDuration(updateTrainingProgramRequest.getDuration());
-
-            String status = trainingProgramExisted.getStatus();
-            if (status != null && (status.equalsIgnoreCase("active"))) {
-                trainingProgramExisted.setStatus(updateTrainingProgramRequest.getStatus());
-            }
-            trainingProgramExisted.setCreatedBy(updateTrainingProgramRequest.getCreatedBy());
-            trainingProgramExisted.setCreatedDate(updateTrainingProgramRequest.getCreatedDate());
-            trainingProgramExisted.setModifiedBy(updateTrainingProgramRequest.getModifiedBy());
-            trainingProgramExisted.setModifiedDate(new Date());
-            trainingProgramDAO.save(trainingProgramExisted);
-
-            return UpdateTrainingProgramResponse.builder()
-                    .messager("Update training program success")
-                    .updateTrainingProgram(trainingProgramExisted)
-                    .build();
-        } else {
-            return UpdateTrainingProgramResponse.builder()
-                    .messager("Training program not found")
-                    .updateTrainingProgram(null)
-                    .build();
+    public ResponseEntity<ResponseObject> getAll() {
+//    List<TrainingProgramModified> userList;
+        List<TrainingProgram> userList;
+        try {
+//      userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
+            userList = trainingProgramDAO.findBy(TrainingProgram.class);
+            return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
+        } catch (Exception e) {
+            userList = Collections.emptyList();
+            return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
         }
     }
 
+    @Override
+    public ResponseEntity<ResponseObject> updateTrainingProgram(
+            int trainingProgramCode,
+            TrainingProgramDTO trainingProgramDTO) {
+        TrainingProgram trainingProgramExisted = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
+
+        if (trainingProgramExisted == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseObject("Failed", "Training program not found", null));
+        }
+
+        if (!trainingProgramDTO.getTrainingProgramName().equals(trainingProgramExisted.getName())) {
+            // Check if the provided training program name is already in use
+            if (trainingProgramDAO.getTrainingProgramByName(trainingProgramDTO.getTrainingProgramName()).isPresent()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ResponseObject("Failed", "The Training Program name is already in use", null));
+            }
+        }
+
+        if (trainingProgramDTO.getDuration() <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseObject("Failed", "The duration cannot be negative", null));
+        }
+
+        if (!"Active".equalsIgnoreCase(trainingProgramDTO.getStatus())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseObject("Failed", "The status must be Active", null));
+        }
+
+        User trainer = userDAO.findByEmail(trainingProgramDTO.getTrainerGmail())
+                .filter(user -> user.getRole().getRole() == Role.TRAINER)
+                .orElse(null);
+
+        if (trainer == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseObject("Failed", "The person is not a trainer or not found", null));
+        }
+
+        String token = ((ServletRequestAttributes)
+                Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
+                .getRequest()
+                .getHeader("Authorization")
+                .substring(7);
+
+        String userEmail = jwtService.extractUserEmail(token);
+        var requester = userDAO.findUserByEmail(userEmail).orElse(null);
+
+        if (requester == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseObject("Failed", "Cannot find the user", null));
+        }
+        trainingProgramExisted.setName(trainingProgramDTO.getTrainingProgramName());
+        trainingProgramExisted.setDuration(trainingProgramDTO.getDuration());
+        trainingProgramExisted.setStatus(trainingProgramDTO.getStatus());
+        trainingProgramExisted.setUserID(trainer);
+        trainingProgramExisted.setStartDate(new Date());
+        trainingProgramExisted.setCreatedBy(requester.getName());
+        trainingProgramExisted.setCreatedDate(new Date());
+        trainingProgramExisted.setModifiedBy(requester.getName());
+        trainingProgramExisted.setModifiedDate(new Date());
+        TrainingProgram updatedProgram = trainingProgramDAO.save(trainingProgramExisted);
+        return ResponseEntity.ok(new ResponseObject("Successful", "Updated training program", updatedProgram));
+    }
 
 
     @Override

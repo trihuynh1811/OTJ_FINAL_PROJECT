@@ -1,10 +1,8 @@
 package com.example.FAMS.services;
 
-import com.example.FAMS.dto.requests.UpdateTrainingProgramRequest;
 import com.example.FAMS.dto.responses.ResponseObjectVersion2;
 import com.example.FAMS.dto.responses.TrainingProgramDTO;
 import com.example.FAMS.dto.responses.ResponseObject;
-import com.example.FAMS.dto.responses.UpdateTrainingProgramResponse;
 import com.example.FAMS.models.TrainingProgram;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,7 +13,7 @@ public interface TrainingProgramService {
 
     ResponseEntity<ResponseObject> getAll();
 
-    UpdateTrainingProgramResponse updateTrainingProgram(int trainingProgramCode, UpdateTrainingProgramRequest updateTrainingProgramRequest);
+    ResponseEntity<ResponseObject> updateTrainingProgram(int trainingProgramCode, TrainingProgramDTO trainingProgramDTO);
 
     TrainingProgram duplicateTrainingProgram(int trainingProgramCode);
 
