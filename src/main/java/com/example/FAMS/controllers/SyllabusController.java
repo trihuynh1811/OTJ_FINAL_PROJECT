@@ -210,10 +210,9 @@ public class SyllabusController {
             @RequestParam(name = "createdDate", required = false)
             String createdDate,
             @RequestParam(name = "searchValue", required = false)
-            String searchValue,
-            @RequestParam(name = "orderBy", required = false)
-            String orderBy) {
-        List<Syllabus> syllabusList = syllabusService.searchSyllabus(createdDate, searchValue, orderBy);
+            String searchValue)
+           {
+        List<Syllabus> syllabusList = syllabusService.searchSyllabus(createdDate, searchValue);
         return ResponseEntity.ok(syllabusList);
     }
 
