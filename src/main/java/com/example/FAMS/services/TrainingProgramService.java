@@ -1,6 +1,7 @@
 package com.example.FAMS.services;
 
 import com.example.FAMS.dto.responses.ResponseObjectVersion2;
+import com.example.FAMS.dto.responses.ResponseTrainingProgram;
 import com.example.FAMS.dto.responses.TrainingProgramDTO;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.models.TrainingProgram;
@@ -13,7 +14,7 @@ public interface TrainingProgramService {
 
     ResponseEntity<ResponseObject> getAll();
 
-    ResponseEntity<ResponseObject> updateTrainingProgram(int trainingProgramCode, TrainingProgramDTO trainingProgramDTO);
+    ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(int trainingProgramCode, TrainingProgramDTO trainingProgramDTO);
 
     TrainingProgram duplicateTrainingProgram(int trainingProgramCode);
 

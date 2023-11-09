@@ -2,6 +2,7 @@ package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.enums.Role;
+import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.models.TrainingProgram;
 import com.example.FAMS.models.TrainingProgramSyllabus;
 import com.example.FAMS.models.User;
@@ -28,10 +29,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -140,41 +138,38 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
     }
 
     @Override
-    public ResponseEntity<ResponseObject> updateTrainingProgram(
+    public ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(
             int trainingProgramCode,
             TrainingProgramDTO trainingProgramDTO) {
         TrainingProgram trainingProgramExisted = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
 
         if (trainingProgramExisted == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseObject("Failed", "Training program not found", null));
+                    .body(new ResponseTrainingProgram("Failed", "Training program not found", 0, null, null));
         }
 
         if (!trainingProgramDTO.getTrainingProgramName().equals(trainingProgramExisted.getName())) {
             // Check if the provided training program name is already in use
             if (trainingProgramDAO.getTrainingProgramByName(trainingProgramDTO.getTrainingProgramName()).isPresent()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ResponseObject("Failed", "The Training Program name is already in use", null));
+                        .body(new ResponseTrainingProgram("Failed", "The Training Program name is already in use",0, null,null));
             }
         }
 
         if (trainingProgramDTO.getDuration() <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseObject("Failed", "The duration cannot be negative", null));
+                    .body(new ResponseTrainingProgram("Failed", "The duration cannot be negative", 0,null,null));
         }
-
         if (!"Active".equalsIgnoreCase(trainingProgramDTO.getStatus())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseObject("Failed", "The status must be Active", null));
+                    .body(new ResponseTrainingProgram("Failed", "The status must be Active", 0,null,null));
         }
-
         User trainer = userDAO.findByEmail(trainingProgramDTO.getTrainerGmail())
                 .filter(user -> user.getRole().getRole() == Role.TRAINER)
                 .orElse(null);
-
         if (trainer == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseObject("Failed", "The person is not a trainer or not found", null));
+                    .body(new ResponseTrainingProgram("Failed", "The person is not a trainer or not found",0,null, null));
         }
 
         String token = ((ServletRequestAttributes)
@@ -182,13 +177,12 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
                 .getRequest()
                 .getHeader("Authorization")
                 .substring(7);
-
         String userEmail = jwtService.extractUserEmail(token);
         var requester = userDAO.findUserByEmail(userEmail).orElse(null);
 
         if (requester == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseObject("Failed", "Cannot find the user", null));
+                    .body(new ResponseTrainingProgram("Failed", "Cannot find the user",0,null, null));
         }
         trainingProgramExisted.setName(trainingProgramDTO.getTrainingProgramName());
         trainingProgramExisted.setDuration(trainingProgramDTO.getDuration());
@@ -199,9 +193,53 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         trainingProgramExisted.setCreatedDate(new Date());
         trainingProgramExisted.setModifiedBy(requester.getName());
         trainingProgramExisted.setModifiedDate(new Date());
+
         TrainingProgram updatedProgram = trainingProgramDAO.save(trainingProgramExisted);
-        return ResponseEntity.ok(new ResponseObject("Successful", "Updated training program", updatedProgram));
+
+
+        List<TrainingProgramSyllabus> trainingProgramSyllabusList = updateTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
+
+        return ResponseEntity.ok(new ResponseTrainingProgram("Successful", "Updated training program", 0, updatedProgram, trainingProgramSyllabusList));
     }
+
+    // Trong hàm updateTrainingSyllabus
+    private List<TrainingProgramSyllabus> updateTrainingSyllabus(TrainingProgram trainingProgram, String[] topicCodes) {
+        List<TrainingProgramSyllabus> trainingProgramSyllabusList = new ArrayList<>();
+        SyllabusTrainingProgramCompositeKey compositeKey = new SyllabusTrainingProgramCompositeKey();
+        compositeKey.setTrainingProgramCode(trainingProgram.getTrainingProgramCode());
+
+        for (String element : topicCodes) {
+            Syllabus syllabus = syllabusDAO.findById(element).orElse(null);
+
+            if (syllabus != null) {
+                boolean exists = trainingProgram.getTrainingProgramSyllabus().stream()
+                        .anyMatch(existingSyllabus ->
+                                existingSyllabus.getTopicCode().getTopicCode().equals(syllabus.getTopicCode()));
+
+                if (!exists) {
+                    TrainingProgramSyllabus trainingProgramSyllabus =
+                            TrainingProgramSyllabus.builder()
+                                    .id(
+                                            SyllabusTrainingProgramCompositeKey.builder()
+                                                    .topicCode(syllabus.getTopicCode())
+                                                    .trainingProgramCode(trainingProgram.getTrainingProgramCode())
+                                                    .build())
+                                    .topicCode(syllabus)
+                                    .trainingProgramCode(trainingProgram)
+                                    .deleted(false)
+                                    .build();
+                    trainingProgramSyllabusList.add(trainingProgramSyllabus);
+                }
+            }
+        }
+
+        return trainingProgramSyllabusList;
+    }
+
+
+
+
+
 
 
     @Override
