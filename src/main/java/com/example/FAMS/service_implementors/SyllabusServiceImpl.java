@@ -5,6 +5,7 @@ import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.StandardOutputDTO;
 import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
+import com.example.FAMS.dto.requests.SyllbusRequest.*;
 import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
 import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.PresignedUrlResponse;
@@ -436,28 +437,15 @@ public class SyllabusServiceImpl implements SyllabusService {
 
     }
 
+
+
+
     @Override
-    public UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest, String topicCode) {
-        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
-        User user = userDAO.findByEmail(updatesyllabusRequest.getCreatedBy()).get();
-        Syllabus syllabusexits = optionalSyllabus.orElse(null);
-        if (syllabusexits != null) {
-            syllabusexits.setTopicName(updatesyllabusRequest.getTopicName());
-            syllabusexits.setTechnicalGroup(updatesyllabusRequest.getTechnicalGroup());
-            syllabusexits.setVersion(updatesyllabusRequest.getVersion());
-            syllabusexits.setTrainingAudience(updatesyllabusRequest.getTrainingAudience());
-            syllabusexits.setTopicOutline(updatesyllabusRequest.getTopicOutline());
-//            syllabusexits.setTrainingMaterials(updatesyllabusRequest.getTrainingMaterials());
-            syllabusexits.setPriority(updatesyllabusRequest.getPriority());
-            syllabusexits.setPublishStatus(updatesyllabusRequest.getPublishStatus());
-            syllabusexits.setCreatedBy(user);
-            syllabusexits.setCreatedDate(updatesyllabusRequest.getCreatedDate());
-            syllabusexits.setModifiedBy(updatesyllabusRequest.getModifiedBy());
-            syllabusexits.setModifiedDate(updatesyllabusRequest.getModifiedDate());
-
-
-            Syllabus syllabusUpdate = syllabusDAO.save(syllabusexits);
-
+    public UpdateSyllabusResponse updateSyllabusOther(UpdateSyllabusGeneralRequest updateSyllabusGeneralRequest, String topicCode) {
+        Syllabus syllabus = syllabusDAO.findById(topicCode).get();
+        if (syllabus != null) {
+            syllabus.setTrainingPrinciples(updateSyllabusGeneralRequest.getTrainingPrinciple());
+            Syllabus syllabusUpdate = syllabusDAO.save(syllabus);
             if (syllabusUpdate != null) {
                 return UpdateSyllabusResponse.builder()
                         .status("Update Syllbus successful")
@@ -473,7 +461,6 @@ public class SyllabusServiceImpl implements SyllabusService {
 
             }
 
-
         } else {
             return UpdateSyllabusResponse.builder()
                     .status("Syllabus not found")
@@ -481,8 +468,49 @@ public class SyllabusServiceImpl implements SyllabusService {
                     .build();
 
         }
+    }
+
+    @Override
+    public UpdateSyllabusResponse updateSyllabusGeneral(UpdateSyllabusGeneralRequest update, String topicCode) {
+        Syllabus syllabus = syllabusDAO.findById(topicCode).get();
+        if (syllabus != null) {
+            syllabus.setTopicName(update.getTopicName());
+            syllabus.setVersion(update.getVersion());
+            syllabus.setTechnicalGroup(update.getTechnicalRequirement());
+            syllabus.setPriority(update.getPriority());
+            syllabus.setCourseObjective(update.getCourseObjective());
+            syllabus.setPublishStatus(update.getPublishStatus());
+            syllabus.setTrainingAudience(update.getTrainingAudience());
+            Syllabus syllabusUpdate = syllabusDAO.save(syllabus);
+            if (syllabusUpdate != null) {
+                return UpdateSyllabusResponse.builder()
+                        .status("Update Syllbus successful")
+                        .updateSyllabus(syllabusUpdate)
+                        .build();
+
+
+            } else {
+                return UpdateSyllabusResponse.builder()
+                        .status("Update Syllbus failed")
+                        .updateSyllabus(null)
+                        .build();
+
+            }
+        }
+
+        return UpdateSyllabusResponse.builder()
+                .status("Syllabus not found")
+                .updateSyllabus(null)
+                .build();
+
 
     }
+
+    @Override
+    public UpdateSyllabusResponse updateSyllabusOutline(UpdateSyllabusOutlineRequest update, String topicCode) {
+        return null;
+    }
+
 
     @Override
     public Syllabus getSyllabusById(String topicCode) {
@@ -549,9 +577,9 @@ public class SyllabusServiceImpl implements SyllabusService {
                         syllabusexits.setTopicOutline(data[7]);
                         syllabusexits.setTrainingAudience(Integer.parseInt(data[8]));
 //                        syllabusexits.setTrainingMaterials(data[9]);
-                        syllabusexits.setTrainingPrinciples(data[10]);
-                        syllabusexits.setVersion(data[11]);
-                        syllabusexits.setCourseObjective(data[12]);
+                        syllabusexits.setTrainingPrinciples(data[9]);
+                        syllabusexits.setVersion(data[10]);
+                        syllabusexits.setCourseObjective(data[11]);
 //                        syllabusexits.setUserID(getCreator(authentication));
                         syllabusDAO.save(syllabusexits);
                     } else {
@@ -571,9 +599,9 @@ public class SyllabusServiceImpl implements SyllabusService {
                         c.setTopicOutline(data[7]);
                         c.setTrainingAudience(Integer.parseInt(data[8]));
 //                        c.setTrainingMaterials(data[9]);
-                        c.setTrainingPrinciples(data[10]);
-                        c.setVersion(data[11]);
-                        c.setCourseObjective(data[12]);
+                        c.setTrainingPrinciples(data[9]);
+                        c.setVersion(data[10]);
+                        c.setCourseObjective(data[11]);
 //                        c.setUserID(getCreator(authentication));
                         syllabusList.add(c);
                         syllabusDAO.saveAll(syllabusList);
@@ -598,9 +626,9 @@ public class SyllabusServiceImpl implements SyllabusService {
                         c.setTopicOutline(data[7]);
                         c.setTrainingAudience(Integer.parseInt(data[8]));
 //                        c.setTrainingMaterials(data[9]);
-                        c.setTrainingPrinciples(data[10]);
-                        c.setVersion(data[11]);
-                        c.setCourseObjective(data[12]);
+                        c.setTrainingPrinciples(data[9]);
+                        c.setVersion(data[10]);
+                        c.setCourseObjective(data[11]);
 //                        c.setUserID(getCreator(authentication));
                         syllabusList.add(c);
                         syllabusDAO.saveAll(syllabusList);
@@ -626,7 +654,7 @@ public class SyllabusServiceImpl implements SyllabusService {
         BufferedWriter out = new BufferedWriter(fileWriter);
 
         // Thêm nội dung vào tệp
-        out.write("topic_code, created_date, Modified Date, priority, publishStatus, technicalGroup, topic_name, topicOutline, TrainingAudience, TrainingMaterials, TrainingPrinciples, Version, CourseObjective");
+        out.write("topic_code, created_date, Modified Date, priority, publishStatus, technicalGroup, topic_name, topicOutline, TrainingAudience, TrainingPrinciples, Version, CourseObjective");
         out.newLine(); // Xuống dòng
         // Đóng BufferedWriter
         out.close();
@@ -668,7 +696,7 @@ public class SyllabusServiceImpl implements SyllabusService {
         return syllabusDAO.save(syllabus);
     }
 
-    public List<Syllabus> searchSyllabus(String createdDate, String searchValue, String orderBy) {
+    public List<Syllabus> searchSyllabus(String createdDate, String searchValue) {
         List<Syllabus> syllabusList = syllabusDAO.findAll();
         if (!Strings.isNullOrEmpty(createdDate)) {
             syllabusList = syllabusList.stream().filter(n -> {

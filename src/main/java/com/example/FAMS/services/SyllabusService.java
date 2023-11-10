@@ -1,6 +1,7 @@
 package com.example.FAMS.services;
 
-import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
+import com.example.FAMS.dto.requests.SyllbusRequest.UpdateSyllabusGeneralRequest;
+import com.example.FAMS.dto.requests.SyllbusRequest.UpdateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
@@ -27,8 +28,9 @@ public interface SyllabusService {
 
     public GetSyllabusByPage paging(int amount, int pageNumber);
 
-    UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest, String topicCode);
-
+    UpdateSyllabusResponse updateSyllabusOther(UpdateSyllabusGeneralRequest updateSyllabusGeneralRequest, String topicCode);
+    UpdateSyllabusResponse updateSyllabusGeneral(UpdateSyllabusGeneralRequest update , String topicCode);
+    UpdateSyllabusResponse updateSyllabusOutline(UpdateSyllabusOutlineRequest update ,String topicCode);
     Syllabus getSyllabusById(String topicCode);
 
     DeleteSyllabusResponse deleteSyllabus(String topicCode);

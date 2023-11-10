@@ -3,6 +3,7 @@ package com.example.FAMS.controllers;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.FileNameDTO;
+import com.example.FAMS.dto.requests.SyllbusRequest.UpdateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.dto.responses.Syllabus.*;
 import com.example.FAMS.dto.responses.ResponseObject;
@@ -182,14 +183,27 @@ public class SyllabusController {
     }
 
 
-    @PutMapping("/update/{topicCode}")
+    @PutMapping("/update/SyllabusGeneral/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
-    public ResponseEntity<UpdateSyllabusResponse> updateSyllabusRequest(
+    public ResponseEntity<UpdateSyllabusResponse> updateSyllabusGeneral (
             @PathVariable String topicCode,
-            @RequestBody UpdateSyllabusRequest updateSyllabusRequest) {
-        UpdateSyllabusResponse updatedSyllabus = syllabusService.updateSyllabus(updateSyllabusRequest, topicCode);
-        if (updatedSyllabus != null) {
-            return ResponseEntity.ok(updatedSyllabus);
+            @RequestBody UpdateSyllabusGeneralRequest updateSyllabusRequest) {
+        UpdateSyllabusResponse updateSyllabusResponse = syllabusService.updateSyllabusGeneral(updateSyllabusRequest,topicCode);
+        if (updateSyllabusResponse != null) {
+            return ResponseEntity.ok(updateSyllabusResponse);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/update/SyllabusOther/{topicCode}")
+    @PreAuthorize("hasAuthority('syllabus:update')")
+    public ResponseEntity<UpdateSyllabusResponse> updateSyllabusOther(
+            @PathVariable String topicCode,
+            @RequestBody UpdateSyllabusGeneralRequest updateSyllabusRequest) {
+        UpdateSyllabusResponse updateSyllabusResponse = syllabusService.updateSyllabusOther(updateSyllabusRequest,topicCode);
+        if (updateSyllabusResponse != null) {
+            return ResponseEntity.ok(updateSyllabusResponse);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -247,10 +261,9 @@ public class SyllabusController {
             @RequestParam(name = "createdDate", required = false)
             String createdDate,
             @RequestParam(name = "searchValue", required = false)
-            String searchValue,
-            @RequestParam(name = "orderBy", required = false)
-            String orderBy) {
-        List<Syllabus> syllabusList = syllabusService.searchSyllabus(createdDate, searchValue, orderBy);
+            String searchValue)
+           {
+        List<Syllabus> syllabusList = syllabusService.searchSyllabus(createdDate, searchValue);
         return ResponseEntity.ok(syllabusList);
     }
 
