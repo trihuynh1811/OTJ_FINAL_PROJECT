@@ -434,53 +434,7 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
 
-    @Override
-    public UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest, String topicCode) {
-        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
-        User user = userDAO.findByEmail(updatesyllabusRequest.getCreatedBy()).get();
-        Syllabus syllabusexits = optionalSyllabus.orElse(null);
-        if (syllabusexits != null) {
-            syllabusexits.setTopicName(updatesyllabusRequest.getTopicName());
-            syllabusexits.setTechnicalGroup(updatesyllabusRequest.getTechnicalGroup());
-            syllabusexits.setVersion(updatesyllabusRequest.getVersion());
-            syllabusexits.setTrainingAudience(updatesyllabusRequest.getTrainingAudience());
-            syllabusexits.setTopicOutline(updatesyllabusRequest.getTopicOutline());
-//            syllabusexits.setTrainingMaterials(updatesyllabusRequest.getTrainingMaterials());
-            syllabusexits.setPriority(updatesyllabusRequest.getPriority());
-            syllabusexits.setPublishStatus(updatesyllabusRequest.getPublishStatus());
-            syllabusexits.setCreatedBy(user);
-            syllabusexits.setCreatedDate(updatesyllabusRequest.getCreatedDate());
-            syllabusexits.setModifiedBy(updatesyllabusRequest.getModifiedBy());
-            syllabusexits.setModifiedDate(updatesyllabusRequest.getModifiedDate());
 
-
-            Syllabus syllabusUpdate = syllabusDAO.save(syllabusexits);
-
-            if (syllabusUpdate != null) {
-                return UpdateSyllabusResponse.builder()
-                        .status("Update Syllbus successful")
-                        .updateSyllabus(syllabusUpdate)
-                        .build();
-
-
-            } else {
-                return UpdateSyllabusResponse.builder()
-                        .status("Update Syllbus failed")
-                        .updateSyllabus(null)
-                        .build();
-
-            }
-
-
-        } else {
-            return UpdateSyllabusResponse.builder()
-                    .status("Syllabus not found")
-                    .updateSyllabus(null)
-                    .build();
-
-        }
-
-    }
 
     @Override
     public UpdateSyllabusResponse updateSyllabusOther(UpdateSyllabusGeneralRequest updateSyllabusGeneralRequest, String topicCode) {

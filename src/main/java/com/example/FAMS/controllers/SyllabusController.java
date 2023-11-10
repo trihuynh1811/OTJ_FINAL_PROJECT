@@ -186,19 +186,6 @@ public class SyllabusController {
     }
 
 
-    @PutMapping("/update/{topicCode}")
-    @PreAuthorize("hasAuthority('syllabus:update')")
-    public ResponseEntity<UpdateSyllabusResponse> updateSyllabusRequest(
-            @PathVariable String topicCode,
-            @RequestBody UpdateSyllabusRequest updateSyllabusRequest) {
-        UpdateSyllabusResponse updatedSyllabus = syllabusService.updateSyllabus(updateSyllabusRequest, topicCode);
-        if (updatedSyllabus != null) {
-            return ResponseEntity.ok(updatedSyllabus);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     @PutMapping("/update/SyllabusGeneral/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
     public ResponseEntity<UpdateSyllabusResponse> updateSyllabusGeneral (

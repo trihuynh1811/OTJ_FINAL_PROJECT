@@ -28,17 +28,11 @@ public interface SyllabusService {
 
     public GetSyllabusByPage paging(int amount, int pageNumber);
 
-    UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest, String topicCode);
-
     UpdateSyllabusResponse updateSyllabusOther(UpdateSyllabusGeneralRequest updateSyllabusGeneralRequest, String topicCode);
     UpdateSyllabusResponse updateSyllabusGeneral(UpdateSyllabusGeneralRequest update , String topicCode);
     UpdateSyllabusResponse updateSyllabusOutline(UpdateSyllabusOutlineRequest update ,String topicCode);
     Syllabus getSyllabusById(String topicCode);
-
-
-
-
     List<Syllabus> processDataFromCSV(MultipartFile file, String choice, Authentication authentication) throws IOException;
 
     Syllabus duplicateSyllabus(String topicCode, Authentication authentication);
-}
+}qqiieqqq
