@@ -3,6 +3,7 @@ package com.example.FAMS.controllers;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.FileNameDTO;
+import com.example.FAMS.dto.requests.SyllbusRequest.UpdateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
 import com.example.FAMS.dto.responses.ResponseObject;
@@ -193,6 +194,32 @@ public class SyllabusController {
         UpdateSyllabusResponse updatedSyllabus = syllabusService.updateSyllabus(updateSyllabusRequest, topicCode);
         if (updatedSyllabus != null) {
             return ResponseEntity.ok(updatedSyllabus);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/update/SyllabusGeneral/{topicCode}")
+    @PreAuthorize("hasAuthority('syllabus:update')")
+    public ResponseEntity<UpdateSyllabusResponse> updateSyllabusGeneral (
+            @PathVariable String topicCode,
+            @RequestBody UpdateSyllabusGeneralRequest updateSyllabusRequest) {
+        UpdateSyllabusResponse updateSyllabusResponse = syllabusService.updateSyllabusGeneral(updateSyllabusRequest,topicCode);
+        if (updateSyllabusResponse != null) {
+            return ResponseEntity.ok(updateSyllabusResponse);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/update/SyllabusOther/{topicCode}")
+    @PreAuthorize("hasAuthority('syllabus:update')")
+    public ResponseEntity<UpdateSyllabusResponse> updateSyllabusOther(
+            @PathVariable String topicCode,
+            @RequestBody UpdateSyllabusGeneralRequest updateSyllabusRequest) {
+        UpdateSyllabusResponse updateSyllabusResponse = syllabusService.updateSyllabusOther(updateSyllabusRequest,topicCode);
+        if (updateSyllabusResponse != null) {
+            return ResponseEntity.ok(updateSyllabusResponse);
         } else {
             return ResponseEntity.notFound().build();
         }

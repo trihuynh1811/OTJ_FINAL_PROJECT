@@ -1,9 +1,7 @@
 package com.example.FAMS.service_implementors;
 
 import com.amazonaws.HttpMethod;
-import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
-import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
-import com.example.FAMS.dto.requests.SyllbusRequest.StandardOutputDTO;
+import com.example.FAMS.dto.requests.SyllbusRequest.*;
 import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
 import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.PresignedUrlResponse;
@@ -435,6 +433,7 @@ public class SyllabusServiceImpl implements SyllabusService {
 
     }
 
+
     @Override
     public UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest, String topicCode) {
         Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
@@ -482,6 +481,78 @@ public class SyllabusServiceImpl implements SyllabusService {
         }
 
     }
+
+    @Override
+    public UpdateSyllabusResponse updateSyllabusOther(UpdateSyllabusGeneralRequest updateSyllabusGeneralRequest, String topicCode) {
+        Syllabus syllabus = syllabusDAO.findById(topicCode).get();
+        if (syllabus != null) {
+            syllabus.setTrainingPrinciples(updateSyllabusGeneralRequest.getTrainingPrinciple());
+            Syllabus syllabusUpdate = syllabusDAO.save(syllabus);
+            if (syllabusUpdate != null) {
+                return UpdateSyllabusResponse.builder()
+                        .status("Update Syllbus successful")
+                        .updateSyllabus(syllabusUpdate)
+                        .build();
+
+
+            } else {
+                return UpdateSyllabusResponse.builder()
+                        .status("Update Syllbus failed")
+                        .updateSyllabus(null)
+                        .build();
+
+            }
+
+        } else {
+            return UpdateSyllabusResponse.builder()
+                    .status("Syllabus not found")
+                    .updateSyllabus(null)
+                    .build();
+
+        }
+    }
+
+    @Override
+    public UpdateSyllabusResponse updateSyllabusGeneral(UpdateSyllabusGeneralRequest update, String topicCode) {
+        Syllabus syllabus = syllabusDAO.findById(topicCode).get();
+        if (syllabus != null) {
+            syllabus.setTopicName(update.getTopicName());
+            syllabus.setVersion(update.getVersion());
+            syllabus.setTechnicalGroup(update.getTechnicalRequirement());
+            syllabus.setPriority(update.getPriority());
+            syllabus.setCourseObjective(update.getCourseObjective());
+            syllabus.setPublishStatus(update.getPublishStatus());
+            syllabus.setTrainingAudience(update.getTrainingAudience());
+            Syllabus syllabusUpdate = syllabusDAO.save(syllabus);
+            if (syllabusUpdate != null) {
+                return UpdateSyllabusResponse.builder()
+                        .status("Update Syllbus successful")
+                        .updateSyllabus(syllabusUpdate)
+                        .build();
+
+
+            } else {
+                return UpdateSyllabusResponse.builder()
+                        .status("Update Syllbus failed")
+                        .updateSyllabus(null)
+                        .build();
+
+            }
+        }
+
+        return UpdateSyllabusResponse.builder()
+                .status("Syllabus not found")
+                .updateSyllabus(null)
+                .build();
+
+
+    }
+
+    @Override
+    public UpdateSyllabusResponse updateSyllabusOutline(UpdateSyllabusOutlineRequest update, String topicCode) {
+        return null;
+    }
+
 
     @Override
     public Syllabus getSyllabusById(String topicCode) {
