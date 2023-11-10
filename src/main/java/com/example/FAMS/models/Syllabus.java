@@ -74,6 +74,8 @@ public class Syllabus {
     @Column(name = "course_objective", length = 5000, nullable = false)
     private String courseObjective;
 
+    private boolean deleted = false;
+
     @OneToMany(mappedBy = "topicCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     @JsonIgnore
