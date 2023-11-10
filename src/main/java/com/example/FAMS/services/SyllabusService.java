@@ -3,6 +3,7 @@ package com.example.FAMS.services;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
+import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
 import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
@@ -30,7 +31,7 @@ public interface SyllabusService {
 
     Syllabus getSyllabusById(String topicCode);
 
-
+    DeleteSyllabusResponse deleteSyllabus(String topicCode);
 
 
     List<Syllabus> processDataFromCSV(MultipartFile file, String choice, Authentication authentication) throws IOException;

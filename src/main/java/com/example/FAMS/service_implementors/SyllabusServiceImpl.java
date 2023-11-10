@@ -4,6 +4,7 @@ import com.amazonaws.HttpMethod;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.StandardOutputDTO;
+import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
 import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.PresignedUrlResponse;
@@ -487,6 +488,32 @@ public class SyllabusServiceImpl implements SyllabusService {
     public Syllabus getSyllabusById(String topicCode) {
         Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
         return optionalSyllabus.orElse(null);
+    }
+
+    @Override
+    public DeleteSyllabusResponse deleteSyllabus(String topicCode){
+        Syllabus existedSyllabus = syllabusDAO.findById(topicCode).isPresent() ? syllabusDAO.findById(topicCode).get() : null;
+
+        try{
+            if (existedSyllabus != null) {
+                existedSyllabus.setDeleted(true);
+                syllabusDAO.save(existedSyllabus);
+                return DeleteSyllabusResponse.builder()
+                        .status(0)
+                        .message("Successfully delete syllabus with id: " + topicCode)
+                        .build();
+            }
+            return DeleteSyllabusResponse.builder()
+                    .status(1)
+                    .message("Can't find syllabus with id: " + topicCode)
+                    .build();
+        }catch (Exception err){
+            err.printStackTrace();
+            return DeleteSyllabusResponse.builder()
+                    .status(-1)
+                    .message("Fail to delete syllabus with id: " + topicCode)
+                    .build();
+        }
     }
 
     @Override

@@ -557,16 +557,15 @@ public class ClassServiceImpl implements ClassService {
         Class existingClass = classDAO.findById(request.getClassCode()).get();
         try {
             if (existingClass != null) {
-//                String[] strArr = request.getClassCode().split("_");
-//                String existedClassCode = strArr[strArr.length - 1];
-//                if (!request.getLocation().equalsIgnoreCase(existingClass.getLocation()) && classDAO.findByLocation(request.getLocation()) != null
-//                        && !request.getClassCode().equalsIgnoreCase(classDAO.findById())) {
-//                    return UpdateClassResponse.builder()
-//                            .status(1)
-//                            .updatedClass(null)
-//                            .message("class with id: " + request.getClassCode() + " already exist in this location.")
-//                            .build();
-//                }
+                String[] strArr = request.getClassCode().split("_");
+                String existedClassCode = strArr[strArr.length - 1];
+                if (classDAO.findById(request.getClassCode()).isPresent()) {
+                    return UpdateClassResponse.builder()
+                            .status(1)
+                            .updatedClass(null)
+                            .message("class with id: " + request.getClassCode() + " already exist in this location.")
+                            .build();
+                }
                 List<ClassUser> classUserList = new ArrayList<>();
                 List<UserClassSyllabus> userSyllabusList = new ArrayList<>();
                 List<ClassLearningDay> classLearningDayList = new ArrayList<>();
