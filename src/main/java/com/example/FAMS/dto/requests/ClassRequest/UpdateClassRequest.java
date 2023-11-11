@@ -12,6 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateClassRequest {
+
     private String classCode;
     private String className;
     private String duration;

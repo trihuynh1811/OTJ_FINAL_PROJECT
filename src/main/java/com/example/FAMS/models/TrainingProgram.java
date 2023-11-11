@@ -33,7 +33,7 @@ public class TrainingProgram {
     private String name;
 
 
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne(optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "userId", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
