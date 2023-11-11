@@ -88,10 +88,10 @@ public class ClassController {
         return ResponseEntity.status(500).body(result);
     }
 
-    @PutMapping("/update")
+    @PutMapping("/update/{id}")
     @PreAuthorize("hasAuthority('class:update')")
-    public ResponseEntity<UpdateClassResponse> updateClass(@RequestBody UpdateClassDTO updateClassRequest) {
-        UpdateClassResponse updatedClass = classService.updateClass(updateClassRequest);
+    public ResponseEntity<UpdateClassResponse> updateClass(@RequestBody UpdateClassDTO updateClassRequest, @PathVariable("id") String classCode) {
+        UpdateClassResponse updatedClass = classService.updateClass(updateClassRequest, classCode);
         if (updatedClass.getStatus() == 0) {
             return ResponseEntity.ok(updatedClass);
         } else if (updatedClass.getStatus() > 0) {

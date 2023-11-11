@@ -461,43 +461,43 @@ public class FamsApplication {
 
                 }
 
-//                if (trainingProgramDAO.findAll().isEmpty()) {
-//                    List<TrainingProgram> trainingPrograms = new ArrayList<>();
-//
-//                    TrainingProgram trainingProgram = TrainingProgram.builder()
-//                            .name("tp_1")
-//                            .userID(userDAO.findById(1).get())
-//                            .startDate(new Date("2001/9/11"))
-//                            .duration(999)
-//                            .status("active")
-//                            .createdBy("admin@gmail.com")
-//                            .createdDate(new Date())
-//                            .build();
-//                    TrainingProgram trainingProgram1 = TrainingProgram.builder()
-//                            .name("tp_2")
-//                            .userID(userDAO.findById(2).get())
-//                            .startDate(new Date("2001/9/11"))
-//                            .duration(999)
-//                            .status("inactive")
-//                            .createdBy("dio")
-//                            .createdDate(new Date())
-//                            .build();
-//                    TrainingProgram trainingProgram2 = TrainingProgram.builder()
-//                            .name("tp_3")
-//                            .userID(userDAO.findById(1).get())
-//                            .startDate(new Date("2001/9/11"))
-//                            .duration(999)
-//                            .status("drafting")
-//                            .createdBy("jojo")
-//                            .createdDate(new Date())
-//                            .build();
-//
-//                    trainingPrograms.add(trainingProgram);
-//                    trainingPrograms.add(trainingProgram1);
-//                    trainingPrograms.add(trainingProgram2);
-//
-//                    trainingProgramDAO.saveAll(trainingPrograms);
-//                }
+                if (trainingProgramDAO.findAll().isEmpty()) {
+                    List<TrainingProgram> trainingPrograms = new ArrayList<>();
+
+                    TrainingProgram trainingProgram = TrainingProgram.builder()
+                            .name("tp_1")
+                            .userID(userDAO.findById(1).get())
+                            .startDate(new Date("2001/9/11"))
+                            .duration(999)
+                            .status("active")
+                            .createdBy("admin@gmail.com")
+                            .createdDate(new Date())
+                            .build();
+                    TrainingProgram trainingProgram1 = TrainingProgram.builder()
+                            .name("tp_2")
+                            .userID(userDAO.findById(2).get())
+                            .startDate(new Date("2001/9/11"))
+                            .duration(999)
+                            .status("inactive")
+                            .createdBy("dio")
+                            .createdDate(new Date())
+                            .build();
+                    TrainingProgram trainingProgram2 = TrainingProgram.builder()
+                            .name("tp_3")
+                            .userID(userDAO.findById(1).get())
+                            .startDate(new Date("2001/9/11"))
+                            .duration(999)
+                            .status("drafting")
+                            .createdBy("jojo")
+                            .createdDate(new Date())
+                            .build();
+
+                    trainingPrograms.add(trainingProgram);
+                    trainingPrograms.add(trainingProgram1);
+                    trainingPrograms.add(trainingProgram2);
+
+                    trainingProgramDAO.saveAll(trainingPrograms);
+                }
 //                if (trainingProgramSyllabusDAO.findAll().isEmpty()) {
 //                    List<TrainingProgramSyllabus> trainingProgramSyllabusList = new ArrayList<>();
 //

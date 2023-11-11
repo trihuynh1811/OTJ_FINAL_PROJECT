@@ -15,6 +15,7 @@ import java.util.List;
 public class ClassDetailResponse {
 
     private String message = "";
+    private String oldClassCode;
     private String classCode;
     private String nameClass;
     private String totalTimeLearning;

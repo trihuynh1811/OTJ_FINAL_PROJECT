@@ -363,6 +363,7 @@ public class SyllabusServiceImpl implements SyllabusService {
         }
 
         if (!contentList.isEmpty()) {
+            log.info(learningObjectiveMap);
             savedContentList = trainingContentDAO.saveAll(contentList);
             for (Map.Entry<Integer, List<StandardOutputDTO>> entry : learningObjectiveMap.entrySet()) {
                 log.info(entry.getKey());
