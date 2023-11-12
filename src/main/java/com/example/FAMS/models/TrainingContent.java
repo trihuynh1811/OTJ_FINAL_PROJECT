@@ -57,7 +57,9 @@ public class TrainingContent {
         learningObjective.setContentCode(this);
     }
 
-    @OneToMany(mappedBy = "trainingContent")
+    @OneToMany(mappedBy = "trainingContent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Column(name = "training_materials")
+    @JsonManagedReference
+    @JsonIgnore
     private Set<TrainingMaterial> trainingMaterials;
 }
