@@ -305,7 +305,7 @@ public class FamsApplication {
                             .modifiedBy("Hoang Anh")
                             .modifiedDate(new Date())
                             .build());
-                    for(int i = 0; i < 5; i++){
+                    for (int i = 0; i < 5; i++) {
                         userList.add(User.builder()
                                 .email("review" + i + "@gmail.com")
                                 .password(passwordEncoder.encode("1"))
@@ -322,7 +322,7 @@ public class FamsApplication {
                                 .build());
                     }
 
-                    for(int i = 0; i < 5; i++){
+                    for (int i = 0; i < 5; i++) {
                         userList.add(User.builder()
                                 .email("approve" + i + "@gmail.com")
                                 .password(passwordEncoder.encode("1"))
@@ -498,6 +498,7 @@ public class FamsApplication {
 
                     trainingProgramDAO.saveAll(trainingPrograms);
                 }
+                if (trainingProgramSyllabusDAO.findAll().isEmpty()) {
                     List<TrainingProgramSyllabus> trainingProgramSyllabusList = new ArrayList<>();
 
                     TrainingProgramSyllabus trainingProgramSyllabus = TrainingProgramSyllabus.builder()
@@ -541,7 +542,7 @@ public class FamsApplication {
                     trainingProgramSyllabusDAO.saveAll(trainingProgramSyllabusList);
                 }
 
-
+            }
         };
     }
 
