@@ -15,6 +15,7 @@ import com.example.FAMS.services.JWTService;
 import com.example.FAMS.services.TrainingProgramService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -27,11 +28,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.*;
 
 @Service
+@Log4j2
 @RequiredArgsConstructor
 public class TrainingProgramServiceImpl implements TrainingProgramService {
     private final JWTService jwtService;
@@ -40,6 +43,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
     private final TrainingProgramDAO trainingProgramDAO;
     private final UserDAO userDAO;
     private final TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
+
 
     @Override
     public ResponseEntity<ResponseObject> createTrainingProgram(
@@ -149,7 +153,6 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         }
 
         if (!trainingProgramDTO.getTrainingProgramName().equals(trainingProgramExisted.getName())) {
-            // Check if the provided training program name is already in use
             if (trainingProgramDAO.getTrainingProgramByName(trainingProgramDTO.getTrainingProgramName()).isPresent()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ResponseTrainingProgram("Failed", "The Training Program name is already in use",0, null,null));
@@ -268,7 +271,10 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
         String line;
         boolean firstLine = true;
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat[] dateFormats = {
+                new SimpleDateFormat("dd/MM/yyyy"),
+                new SimpleDateFormat("dd-MM-yyyy")
+        };
         while ((line = reader.readLine()) != null) {
             if (firstLine) {
                 firstLine = false;
@@ -287,13 +293,13 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
                             TrainingProgram.builder()
                                     .name(data[0])
                                     .userID(getCreator(authentication))
-                                    .startDate(new java.sql.Date(dateFormat.parse(data[1]).getTime()))
+                                    .startDate(parseDate(data[1], dateFormats))
                                     .duration(Integer.parseInt(data[2]))
                                     .status(data[3].equalsIgnoreCase("1") ? "active" : "inactive")
                                     .createdBy(getCreator(authentication).getName())
-                                    .createdDate(new java.sql.Date(dateFormat.parse(data[4]).getTime()))
+                                    .createdDate(parseDate(data[4], dateFormats))
                                     .modifiedBy(getCreator(authentication).getName())
-                                    .modifiedDate(new java.sql.Date(dateFormat.parse(data[5]).getTime()))
+                                    .modifiedDate(parseDate(data[5], dateFormats))
                                     .trainingProgramCode(Integer.parseInt(data[6]))
                                     .build());
                 }
@@ -304,13 +310,13 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
                             TrainingProgram.builder()
                                     .name(data[0])
                                     .userID(getCreator(authentication))
-                                    .startDate(new java.sql.Date(dateFormat.parse(data[1]).getTime()))
+                                    .startDate(parseDate(data[1], dateFormats))
                                     .duration(Integer.parseInt(data[2]))
                                     .status(data[3])
                                     .createdBy(getCreator(authentication).getName())
-                                    .createdDate(new java.sql.Date(dateFormat.parse(data[4]).getTime()))
+                                    .createdDate(parseDate(data[4], dateFormats))
                                     .modifiedBy(getCreator(authentication).getName())
-                                    .modifiedDate(new java.sql.Date(dateFormat.parse(data[5]).getTime()))
+                                    .modifiedDate(parseDate(data[5], dateFormats))
                                     .trainingProgramCode(Integer.parseInt(data[6]))
                                     .build());
                 }
@@ -330,6 +336,19 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
                 .body(
                         ResponseObject.builder().status("Fail").message("Import failed").payload(null).build());
     }
+    private java.sql.Date parseDate(String dateString, SimpleDateFormat[] dateFormats) throws ParseException {
+        for (SimpleDateFormat dateFormat : dateFormats) {
+            try {
+                Date parsedDate = dateFormat.parse(dateString);
+                return new java.sql.Date(parsedDate.getTime());
+            } catch (ParseException e) {
+                log.info(dateFormat.toPattern() + " not equal " + dateString);
+            }
+        }
+        throw new ParseException("Không thể chuyển đổi ngày", 0);
+    }
+
+
 
     @Override
     public TrainingProgram searchTrainingProgram(String keyword) {
