@@ -40,10 +40,6 @@ public class Syllabus {
     @Column(name = "topic_outline")
     private String topicOutline;
 
-    @OneToMany(mappedBy = "syllabus")
-    @Column(name = "training_materials")
-    private Set<TrainingMaterial> trainingMaterials;
-
     @Lob
     @Column(name = "training_principles")
     private String trainingPrinciples;
@@ -101,5 +97,11 @@ public class Syllabus {
     @OneToMany(mappedBy = "topicCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private final Set<SyllabusObjective> syllabusObjectives = new HashSet<>();
+
+    @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "training_materials")
+    @JsonManagedReference
+    @JsonIgnore
+    private Set<TrainingMaterial> trainingMaterials;
 
 }
