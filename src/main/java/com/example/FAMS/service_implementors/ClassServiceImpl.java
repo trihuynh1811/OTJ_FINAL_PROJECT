@@ -624,7 +624,7 @@ public class ClassServiceImpl implements ClassService {
                 log.info(ucs.size());
                 classLearningDayDAO.deleteAll(cldl);
                 classUserDAO.deleteAll(cu);
-                userClassSyllabusDAO.deleteAllInBatch(ucs);
+//                userClassSyllabusDAO.deleteAllInBatch(ucs);
                 userClassSyllabusDAO.deleteAll(ucs);
                 userClassSyllabusDAO.flush();
 //                Location l = locationDAO.findById(Long.parseLong(request.getLocation())).get();
