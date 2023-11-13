@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 public interface TrainingProgramService {
     ResponseEntity<ResponseObject> createTrainingProgram(TrainingProgramDTO trainingProgramDTO);
 
+    ResponseEntity<ResponseObject> getAllActive();
+
     ResponseEntity<ResponseObject> getAll();
 
     UpdateTrainingProgramResponse updateTrainingProgram(int trainingProgramCode, String topicCode, UpdateTrainingProgramRequest updateTrainingProgramRequest);
