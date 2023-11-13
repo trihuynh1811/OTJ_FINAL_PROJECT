@@ -22,8 +22,6 @@ public interface TrainingProgramDAO extends JpaRepository<TrainingProgram, Integ
 
   Optional<TrainingProgram> getTrainingProgramByName(String name);
 
-
-
   @Query(
       value =
           "SELECT SUM(s.number_of_day) as 'totalTrainingProgramDates'\n"
