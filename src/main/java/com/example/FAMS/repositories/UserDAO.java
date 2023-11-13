@@ -10,48 +10,48 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserDAO extends JpaRepository<User, Integer> {
 
-  @Query(
-      """
-                    SELECT Us FROM User Us WHERE Us.email = :email AND Us.status = true
-            """)
-  Optional<User> findByEmail(String email);
+    @Query(
+            """
+                            SELECT Us FROM User Us WHERE Us.email = :email AND Us.status = true
+                    """)
+    Optional<User> findByEmail(String email);
 
-  List<User> findUsersByRole(UserPermission role);
 
-  Optional<UserDTO> findUserByEmail(String email);
+    List<User> findUsersByRole(UserPermission role);
 
-  List<ListUserResponse> findAllByRole(Enum role);
+    Optional<UserDTO> findUserByEmail(String email);
 
-  Integer countAllByStatusIs(boolean status);
+    List<ListUserResponse> findAllByRole(Enum role);
 
-  @Query(
-      value =
-          "SELECT a.user_id as 'userId', a.name, a.email, a.phone, a.dob, a.gender, a.created_by as 'createdBy', a.modified_by as 'modifiedBy', a.is_active as 'status', b.role\n"
-              + "FROM users a INNER JOIN user_permission b on a.role = b.permission_id WHERE a.is_active = 1 AND b.role = 'CLASS_ADMIN' OR b.role = 'SUPER_ADMIN';",
-      nativeQuery = true)
-  List<ListUserResponse> getAllUsersWithRoleAdmin_SuperAdmin();
+    Integer countAllByStatusIs(boolean status);
 
-  @Query(
-      value =
-          "SELECT a.user_id as 'userId', a.name, a.email, a.phone, a.dob, a.gender, a.created_by as 'createdBy', a.modified_by as 'modifiedBy', a.is_active as 'status', b.role\n"
-              + "FROM users a INNER JOIN user_permission b on a.role = b.permission_id WHERE a.is_active = 1",
-      nativeQuery = true)
-  Page<ListUserResponse> findAllUsersBy(Pageable pageable);
+    @Query(
+            value =
+                    "SELECT a.user_id as 'userId', a.name, a.email, a.phone, a.dob, a.gender, a.created_by as 'createdBy', a.modified_by as 'modifiedBy', a.is_active as 'status', b.role\n"
+                            + "FROM users a INNER JOIN user_permission b on a.role = b.permission_id WHERE a.is_active = 1 AND b.role = 'CLASS_ADMIN' OR b.role = 'SUPER_ADMIN';",
+            nativeQuery = true)
+    List<ListUserResponse> getAllUsersWithRoleAdmin_SuperAdmin();
 
-  <T> List<T> findBy(Class<T> classType);
+    @Query(
+            value =
+                    "SELECT a.user_id as 'userId', a.name, a.email, a.phone, a.dob, a.gender, a.created_by as 'createdBy', a.modified_by as 'modifiedBy', a.is_active as 'status', b.role\n"
+                            + "FROM users a INNER JOIN user_permission b on a.role = b.permission_id WHERE a.is_active = 1",
+            nativeQuery = true)
+    Page<ListUserResponse> findAllUsersBy(Pageable pageable);
 
-  @Query(
-      value =
-          "SELECT u.user_id as 'userId', u.name, u.email, u.phone, u.dob, u.gender, u.created_by as 'createdBy', u.modified_by as 'modifiedBy', u.is_active as 'status', p.role\n"
-              + "FROM users as u INNER JOIN user_permission as p on u.role = p.permission_id \n"
-              + "WHERE u.is_active = true",
-      nativeQuery = true)
-  List<ListUserResponse> getAllUsersWithRole();
+    <T> List<T> findBy(Class<T> classType);
+
+    @Query(
+            value =
+                    "SELECT u.user_id as 'userId', u.name, u.email, u.phone, u.dob, u.gender, u.created_by as 'createdBy', u.modified_by as 'modifiedBy', u.is_active as 'status', p.role\n"
+                            + "FROM users as u INNER JOIN user_permission as p on u.role = p.permission_id \n"
+                            + "WHERE u.is_active = true",
+            nativeQuery = true)
+    List<ListUserResponse> getAllUsersWithRole();
 }
