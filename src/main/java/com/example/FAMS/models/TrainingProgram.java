@@ -33,11 +33,11 @@ public class TrainingProgram {
     private String name;
 
 
-    @ManyToOne(optional = false, cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "userId", referencedColumnName = "user_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @JsonBackReference
+//    @JsonBackReference
     private User userID;
 
     @Column(nullable = false, name = "start_date")
