@@ -127,13 +127,39 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         }
     }
 
+//    @Override
+//    public ResponseEntity<ResponseObject> getAll() {
+////    List<TrainingProgramModified> userList;
+//        List<TrainingProgram> userList;
+//        try {
+////      userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
+//            userList = trainingProgramDAO.findBy(TrainingProgram.class);
+//            return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
+//        } catch (Exception e) {
+//            userList = Collections.emptyList();
+//            return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
+//        }
+//    }
+
+    @Override
+    public ResponseEntity<ResponseObject> getAllActive() {
+        List<TrainingProgram> userList;
+
+        try {
+            userList = trainingProgramDAO.findTrainingProgramsByStatus("Active");
+
+            return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
+        } catch (Exception e) {
+            userList = Collections.emptyList();
+            return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
+        }
+    }
+
     @Override
     public ResponseEntity<ResponseObject> getAll() {
-//    List<TrainingProgramModified> userList;
         List<TrainingProgram> userList;
         try {
-//      userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
-            userList = trainingProgramDAO.findBy(TrainingProgram.class);
+            userList = trainingProgramDAO.getAllBy();
             return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
         } catch (Exception e) {
             userList = Collections.emptyList();

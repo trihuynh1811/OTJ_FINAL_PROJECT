@@ -34,7 +34,7 @@ public class TrainingProgram {
 
 
     @ManyToOne(optional = false, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "userId", referencedColumnName = "user_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private User userID;
