@@ -78,7 +78,7 @@ public class User implements UserDetails {
     private UserPermission role;
 
     @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonBackReference
+    @JsonManagedReference
     @JsonIgnore
     private final Set<TrainingProgram> trainingPrograms = new HashSet<>();
 
