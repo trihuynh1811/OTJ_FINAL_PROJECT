@@ -14,6 +14,10 @@ import org.springframework.stereotype.Repository;
 public interface TrainingProgramDAO extends JpaRepository<TrainingProgram, Integer> {
   <T> List<T> findBy(Class<T> classType);
 
+  List<TrainingProgram> getAllBy();
+
+  List<TrainingProgram> findTrainingProgramsByStatus(String status);
+
   TrainingProgram findByName(String trainingProgramName);
 
   Optional<TrainingProgram> getTrainingProgramByName(String name);

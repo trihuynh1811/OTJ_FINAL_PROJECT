@@ -46,6 +46,12 @@ public class TrainingProgramController {
 
     @GetMapping("/get-all")
     @PreAuthorize("hasAuthority('user:read')")
+    public ResponseEntity<ResponseObject> getAllActiveTrainingProgram() {
+        return trainingProgram.getAllActive();
+    }
+
+    @GetMapping("/get-all/All")
+    @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<ResponseObject> getAllTrainingProgram() {
         return trainingProgram.getAll();
     }
