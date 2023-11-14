@@ -496,7 +496,11 @@ public class SyllabusServiceImpl implements SyllabusService {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
             boolean firstLine = true;
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            // Mảng các đối tượng SimpleDateFormat với các định dạng khác nhau
+            SimpleDateFormat[] dateFormats = {
+                    new SimpleDateFormat("dd/MM/yyyy"),
+                    new SimpleDateFormat("dd-MM-yyyy")
+            };
 
             while ((line = reader.readLine()) != null) {
                 if (firstLine) {
@@ -511,10 +515,9 @@ public class SyllabusServiceImpl implements SyllabusService {
                     if (syllabusexits != null) {
                         syllabusexits.setCreatedBy(getCreator(authentication));
                         // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
-                        Date parsedDate = dateFormat.parse(data[1]);
-                        syllabusexits.setCreatedDate(new java.sql.Date(parsedDate.getTime()));
+                        syllabusexits.setCreatedDate(parseDate(data[1], dateFormats));
                         syllabusexits.setModifiedBy(getCreator(authentication).getName());
-                        syllabusexits.setModifiedDate(new java.sql.Date(dateFormat.parse(data[2]).getTime()));
+                        syllabusexits.setModifiedDate(parseDate(data[2], dateFormats));
                         syllabusexits.setPriority(data[3]);
                         syllabusexits.setPublishStatus(data[4]);
                         syllabusexits.setTechnicalGroup(data[5]);
@@ -533,10 +536,9 @@ public class SyllabusServiceImpl implements SyllabusService {
                         c.setTopicCode(data[0]);
                         c.setCreatedBy(getCreator(authentication));
                         // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
-                        Date parsedDate = dateFormat.parse(data[1]);
-                        c.setCreatedDate(new java.sql.Date(parsedDate.getTime()));
+                        c.setCreatedDate(parseDate(data[1], dateFormats));
                         c.setModifiedBy(getCreator(authentication).getName());
-                        c.setModifiedDate(new java.sql.Date(dateFormat.parse(data[2]).getTime()));
+                        c.setModifiedDate(parseDate(data[2], dateFormats));
                         c.setPriority(data[3]);
                         c.setPublishStatus(data[4]);
                         c.setTechnicalGroup(data[5]);
@@ -560,10 +562,9 @@ public class SyllabusServiceImpl implements SyllabusService {
                         c.setTopicCode(data[0]);
                         c.setCreatedBy(getCreator(authentication));
                         // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
-                        Date parsedDate = dateFormat.parse(data[1]);
-                        c.setCreatedDate(new java.sql.Date(parsedDate.getTime()));
+                        c.setCreatedDate(parseDate(data[1], dateFormats));
                         c.setModifiedBy(getCreator(authentication).getName());
-                        c.setModifiedDate(new java.sql.Date(dateFormat.parse(data[2]).getTime()));
+                        c.setModifiedDate(parseDate(data[2], dateFormats));
                         c.setPriority(data[3]);
                         c.setPublishStatus(data[4]);
                         c.setTechnicalGroup(data[5]);
@@ -584,6 +585,19 @@ public class SyllabusServiceImpl implements SyllabusService {
             e.printStackTrace();
         }
         return syllabusList;
+    }
+
+    private java.sql.Date parseDate(String dateString, SimpleDateFormat[] dateFormats) throws ParseException {
+        for (SimpleDateFormat dateFormat : dateFormats) {
+            try {
+                Date parsedDate = dateFormat.parse(dateString);
+                return new java.sql.Date(parsedDate.getTime());
+            } catch (ParseException e) {
+                // Nếu không thành công, thử định dạng khác
+                log.info(dateFormat.toPattern() + " not equal " + dateString);
+            }
+        }
+        throw new ParseException("Không thể chuyển đổi ngày", 0);
     }
 
 
