@@ -26,8 +26,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private final JWTService jwtService;
     private final UserDetailsService userDetailsService;
     private final TokenDAO tokenDAO;
-    @Getter
-    private String availableToken;
 
     @Override
     protected void doFilterInternal(
@@ -46,7 +44,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 var validToken = tokenDAO.findByToken(token)
                         .map(t -> !t.isExpired() && !t.isRevoked()).orElse(false);
                 if (jwtService.isTokenValid(token, userDetails) && validToken) {
-                    availableToken = token;
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
