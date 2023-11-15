@@ -579,7 +579,7 @@ public class ClassServiceImpl implements ClassService {
                 String timeFromStr = request.getClassTimeFrom().split(":").length == 3 ? request.getClassTimeFrom() : request.getClassTimeFrom() + ":00";
                 String timeToStr = request.getClassTimeTo().split(":").length == 3 ? request.getClassTimeTo() : request.getClassTimeTo() + ":00";
 
-                if (sdf.parse(request.getStartDate()).before(today) || sdf.parse(request.getStartDate()) == today) {
+                if (sdf.parse(request.getStartDate()).before(existingClass.getStartDate())) {
                     UpdateClassResponse res = UpdateClassResponse.builder()
                             .message("start date for this class should be after today")
                             .updatedClass(null)
