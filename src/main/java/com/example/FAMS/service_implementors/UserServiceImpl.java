@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<ResponseObject> pagination(int pageNo) {
         int totalPage = getNumberOfUsers();
 
-        Pageable paging = PageRequest.of(pageNo, 2);
+        Pageable paging = PageRequest.of(pageNo, 8);
         Page<ListUserResponse> pagedResult = userDAO.findAllUsersBy(paging);
 
         if (pagedResult.hasContent()) {
@@ -167,6 +167,45 @@ public class UserServiceImpl implements UserService {
                     .build());
             return verificationCode;
         }
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> changeStatus(int id, String type) {
+        if(checkExistedAndValid(id, type)){
+            switch (type){
+                case "active":
+                    return ResponseEntity
+                            .ok()
+                            .body(activateUser(id));
+
+                case "inactive":
+                    return ResponseEntity
+                            .ok()
+                            .body(inactivateUser(id));
+            }
+        }
+        String msg = type.toUpperCase().charAt(0) + type.substring(1) + " user with id " + id + " fail";
+        return ResponseEntity
+                .badRequest()
+                .body(new ResponseObject("Fail", msg, null));
+    }
+
+    private boolean checkExistedAndValid(int id, String type){
+        User u = userDAO.findById(id).orElse(null);
+        boolean status = type.equalsIgnoreCase("active");
+        return u != null && u.isStatus() != status;
+    }
+
+    private ResponseObject activateUser(int id){
+        userDAO.changeStatus(id, true);
+        String msg = "Active user with id " + id + " successfully";
+        return new ResponseObject("Success", msg, userDAO.findById(id).orElse(null));
+    }
+
+    private ResponseObject inactivateUser(int id){
+        userDAO.changeStatus(id, false);
+        String msg = "Inactive user with id " + id + " successfully";
+        return new ResponseObject("Success", msg, userDAO.findById(id).orElse(null));
     }
 
     @Override
