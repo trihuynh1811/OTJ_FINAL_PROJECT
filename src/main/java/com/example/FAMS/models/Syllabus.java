@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -40,10 +41,6 @@ public class Syllabus {
     @Column(name = "topic_outline")
     private String topicOutline;
 
-    @OneToMany(mappedBy = "syllabus")
-    @Column(name = "training_materials")
-    private Set<TrainingMaterial> trainingMaterials;
-
     @Lob
     @Column(name = "training_principles")
     private String trainingPrinciples;
@@ -74,6 +71,8 @@ public class Syllabus {
     @Column(name = "course_objective", length = 5000, nullable = false)
     private String courseObjective;
 
+    private boolean deleted = false;
+
     @OneToMany(mappedBy = "topicCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     @JsonIgnore
@@ -81,7 +80,7 @@ public class Syllabus {
 
     @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    @JsonIgnore
+//    @JsonIgnore
     private final Set<TrainingUnit> tu = new HashSet<>();
 
 //    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
@@ -99,5 +98,12 @@ public class Syllabus {
     @OneToMany(mappedBy = "topicCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private final Set<SyllabusObjective> syllabusObjectives = new HashSet<>();
+
+    @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "training_materials")
+    @JsonManagedReference
+    @JsonIgnore
+    private Set<TrainingMaterial> trainingMaterials;
+
 
 }

@@ -30,7 +30,7 @@ public interface ClassService {
 
     CreateClassResponse createClass(CreateClassDTO request, Authentication authentication);
 
-    UpdateClassResponse updateClass(UpdateClassDTO updateClassRequest);
+    UpdateClassResponse updateClass(UpdateClassDTO updateClassRequest, String classCode);
 
     ResponseEntity<DeactivateClassResponse> deactivateClass(String classCode);
 

@@ -3,12 +3,10 @@ package com.example.FAMS.controllers;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.FileNameDTO;
+import com.example.FAMS.dto.requests.SyllbusRequest.UpdateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
-import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
+import com.example.FAMS.dto.responses.Syllabus.*;
 import com.example.FAMS.dto.responses.ResponseObject;
-import com.example.FAMS.dto.responses.Syllabus.CreateSyllabusGeneralResponse;
-import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
-import com.example.FAMS.dto.responses.Syllabus.PresignedUrlResponse;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.repositories.SyllabusDAO;
@@ -185,17 +183,43 @@ public class SyllabusController {
     }
 
 
-    @PutMapping("/update/{topicCode}")
+    @PutMapping("/update/SyllabusGeneral/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
-    public ResponseEntity<UpdateSyllabusResponse> updateSyllabusRequest(
+    public ResponseEntity<UpdateSyllabusResponse> updateSyllabusGeneral (
             @PathVariable String topicCode,
-            @RequestBody UpdateSyllabusRequest updateSyllabusRequest) {
-        UpdateSyllabusResponse updatedSyllabus = syllabusService.updateSyllabus(updateSyllabusRequest, topicCode);
-        if (updatedSyllabus != null) {
-            return ResponseEntity.ok(updatedSyllabus);
+            @RequestBody UpdateSyllabusGeneralRequest updateSyllabusRequest) {
+        UpdateSyllabusResponse updateSyllabusResponse = syllabusService.updateSyllabusGeneral(updateSyllabusRequest,topicCode);
+        if (updateSyllabusResponse != null) {
+            return ResponseEntity.ok(updateSyllabusResponse);
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PutMapping("/update/SyllabusOther/{topicCode}")
+    @PreAuthorize("hasAuthority('syllabus:update')")
+    public ResponseEntity<UpdateSyllabusResponse> updateSyllabusOther(
+            @PathVariable String topicCode,
+            @RequestBody UpdateSyllabusGeneralRequest updateSyllabusRequest) {
+        UpdateSyllabusResponse updateSyllabusResponse = syllabusService.updateSyllabusOther(updateSyllabusRequest,topicCode);
+        if (updateSyllabusResponse != null) {
+            return ResponseEntity.ok(updateSyllabusResponse);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/delete/{topicCode}")
+    @PreAuthorize("hasAuthority('syllabus:update')")
+    public ResponseEntity<DeleteSyllabusResponse> deleteSyllabus(
+            @PathVariable String topicCode) {
+        DeleteSyllabusResponse deleteSyllabus = syllabusService.deleteSyllabus(topicCode);
+        if (deleteSyllabus.getStatus() > 0) {
+            return ResponseEntity.status(400).body(deleteSyllabus);
+        } else if (deleteSyllabus.getStatus() < 0) {
+            return ResponseEntity.internalServerError().body(deleteSyllabus);
+        }
+        return ResponseEntity.ok(deleteSyllabus);
     }
 
     @PutMapping("/update/syllabus/outline")

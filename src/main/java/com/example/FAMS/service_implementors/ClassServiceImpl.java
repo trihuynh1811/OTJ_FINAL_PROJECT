@@ -114,12 +114,12 @@ public class ClassServiceImpl implements ClassService {
 
     @Override
     public GetClassesByPage paging(int amount, int pageNumber) {
-        try{
+        try {
             List<Class> classList = classDAO.findTop1000ByOrderByCreatedDateDesc();
             List<ClassDetailResponse> classDetailList = new ArrayList<>();
             int totalNumberOfPages = classList.size() == amount ? 1 : classList.size() % amount == 0 ? classList.size() / amount : (classList.size() / amount) + 1;
             log.info(classList.size() / amount);
-            if(pageNumber < 0 || pageNumber > totalNumberOfPages){
+            if (pageNumber < 0 || pageNumber > totalNumberOfPages) {
                 return GetClassesByPage.builder()
                         .message("found 0 result.")
                         .totalNumberOfPages(totalNumberOfPages)
@@ -171,7 +171,7 @@ public class ClassServiceImpl implements ClassService {
                     .classList(classDetailList)
                     .build();
 
-        }catch (Exception err){
+        } catch (Exception err) {
             err.printStackTrace();
             return GetClassesByPage.builder()
                     .message("found 0 result.")
@@ -197,7 +197,7 @@ public class ClassServiceImpl implements ClassService {
     public CreateClassResponse createClass(CreateClassDTO request, Authentication authentication) {
         try {
             boolean existingClass = classDAO.findById(request.getClassCode()).isPresent();
-            if(existingClass){
+            if (existingClass) {
                 CreateClassResponse res = CreateClassResponse.builder()
                         .message("class with id: " + request.getClassCode() + " already exist.")
                         .createdClass(null)
@@ -221,7 +221,7 @@ public class ClassServiceImpl implements ClassService {
             String timeFromStr = request.getClassTimeFrom().split(":").length == 3 ? request.getClassTimeFrom() : request.getClassTimeFrom() + ":00";
             String timeToStr = request.getClassTimeTo().split(":").length == 3 ? request.getClassTimeTo() : request.getClassTimeTo() + ":00";
 
-            if(sdf.parse(request.getStartDate()).before(today) || sdf.parse(request.getStartDate()) == today){
+            if (sdf.parse(request.getStartDate()).before(today) || sdf.parse(request.getStartDate()) == today) {
                 CreateClassResponse res = CreateClassResponse.builder()
                         .message("start date for this class should be after today")
                         .createdClass(null)
@@ -553,19 +553,21 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public UpdateClassResponse updateClass(UpdateClassDTO request) {
-        Class existingClass = classDAO.findById(request.getClassCode()).get();
+    public UpdateClassResponse updateClass(UpdateClassDTO request, String classCode) {
+        Class existingClass = classDAO.findById(classCode).get();
         try {
             if (existingClass != null) {
-//                String[] strArr = request.getClassCode().split("_");
-//                String existedClassCode = strArr[strArr.length - 1];
-//                if (!request.getLocation().equalsIgnoreCase(existingClass.getLocation()) && classDAO.findByLocation(request.getLocation()) != null
-//                        && !request.getClassCode().equalsIgnoreCase(classDAO.findById())) {
-//                    return UpdateClassResponse.builder()
-//                            .status(1)
-//                            .updatedClass(null)
-//                            .message("class with id: " + request.getClassCode() + " already exist in this location.")
-//                            .build();
+//                if(!existingClass.getClassId().equalsIgnoreCase(request.getClassCode())){
+//                    classCode = request.getClassCode();
+//                    existingClass.setClassId(classCode);
+//                    if (classDAO.findById(request.getClassCode()).isPresent()) {
+//                        return UpdateClassResponse.builder()
+//                                .status(1)
+//                                .updatedClass(null)
+//                                .message("class with id: " + request.getClassCode() + " already exist in this location.")
+//                                .build();
+//                    }
+
 //                }
                 List<ClassUser> classUserList = new ArrayList<>();
                 List<UserClassSyllabus> userSyllabusList = new ArrayList<>();
@@ -577,7 +579,7 @@ public class ClassServiceImpl implements ClassService {
                 String timeFromStr = request.getClassTimeFrom().split(":").length == 3 ? request.getClassTimeFrom() : request.getClassTimeFrom() + ":00";
                 String timeToStr = request.getClassTimeTo().split(":").length == 3 ? request.getClassTimeTo() : request.getClassTimeTo() + ":00";
 
-                if(sdf.parse(request.getStartDate()).before(today) || sdf.parse(request.getStartDate()) == today){
+                if (sdf.parse(request.getStartDate()).before(today) || sdf.parse(request.getStartDate()) == today) {
                     UpdateClassResponse res = UpdateClassResponse.builder()
                             .message("start date for this class should be after today")
                             .updatedClass(null)
@@ -586,7 +588,6 @@ public class ClassServiceImpl implements ClassService {
                     return res;
                 }
 
-                existingClass.setClassId(existingClass.getClassId());
                 existingClass.setClassName(request.getNameClass());
                 existingClass.setDuration(request.getTotalTimeLearning());
                 existingClass.setStartDate(sdf.parse(request.getStartDate()));
@@ -623,7 +624,7 @@ public class ClassServiceImpl implements ClassService {
                 log.info(ucs.size());
                 classLearningDayDAO.deleteAll(cldl);
                 classUserDAO.deleteAll(cu);
-                userClassSyllabusDAO.deleteAllInBatch(ucs);
+//                userClassSyllabusDAO.deleteAllInBatch(ucs);
                 userClassSyllabusDAO.deleteAll(ucs);
                 userClassSyllabusDAO.flush();
 //                Location l = locationDAO.findById(Long.parseLong(request.getLocation())).get();
@@ -1151,6 +1152,7 @@ public class ClassServiceImpl implements ClassService {
 
 
         ClassDetailResponse res = ClassDetailResponse.builder()
+                .oldClassCode(classCode)
                 .classCode(classCode.split("_")[0])
                 .nameClass(c.getClassName())
                 .created(created)

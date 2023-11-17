@@ -4,6 +4,8 @@ import com.amazonaws.HttpMethod;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.StandardOutputDTO;
+import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
+import com.example.FAMS.dto.requests.SyllbusRequest.*;
 import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
 import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.PresignedUrlResponse;
@@ -200,9 +202,21 @@ public class SyllabusServiceImpl implements SyllabusService {
 
     @Override
     public Syllabus getDetailSyllabus(String topicCode) {
-        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
-        return optionalSyllabus.orElse(null);
+        Syllabus syllabus = syllabusDAO.findById(topicCode).get();
+
+        syllabus.getTu().stream().toList();
+        for(int i = 0; i < syllabus.getTu().stream().toList().size(); i++){
+            syllabus.getTu().stream().toList().get(i).getTrainingContents();
+            log.info(syllabus);
+        }
+
+//        syllabus.getTrainingMaterials().stream().toList().get(0).getMaterial();
+
+
+        return syllabus;
     }
+
+
 
 
     @Override
@@ -361,6 +375,7 @@ public class SyllabusServiceImpl implements SyllabusService {
         }
 
         if (!contentList.isEmpty()) {
+            log.info(learningObjectiveMap);
             savedContentList = trainingContentDAO.saveAll(contentList);
             for (Map.Entry<Integer, List<StandardOutputDTO>> entry : learningObjectiveMap.entrySet()) {
                 log.info(entry.getKey());
@@ -435,28 +450,15 @@ public class SyllabusServiceImpl implements SyllabusService {
 
     }
 
+
+
+
     @Override
-    public UpdateSyllabusResponse updateSyllabus(UpdateSyllabusRequest updatesyllabusRequest, String topicCode) {
-        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
-        User user = userDAO.findByEmail(updatesyllabusRequest.getCreatedBy()).get();
-        Syllabus syllabusexits = optionalSyllabus.orElse(null);
-        if (syllabusexits != null) {
-            syllabusexits.setTopicName(updatesyllabusRequest.getTopicName());
-            syllabusexits.setTechnicalGroup(updatesyllabusRequest.getTechnicalGroup());
-            syllabusexits.setVersion(updatesyllabusRequest.getVersion());
-            syllabusexits.setTrainingAudience(updatesyllabusRequest.getTrainingAudience());
-            syllabusexits.setTopicOutline(updatesyllabusRequest.getTopicOutline());
-//            syllabusexits.setTrainingMaterials(updatesyllabusRequest.getTrainingMaterials());
-            syllabusexits.setPriority(updatesyllabusRequest.getPriority());
-            syllabusexits.setPublishStatus(updatesyllabusRequest.getPublishStatus());
-            syllabusexits.setCreatedBy(user);
-            syllabusexits.setCreatedDate(updatesyllabusRequest.getCreatedDate());
-            syllabusexits.setModifiedBy(updatesyllabusRequest.getModifiedBy());
-            syllabusexits.setModifiedDate(updatesyllabusRequest.getModifiedDate());
-
-
-            Syllabus syllabusUpdate = syllabusDAO.save(syllabusexits);
-
+    public UpdateSyllabusResponse updateSyllabusOther(UpdateSyllabusGeneralRequest updateSyllabusGeneralRequest, String topicCode) {
+        Syllabus syllabus = syllabusDAO.findById(topicCode).get();
+        if (syllabus != null) {
+            syllabus.setTrainingPrinciples(updateSyllabusGeneralRequest.getTrainingPrinciple());
+            Syllabus syllabusUpdate = syllabusDAO.save(syllabus);
             if (syllabusUpdate != null) {
                 return UpdateSyllabusResponse.builder()
                         .status("Update Syllbus successful")
@@ -472,7 +474,6 @@ public class SyllabusServiceImpl implements SyllabusService {
 
             }
 
-
         } else {
             return UpdateSyllabusResponse.builder()
                     .status("Syllabus not found")
@@ -480,13 +481,80 @@ public class SyllabusServiceImpl implements SyllabusService {
                     .build();
 
         }
+    }
+
+    @Override
+    public UpdateSyllabusResponse updateSyllabusGeneral(UpdateSyllabusGeneralRequest update, String topicCode) {
+        Syllabus syllabus = syllabusDAO.findById(topicCode).get();
+        if (syllabus != null) {
+            syllabus.setTopicName(update.getTopicName());
+            syllabus.setVersion(update.getVersion());
+            syllabus.setTechnicalGroup(update.getTechnicalRequirement());
+            syllabus.setPriority(update.getPriority());
+            syllabus.setCourseObjective(update.getCourseObjective());
+            syllabus.setPublishStatus(update.getPublishStatus());
+            syllabus.setTrainingAudience(update.getTrainingAudience());
+            Syllabus syllabusUpdate = syllabusDAO.save(syllabus);
+            if (syllabusUpdate != null) {
+                return UpdateSyllabusResponse.builder()
+                        .status("Update Syllbus successful")
+                        .updateSyllabus(syllabusUpdate)
+                        .build();
+
+
+            } else {
+                return UpdateSyllabusResponse.builder()
+                        .status("Update Syllbus failed")
+                        .updateSyllabus(null)
+                        .build();
+
+            }
+        }
+
+        return UpdateSyllabusResponse.builder()
+                .status("Syllabus not found")
+                .updateSyllabus(null)
+                .build();
+
 
     }
+
+    @Override
+    public UpdateSyllabusResponse updateSyllabusOutline(UpdateSyllabusOutlineRequest update, String topicCode) {
+        return null;
+    }
+
 
     @Override
     public Syllabus getSyllabusById(String topicCode) {
         Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
         return optionalSyllabus.orElse(null);
+    }
+
+    @Override
+    public DeleteSyllabusResponse deleteSyllabus(String topicCode){
+        Syllabus existedSyllabus = syllabusDAO.findById(topicCode).isPresent() ? syllabusDAO.findById(topicCode).get() : null;
+
+        try{
+            if (existedSyllabus != null) {
+                existedSyllabus.setDeleted(true);
+                syllabusDAO.save(existedSyllabus);
+                return DeleteSyllabusResponse.builder()
+                        .status(0)
+                        .message("Successfully delete syllabus with id: " + topicCode)
+                        .build();
+            }
+            return DeleteSyllabusResponse.builder()
+                    .status(1)
+                    .message("Can't find syllabus with id: " + topicCode)
+                    .build();
+        }catch (Exception err){
+            err.printStackTrace();
+            return DeleteSyllabusResponse.builder()
+                    .status(-1)
+                    .message("Fail to delete syllabus with id: " + topicCode)
+                    .build();
+        }
     }
 
     @Override

@@ -1,10 +1,8 @@
 package com.example.FAMS.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Data
@@ -24,8 +22,11 @@ public class TrainingMaterial {
     @Column(nullable = false)
     private String source;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "syllabus")
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "syllabus", referencedColumnName = "topic_code")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
     private Syllabus syllabus;
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -33,9 +34,15 @@ public class TrainingMaterial {
             @JoinColumn(name="unit_code", referencedColumnName="unit_code"),
             @JoinColumn(name="topic_code", referencedColumnName="topic_code")
     })
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
     private TrainingUnit trainingUnit;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "training_content")
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "training_content", referencedColumnName = "content_code")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
     private TrainingContent trainingContent;
 }

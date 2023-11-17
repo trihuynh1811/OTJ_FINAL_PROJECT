@@ -1,10 +1,9 @@
 package com.example.FAMS.controllers;
 
-import com.example.FAMS.dto.requests.UpdateTrainingProgramRequest;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.ResponseObjectVersion2;
+import com.example.FAMS.dto.responses.ResponseTrainingProgram;
 import com.example.FAMS.dto.responses.TrainingProgramDTO;
-import com.example.FAMS.dto.responses.UpdateTrainingProgramResponse;
 import com.example.FAMS.models.TrainingProgram;
 import com.example.FAMS.services.TrainingProgramService;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +44,19 @@ public class TrainingProgramController {
         return trainingProgram.getTrainingProgramByCode(id);
     }
 
+//    @GetMapping("/get-all")
+//    @PreAuthorize("hasAuthority('user:read')")
+//    public ResponseEntity<ResponseObject> getAllTrainingProgram() {
+//        return trainingProgram.getAll();
+//    }
+
     @GetMapping("/get-all")
+    @PreAuthorize("hasAuthority('user:read')")
+    public ResponseEntity<ResponseObject> getAllActiveTrainingProgram() {
+        return trainingProgram.getAllActive();
+    }
+
+    @GetMapping("/get-all/All")
     @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<ResponseObject> getAllTrainingProgram() {
         return trainingProgram.getAll();
@@ -53,13 +64,12 @@ public class TrainingProgramController {
 
     @PutMapping("/update-program/{trainingProgramCode}")
     @PreAuthorize("hasAnyAuthority('training:update')")
-    public ResponseEntity<UpdateTrainingProgramResponse> updateTrainingProgramRequest(
+    public ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(
             @PathVariable int trainingProgramCode,
-            @RequestBody UpdateTrainingProgramRequest updateTrainingProgramRequest) {
-        return ResponseEntity.ok(
-                trainingProgram.updateTrainingProgram(
-                        trainingProgramCode, updateTrainingProgramRequest));
+            @RequestBody TrainingProgramDTO trainingProgramDTO) {
+        return trainingProgram.updateTrainingProgram(trainingProgramCode, trainingProgramDTO);
     }
+
 
     @GetMapping("/duplicate/{trainingProgramCode}")
     @PreAuthorize("hasAuthority('training:read')")

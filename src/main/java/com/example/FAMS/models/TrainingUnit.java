@@ -2,6 +2,8 @@ package com.example.FAMS.models;
 
 import com.example.FAMS.models.composite_key.SyllabusTrainingUnitCompositeKey;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,7 +40,6 @@ public class TrainingUnit {
     private Syllabus syllabus;
 
     @OneToMany(mappedBy = "unitCode", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonBackReference
     private final Set<TrainingContent> trainingContents = new HashSet<>();
 
 
@@ -48,8 +49,10 @@ public class TrainingUnit {
     @Column(name = "day_number", nullable = false)
     private int dayNumber;
 
-    @OneToMany(mappedBy = "trainingUnit")
+    @OneToMany(mappedBy = "trainingUnit", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Column(name = "training_materials")
+    @JsonManagedReference
+    @JsonIgnore
     private Set<TrainingMaterial> trainingMaterials;
 
 }
