@@ -423,7 +423,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
     @Override
     public ResponseEntity<ResponseObject> changeTrainingProgramStatus(
             int trainingProgramCode, String value) {
-        if (checkExisted(trainingProgramCode)) {
+        if (checkExisted(trainingProgramCode, value)) {
             switch (value) {
                 case "Activate":
                     activateProgram(trainingProgramCode);
@@ -446,7 +446,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
                 .body(
                         new ResponseObject(
                                 value + " training program failed",
-                                "Training program with code " + trainingProgramCode + " is not found",
+                                "Training program with code " + trainingProgramCode + " is not found or already be " + value.toLowerCase() + "d",
                                 "No data"));
     }
 
@@ -466,8 +466,10 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         }
     }
 
-    private boolean checkExisted(int trainingProgramCode) {
-        return trainingProgramDAO.existsById(trainingProgramCode);
+    private boolean checkExisted(int trainingProgramCode, String value) {
+        TrainingProgram trainingProgram = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
+        String result = value.equalsIgnoreCase("Activate") ? "active" : "inactive";
+        return trainingProgram != null && !trainingProgram.getStatus().equalsIgnoreCase(result);
     }
 
     public User getCreator(Authentication authentication) {
