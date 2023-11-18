@@ -27,4 +27,6 @@ public interface UserService {
     ResponseEntity<ResponseObject> getAllAdminAndSuperAdminByRole();
 
     String authorizeAccount(String emailAddress);
+
+    ResponseEntity<ResponseObject> changeStatus(int id, String type);
 }

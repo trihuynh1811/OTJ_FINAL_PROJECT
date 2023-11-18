@@ -71,16 +71,6 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ResponseObject("Failed", "The duration cannot be negative", null));
         }
-        if (trainingProgramDTO.getStatus().contains("Active")
-                || trainingProgramDTO.getStatus().contains("inActive")
-                || trainingProgramDTO.getStatus().contains("Drafting")) {
-            trainingProgram.setStatus(trainingProgramDTO.getStatus());
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(
-                            new ResponseObject(
-                                    "Failed", "The status must be Active or Drafting or Inactive", null));
-        }
         if (person != null && person.getRole().getRole() == Role.TRAINER) {
             trainingProgram.setUserID(person);
         } else {
@@ -88,6 +78,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
                     .body(new ResponseObject("Failed", "The person is not a trainer or not found", null));
         }
         if (requester != null) {
+            trainingProgram.setStatus("active");
             trainingProgram.setStartDate(date);
             trainingProgram.setCreatedBy(requester.getName());
             trainingProgram.setCreatedDate(date);
