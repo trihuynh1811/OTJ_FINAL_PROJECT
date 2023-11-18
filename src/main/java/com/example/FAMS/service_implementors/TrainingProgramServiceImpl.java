@@ -180,10 +180,10 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ResponseTrainingProgram("Failed", "The duration cannot be negative", 0,null,null));
         }
-        if (!"Active".equalsIgnoreCase(trainingProgramDTO.getStatus())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseTrainingProgram("Failed", "The status must be Active", 0,null,null));
-        }
+//        if (!"Active".equalsIgnoreCase(trainingProgramDTO.getStatus())) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                    .body(new ResponseTrainingProgram("Failed", "The status must be Active", 0,null,null));
+//        }
         User trainer = userDAO.findByEmail(trainingProgramDTO.getTrainerGmail())
                 .filter(user -> user.getRole().getRole() == Role.TRAINER)
                 .orElse(null);
@@ -206,7 +206,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         }
         trainingProgramExisted.setName(trainingProgramDTO.getTrainingProgramName());
         trainingProgramExisted.setDuration(trainingProgramDTO.getDuration());
-        trainingProgramExisted.setStatus(trainingProgramDTO.getStatus());
+//        trainingProgramExisted.setStatus(trainingProgramDTO.getStatus());
         trainingProgramExisted.setUserID(trainer);
         trainingProgramExisted.setStartDate(new Date());
         trainingProgramExisted.setCreatedBy(requester.getName());
