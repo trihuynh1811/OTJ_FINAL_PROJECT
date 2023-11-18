@@ -19,5 +19,5 @@ public class TrainingProgramDTO {
     String trainerGmail;
     String[] topicCode;
     int duration;
-
+    String status;
 }

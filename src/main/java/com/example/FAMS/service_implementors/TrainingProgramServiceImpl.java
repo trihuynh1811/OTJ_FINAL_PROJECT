@@ -124,7 +124,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
     List<TrainingProgram> userList;
     try {
 //      userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
-      userList = trainingProgramDAO.findTrainingProgramsByStatus("Active");
+      userList = trainingProgramDAO.findTrainingProgramsByStatus("active");
       return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
     } catch (Exception e) {
       userList = Collections.emptyList();
