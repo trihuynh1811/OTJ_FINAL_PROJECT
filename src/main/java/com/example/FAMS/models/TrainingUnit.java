@@ -40,7 +40,6 @@ public class TrainingUnit {
     private Syllabus syllabus;
 
     @OneToMany(mappedBy = "unitCode", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonBackReference
     private final Set<TrainingContent> trainingContents = new HashSet<>();
 
 

@@ -201,9 +201,21 @@ public class SyllabusServiceImpl implements SyllabusService {
 
     @Override
     public Syllabus getDetailSyllabus(String topicCode) {
-        Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
-        return optionalSyllabus.orElse(null);
+        Syllabus syllabus = syllabusDAO.findById(topicCode).get();
+
+        syllabus.getTu().stream().toList();
+        for(int i = 0; i < syllabus.getTu().stream().toList().size(); i++){
+            syllabus.getTu().stream().toList().get(i).getTrainingContents();
+            log.info(syllabus);
+        }
+
+//        syllabus.getTrainingMaterials().stream().toList().get(0).getMaterial();
+
+
+        return syllabus;
     }
+
+
 
 
     @Override
