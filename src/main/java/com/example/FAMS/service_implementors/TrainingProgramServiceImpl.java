@@ -71,7 +71,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ResponseObject("Failed", "The duration cannot be negative", null));
         }
-        if (trainingProgramDTO.getStatus().contains("Active")
+        if (trainingProgramDTO.getStatus().contains("active")
                 || trainingProgramDTO.getStatus().contains("inActive")
                 || trainingProgramDTO.getStatus().contains("Drafting")) {
             trainingProgram.setStatus(trainingProgramDTO.getStatus());

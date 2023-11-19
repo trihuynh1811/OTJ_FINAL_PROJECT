@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface SyllabusDAO extends JpaRepository<Syllabus, String> {
 
     List<Syllabus> findTop1000ByOrderByCreatedDateDesc();
+    List<Syllabus> findTop1000ByDeletedOrderByCreatedDateDesc(boolean deleted);
+//    List<Syllabus> findTop1000ByDeletedFalseOrderByCreatedDateDesc();
 
     List<Syllabus> findAllByOrderByCreatedDateDesc();
 

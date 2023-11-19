@@ -9,8 +9,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PresignedUrlResponse {
-    int status;
-    String message;
+
+    String id;
     List<String> putPresignedUrl;
     List<String> getPresignedUrl;
 }

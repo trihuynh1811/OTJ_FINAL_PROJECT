@@ -98,10 +98,10 @@ public class Syllabus {
     @JsonManagedReference
     private final Set<SyllabusObjective> syllabusObjectives = new HashSet<>();
 
-    @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Column(name = "training_materials")
-    @JsonManagedReference
-    @JsonIgnore
-    private Set<TrainingMaterial> trainingMaterials;
+//    @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @Column(name = "training_materials")
+//    @JsonManagedReference
+//    @JsonIgnore
+//    private Set<TrainingMaterial> trainingMaterials;
 
 }

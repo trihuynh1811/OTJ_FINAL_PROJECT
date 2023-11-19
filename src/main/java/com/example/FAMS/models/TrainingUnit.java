@@ -50,10 +50,5 @@ public class TrainingUnit {
     @Column(name = "day_number", nullable = false)
     private int dayNumber;
 
-    @OneToMany(mappedBy = "trainingUnit", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Column(name = "training_materials")
-    @JsonManagedReference
-    @JsonIgnore
-    private Set<TrainingMaterial> trainingMaterials;
 
 }
