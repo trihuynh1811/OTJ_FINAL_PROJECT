@@ -100,4 +100,16 @@ public class UserController {
                     .build());
         }
     }
+
+    @GetMapping("/active/{id}")
+    @PreAuthorize("hasAuthority('user:update')")
+    public ResponseEntity<ResponseObject> activeUser(@PathVariable int id){
+        return userService.changeStatus(id, "active");
+    }
+
+    @GetMapping("/inactive/{id}")
+    @PreAuthorize("hasAuthority('user:update')")
+    public ResponseEntity<ResponseObject> inactiveUser(@PathVariable int id){
+        return userService.changeStatus(id, "inactive");
+    }
 }

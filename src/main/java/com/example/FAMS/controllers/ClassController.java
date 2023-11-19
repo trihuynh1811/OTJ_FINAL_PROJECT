@@ -128,7 +128,7 @@ public class ClassController {
     }
 
     @GetMapping("/listClassPagenation")
-    public ResponseEntity<?> getallPagenation(Pageable pageable) {
+    public ResponseEntity<?> getAllPagenation(Pageable pageable) {
         return ResponseEntity.ok(classService.getAllPagenation(pageable));
 
     }

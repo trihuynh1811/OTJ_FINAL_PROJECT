@@ -54,4 +54,7 @@ public interface UserDAO extends JpaRepository<User, Integer> {
                             + "WHERE u.is_active = true",
             nativeQuery = true)
     List<ListUserResponse> getAllUsersWithRole();
+
+    @Query(value = "UPDATE User u SET u.status = :newStatus WHERE u.userId = :id AND u.status <> :newStatus")
+    void changeStatus(int id, boolean newStatus);
 }

@@ -20,6 +20,4 @@ public class TrainingProgramDTO {
     String[] topicCode;
     int duration;
     String status;
-
-
 }

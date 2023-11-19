@@ -104,14 +104,14 @@ public class TrainingProgramController {
                 trainingProgram.searchTrainingProgram(keyword) : "no data";
     }
 
-    @PostMapping("/activate/{trainingProgramCode}")
+    @GetMapping("/activate/{trainingProgramCode}")
     @PreAuthorize("hasAnyAuthority('training:update')")
     public ResponseEntity<ResponseObject> activateTrainingProgram(
             @PathVariable int trainingProgramCode) {
         return trainingProgram.changeTrainingProgramStatus(trainingProgramCode, "Activate");
     }
 
-    @PostMapping("/deactivate/{trainingProgramCode}")
+    @GetMapping("/deactivate/{trainingProgramCode}")
     @PreAuthorize("hasAnyAuthority('training:update')")
     public ResponseEntity<ResponseObject> deactivateTrainingProgram(
             @PathVariable int trainingProgramCode) {
