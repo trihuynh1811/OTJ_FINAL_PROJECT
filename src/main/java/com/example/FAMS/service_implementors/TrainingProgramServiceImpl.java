@@ -118,38 +118,26 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         }
     }
 
-//    @Override
-//    public ResponseEntity<ResponseObject> getAll() {
-////    List<TrainingProgramModified> userList;
-//        List<TrainingProgram> userList;
-//        try {
-////      userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
-//            userList = trainingProgramDAO.findBy(TrainingProgram.class);
-//            return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
-//        } catch (Exception e) {
-//            userList = Collections.emptyList();
-//            return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
-//        }
-//    }
-
-    @Override
-    public ResponseEntity<ResponseObject> getAllActive() {
-        List<TrainingProgram> userList;
-
-        try {
-            userList = trainingProgramDAO.findTrainingProgramsByStatus("Active");
-
-            return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
-        } catch (Exception e) {
-            userList = Collections.emptyList();
-            return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
-        }
+  @Override
+  public ResponseEntity<ResponseObject> getAllActive() {
+//    List<TrainingProgramModified> userList;
+    List<TrainingProgram> userList;
+    try {
+//      userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
+      userList = trainingProgramDAO.findTrainingProgramsByStatus("active");
+      return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
+    } catch (Exception e) {
+      userList = Collections.emptyList();
+      return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
     }
+  }
 
     @Override
     public ResponseEntity<ResponseObject> getAll() {
+//    List<TrainingProgramModified> userList;
         List<TrainingProgram> userList;
         try {
+//      userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
             userList = trainingProgramDAO.getAllBy();
             return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
         } catch (Exception e) {
@@ -180,10 +168,10 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ResponseTrainingProgram("Failed", "The duration cannot be negative", 0,null,null));
         }
-//        if (!"Active".equalsIgnoreCase(trainingProgramDTO.getStatus())) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                    .body(new ResponseTrainingProgram("Failed", "The status must be Active", 0,null,null));
-//        }
+        if (!"Active".equalsIgnoreCase(trainingProgramDTO.getStatus())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseTrainingProgram("Failed", "The status must be Active", 0,null,null));
+        }
         User trainer = userDAO.findByEmail(trainingProgramDTO.getTrainerGmail())
                 .filter(user -> user.getRole().getRole() == Role.TRAINER)
                 .orElse(null);
@@ -206,7 +194,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         }
         trainingProgramExisted.setName(trainingProgramDTO.getTrainingProgramName());
         trainingProgramExisted.setDuration(trainingProgramDTO.getDuration());
-//        trainingProgramExisted.setStatus(trainingProgramDTO.getStatus());
+        trainingProgramExisted.setStatus(trainingProgramDTO.getStatus());
         trainingProgramExisted.setUserID(trainer);
         trainingProgramExisted.setStartDate(new Date());
         trainingProgramExisted.setCreatedBy(requester.getName());
