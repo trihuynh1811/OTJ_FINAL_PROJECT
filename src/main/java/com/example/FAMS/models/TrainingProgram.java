@@ -37,7 +37,7 @@ public class TrainingProgram {
     @JoinColumn(name = "userId", referencedColumnName = "user_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-//    @JsonBackReference
+    @JsonBackReference
     private User userID;
 
     @Column(nullable = false, name = "start_date")
