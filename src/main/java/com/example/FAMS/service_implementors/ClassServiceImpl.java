@@ -618,9 +618,9 @@ public class ClassServiceImpl implements ClassService {
                 Class updatedClass = classDAO.save(existingClass);
 
                 log.info("1");
-                List<ClassLearningDay> cldl = classLearningDayDAO.findByClassId_ClassId(request.getClassCode());
-                List<ClassUser> cu = classUserDAO.findByClassId_ClassId(request.getClassCode());
-                List<UserClassSyllabus> ucs = userClassSyllabusDAO.findByClassCode_ClassId(request.getClassCode());
+                List<ClassLearningDay> cldl = classLearningDayDAO.findByClassId_ClassId(classCode);
+                List<ClassUser> cu = classUserDAO.findByClassId_ClassId(classCode);
+                List<UserClassSyllabus> ucs = userClassSyllabusDAO.findByClassCode_ClassId(classCode);
                 log.info(ucs.size());
                 classLearningDayDAO.deleteAll(cldl);
                 classUserDAO.deleteAll(cu);
@@ -759,7 +759,7 @@ public class ClassServiceImpl implements ClassService {
         return UpdateClassResponse.builder()
                 .status(1)
                 .updatedClass(null)
-                .message("class with id: " + request.getClassCode() + " doesn't exist")
+                .message("class with id: " + classCode + " doesn't exist")
                 .build();
     }
 
