@@ -8,17 +8,12 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class ContentDTO {
+public class FileDTO {
 
-    int contentId;
-    String content = "";
-    String note = "";
-    String deliveryType;
-    boolean isOnline;
-    int duration;
-    String standardOutput;
-    List<String> trainingMaterials;
+    int unitCode;
+    int contentCode;
+    List<String> fileName;
 }

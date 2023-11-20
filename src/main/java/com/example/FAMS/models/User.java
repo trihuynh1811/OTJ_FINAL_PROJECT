@@ -77,12 +77,12 @@ public class User implements UserDetails {
     @EqualsAndHashCode.Exclude
     private UserPermission role;
 
-    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     @JsonIgnore
     private final Set<TrainingProgram> trainingPrograms = new HashSet<>();
 
-    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     @JsonIgnore
     private final Set<UserClassSyllabus> userSyllabus = new HashSet<>();

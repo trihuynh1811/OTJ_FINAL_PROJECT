@@ -13,9 +13,17 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateSyllabusOutlineRequest {
-    String topicName = "";
-    String topicCode = "";
+    String topicCode;
+    String topicName;
+    String version;
+    String technicalRequirement;
+    String priority;
+    String courseObjective;
+    String publishStatus = "inactive";
+    String trainingPrinciple;
+    String creatorEmail;
+    String trainingAudience;
     List<DayDTO> syllabus;
-
+//    List<TrainingMaterialDTO> trainingMaterials;
 
 }

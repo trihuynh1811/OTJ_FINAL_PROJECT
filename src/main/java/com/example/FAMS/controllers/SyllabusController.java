@@ -1,10 +1,6 @@
 package com.example.FAMS.controllers;
 
-import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
-import com.example.FAMS.dto.requests.SyllbusRequest.FileNameDTO;
-import com.example.FAMS.dto.requests.SyllbusRequest.UpdateSyllabusGeneralRequest;
-import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.dto.responses.Syllabus.*;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
@@ -27,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/syllabus")
@@ -46,20 +43,35 @@ public class SyllabusController {
     @GetMapping
     @PreAuthorize("hasAuthority('syllabus:read')")
     public ResponseEntity<List<GetAllSyllabusResponse>> get() {
-        List<GetAllSyllabusResponse> syllabusList = syllabusService.getSyllabuses();
+        List<GetAllSyllabusResponse> syllabusList = syllabusService.getSyllabuses("");
         log.info(syllabusList);
         return ResponseEntity.status(200).body(syllabusList);
     }
 
-    @PostMapping("/get-presigned-url")
+    @GetMapping("/{type}")
     @PreAuthorize("hasAuthority('syllabus:read')")
-    public ResponseEntity<PresignedUrlResponse> get(@RequestBody FileNameDTO request) {
-        PresignedUrlResponse res = syllabusService.generatePresignedUrl(request.getFiles());
-        if(res.getStatus() < 0){
-            return ResponseEntity.status(500).body(res);
+    public ResponseEntity<List<GetAllSyllabusResponse>> get(@PathVariable(name = "type", required = false, value = "") Optional<String> type) {
+        List<GetAllSyllabusResponse> syllabusList = null;
+        if (type.isPresent()) {
+            if (type.get().equalsIgnoreCase("All")) {
+                syllabusList = syllabusService.getSyllabuses(type.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS).body(null);
+            }
         }
-        return ResponseEntity.ok(res);
+        log.info(syllabusList);
+        return ResponseEntity.status(200).body(syllabusList);
     }
+
+//    @PostMapping("/get-presigned-url")
+//    @PreAuthorize("hasAuthority('syllabus:read')")
+//    public ResponseEntity<PresignedUrlResponse> get(@RequestBody TrainingMaterial request) {
+//        PresignedUrlResponse res = syllabusService.generatePresignedUrl(request.getFiles());
+//        if(res.getStatus() < 0){
+//            return ResponseEntity.status(500).body(res);
+//        }
+//        return ResponseEntity.ok(res);
+//    }
 
     @GetMapping("/page")
     @PreAuthorize("hasAuthority('syllabus:read')")
@@ -128,86 +140,128 @@ public class SyllabusController {
         }
     }
 
-    @PostMapping("/create/{type}")
+//    @PostMapping("/create/{type}")
+//    @PreAuthorize("hasAuthority('syllabus:create')")
+//    public ResponseEntity<CreateSyllabusGeneralResponse> create(@PathVariable("type") String type, @RequestBody CreateSyllabusGeneralRequest request, Authentication authentication) {
+//        int result = -1;
+//        CreateSyllabusGeneralResponse res = null;
+////        log.info(syllabusDAO.findById(request.getTopicCode()).get());
+//        switch (type) {
+//            case "general":
+//                log.info(authentication.getPrincipal());
+//                result = syllabusService.createSyllabusGeneral(request, authentication);
+//                switch (result) {
+//                    case -1:
+//                        res = CreateSyllabusGeneralResponse.builder()
+//                                .message("Server error, damn have to fix some bug :(.")
+//                                .build();
+//                        return ResponseEntity.status(500).body(res);
+//                    case 1:
+//                        res = CreateSyllabusGeneralResponse.builder()
+//                                .message("Syllabus is duplicated, change it or else.")
+//                                .build();
+//                        return ResponseEntity.status(418).body(res);
+//                    case 2:
+//                        res = CreateSyllabusGeneralResponse.builder()
+//                                .message("Successfully update syllabus.")
+//                                .build();
+//                        return ResponseEntity.status(200).body(res);
+//                }
+//                res = CreateSyllabusGeneralResponse.builder()
+//                        .message("Create syllabus successfully.")
+//                        .build();
+//                break;
+//            case "other":
+//                result = syllabusService.createSyllabusOther(request);
+//                if (result < 0) {
+//                    res = CreateSyllabusGeneralResponse.builder()
+//                            .message("Server error, dame have to fix some bug :(.")
+//                            .build();
+//                    return ResponseEntity.status(500).body(res);
+//                }
+//                res = CreateSyllabusGeneralResponse.builder()
+//                        .message("Save changes.")
+//                        .build();
+//                break;
+//        }
+//        return ResponseEntity.status(200).body(res);
+//    }
+//
+//    @PostMapping("/create/outline")
+//    @PreAuthorize("hasAuthority('syllabus:create')")
+//    public ResponseEntity<?> create(@RequestBody CreateSyllabusOutlineRequest request, Authentication authentication) {
+//        syllabusService.createSyllabus(request, authentication);
+//        return ResponseEntity.status(200).body(request);
+//    }
+
+    @PostMapping("/create")
     @PreAuthorize("hasAuthority('syllabus:create')")
-    public ResponseEntity<CreateSyllabusGeneralResponse> create(@PathVariable("type") String type, @RequestBody CreateSyllabusGeneralRequest request, Authentication authentication) {
-        int result = -1;
-        CreateSyllabusGeneralResponse res = null;
-//        log.info(syllabusDAO.findById(request.getTopicCode()).get());
-        switch (type) {
-            case "general":
-                log.info(authentication.getPrincipal());
-                result = syllabusService.createSyllabusGeneral(request, authentication);
-                switch (result) {
-                    case -1:
-                        res = CreateSyllabusGeneralResponse.builder()
-                                .message("Server error, damn have to fix some bug :(.")
-                                .build();
-                        return ResponseEntity.status(500).body(res);
-                    case 1:
-                        res = CreateSyllabusGeneralResponse.builder()
-                                .message("Syllabus is duplicated, change it or else.")
-                                .build();
-                        return ResponseEntity.status(418).body(res);
-                    case 2:
-                        res = CreateSyllabusGeneralResponse.builder()
-                                .message("Successfully update syllabus.")
-                                .build();
-                        return ResponseEntity.status(200).body(res);
-                }
-                res = CreateSyllabusGeneralResponse.builder()
-                        .message("Create syllabus successfully.")
-                        .build();
-                break;
-            case "other":
-                result = syllabusService.createSyllabusOther(request);
-                if (result < 0) {
-                    res = CreateSyllabusGeneralResponse.builder()
-                            .message("Server error, dame have to fix some bug :(.")
-                            .build();
-                    return ResponseEntity.status(500).body(res);
-                }
-                res = CreateSyllabusGeneralResponse.builder()
-                        .message("Save changes.")
-                        .build();
-                break;
+    public ResponseEntity<CreateSyllabusResponse> create(@RequestBody CreateSyllabusOutlineRequest request) {
+        CreateSyllabusResponse res = syllabusService.createSyllabus(request);
+        log.info(request);
+        if(res.getStatus() > 0){
+            return ResponseEntity.status(418).body(res);
+        }
+        else if(res.getStatus() < 0){
+            return ResponseEntity.status(500).body(res);
         }
         return ResponseEntity.status(200).body(res);
     }
 
-    @PostMapping("/create/outline")
-    @PreAuthorize("hasAuthority('syllabus:create')")
-    public ResponseEntity<?> create(@RequestBody CreateSyllabusOutlineRequest request, Authentication authentication) {
-        syllabusService.createSyllabusOutline(request, authentication);
-        return ResponseEntity.status(200).body(request);
-    }
-
-
-    @PutMapping("/update/SyllabusGeneral/{topicCode}")
+    @PutMapping("/update")
     @PreAuthorize("hasAuthority('syllabus:update')")
-    public ResponseEntity<UpdateSyllabusResponse> updateSyllabusGeneral (
-            @PathVariable String topicCode,
-            @RequestBody UpdateSyllabusGeneralRequest updateSyllabusRequest) {
-        UpdateSyllabusResponse updateSyllabusResponse = syllabusService.updateSyllabusGeneral(updateSyllabusRequest,topicCode);
-        if (updateSyllabusResponse != null) {
-            return ResponseEntity.ok(updateSyllabusResponse);
-        } else {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<UpdateSyllabusResponse> update(@RequestBody CreateSyllabusOutlineRequest request) {
+        UpdateSyllabusResponse res = syllabusService.updateSyllabus(request);
+        log.info(request);
+        if (res.getStatus() > 0) {
+            return ResponseEntity.status(418).body(res);
+        } else if (res.getStatus() < 0) {
+            return ResponseEntity.status(500).body(res);
         }
+        return ResponseEntity.status(200).body(res);
     }
 
-    @PutMapping("/update/SyllabusOther/{topicCode}")
-    @PreAuthorize("hasAuthority('syllabus:update')")
-    public ResponseEntity<UpdateSyllabusResponse> updateSyllabusOther(
-            @PathVariable String topicCode,
-            @RequestBody UpdateSyllabusGeneralRequest updateSyllabusRequest) {
-        UpdateSyllabusResponse updateSyllabusResponse = syllabusService.updateSyllabusOther(updateSyllabusRequest,topicCode);
-        if (updateSyllabusResponse != null) {
-            return ResponseEntity.ok(updateSyllabusResponse);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+
+//    @PutMapping("/update/SyllabusGeneral/{topicCode}")
+//    @PreAuthorize("hasAuthority('syllabus:update')")
+//    public ResponseEntity<UpdateSyllabusResponse> updateSyllabusGeneral (
+//            @PathVariable String topicCode,
+//            @RequestBody UpdateSyllabusGeneralRequest updateSyllabusRequest) {
+//        UpdateSyllabusResponse updateSyllabusResponse = syllabusService.updateSyllabusGeneral(updateSyllabusRequest,topicCode);
+//        if (updateSyllabusResponse != null) {
+//            return ResponseEntity.ok(updateSyllabusResponse);
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+
+//    @PutMapping("/update/SyllabusOther/{topicCode}")
+//    @PreAuthorize("hasAuthority('syllabus:update')")
+//    public ResponseEntity<UpdateSyllabusResponse> updateSyllabusOther(
+//            @PathVariable String topicCode,
+//            @RequestBody UpdateSyllabusGeneralRequest updateSyllabusRequest) {
+//        UpdateSyllabusResponse updateSyllabusResponse = syllabusService.updateSyllabusOther(updateSyllabusRequest,topicCode);
+//        if (updateSyllabusResponse != null) {
+//            return ResponseEntity.ok(updateSyllabusResponse);
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+
+
+//    @PutMapping("/update/syllabus/outline")
+//    @PreAuthorize("hasAuthority('syllabus:update')")
+//    public ResponseEntity<String> updateSyllabusOutlineRequest(
+//            @RequestBody CreateSyllabusOutlineRequest request, Authentication authentication) {
+//        try{
+//            syllabusService.createSyllabus(request);
+//            return ResponseEntity.ok("success");
+//        }catch (Exception err){
+//            err.printStackTrace();
+//            return ResponseEntity.notFound().build();
+//
+//        }
+//    }
 
     @PutMapping("/delete/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
@@ -220,20 +274,6 @@ public class SyllabusController {
             return ResponseEntity.internalServerError().body(deleteSyllabus);
         }
         return ResponseEntity.ok(deleteSyllabus);
-    }
-
-    @PutMapping("/update/syllabus/outline")
-    @PreAuthorize("hasAuthority('syllabus:update')")
-    public ResponseEntity<String> updateSyllabusOutlineRequest(
-            @RequestBody CreateSyllabusOutlineRequest request, Authentication authentication) {
-        try{
-            syllabusService.createSyllabusOutline(request, authentication);
-            return ResponseEntity.ok("success");
-        }catch (Exception err){
-            err.printStackTrace();
-            return ResponseEntity.notFound().build();
-
-        }
     }
 
     @GetMapping("/search/{topicCode}")

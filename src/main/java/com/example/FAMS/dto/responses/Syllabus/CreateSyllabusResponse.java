@@ -1,4 +1,4 @@
-package com.example.FAMS.dto.requests.SyllbusRequest;
+package com.example.FAMS.dto.responses.Syllabus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,11 +7,13 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Builder
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FileNameDTO {
+public class CreateSyllabusResponse {
 
-    List<String> files;
+    int status;
+    String message;
+    List<PresignedUrlResponse> url;
 }

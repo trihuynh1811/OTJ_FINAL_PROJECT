@@ -28,9 +28,9 @@ public class StandardOutput {
     @Column(name = "output_description", length = 15000)
     String description;
 
-    @OneToMany(mappedBy = "outputCode", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private final Set<LearningObjective> learningObjective = new HashSet<>();
+//    @OneToMany(mappedBy = "outputCode", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    @JsonManagedReference
+//    private final Set<LearningObjective> learningObjective = new HashSet<>();
 
 //    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "standardOutputs")
 //    @JsonManagedReference
@@ -39,5 +39,10 @@ public class StandardOutput {
     @OneToMany(mappedBy = "outputCode", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     private final Set<SyllabusObjective> syllabusObjectives = new HashSet<>();
+
+    @OneToMany(mappedBy = "outputCode", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private final Set<TrainingContent> trainingContents = new HashSet<>();
+
 
 }

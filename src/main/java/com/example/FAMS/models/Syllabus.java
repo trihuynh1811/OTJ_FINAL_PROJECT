@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -79,7 +80,7 @@ public class Syllabus {
 
     @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    @JsonIgnore
+//    @JsonIgnore
     private final Set<TrainingUnit> tu = new HashSet<>();
 
 //    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
@@ -98,10 +99,11 @@ public class Syllabus {
     @JsonManagedReference
     private final Set<SyllabusObjective> syllabusObjectives = new HashSet<>();
 
-    @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Column(name = "training_materials")
-    @JsonManagedReference
-    @JsonIgnore
-    private Set<TrainingMaterial> trainingMaterials;
+//    @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @Column(name = "training_materials")
+//    @JsonManagedReference
+//    @JsonIgnore
+//    private Set<TrainingMaterial> trainingMaterials;
+
 
 }
