@@ -7,8 +7,11 @@ import com.example.FAMS.models.UserPermission;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +58,8 @@ public interface UserDAO extends JpaRepository<User, Integer> {
             nativeQuery = true)
     List<ListUserResponse> getAllUsersWithRole();
 
+    @Modifying
+    @Transactional
     @Query(value = "UPDATE User u SET u.status = :newStatus WHERE u.userId = :id AND u.status <> :newStatus")
-    void changeStatus(int id, boolean newStatus);
+    void changeStatus(@Param("id") int id, @Param("newStatus") boolean newStatus);
 }
