@@ -53,8 +53,7 @@ public interface UserDAO extends JpaRepository<User, Integer> {
     @Query(
             value =
                     "SELECT u.user_id as 'userId', u.name, u.email, u.phone, u.dob, u.gender, u.created_by as 'createdBy', u.modified_by as 'modifiedBy', u.is_active as 'status', p.role\n"
-                            + "FROM users as u INNER JOIN user_permission as p on u.role = p.permission_id \n"
-                            + "WHERE u.is_active = true",
+                            + "FROM users as u INNER JOIN user_permission as p on u.role = p.permission_id",
             nativeQuery = true)
     List<ListUserResponse> getAllUsersWithRole();
 
