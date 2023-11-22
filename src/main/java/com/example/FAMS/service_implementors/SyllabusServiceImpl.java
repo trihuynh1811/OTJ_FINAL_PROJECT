@@ -252,7 +252,11 @@ public class SyllabusServiceImpl implements SyllabusService {
     public CreateSyllabusResponse createSyllabus(CreateSyllabusOutlineRequest request) {
 
         if (syllabusDAO.findById(request.getTopicCode()).isPresent()) {
-            return null;
+            return CreateSyllabusResponse.builder()
+                    .status(1)
+                    .message("Create syllabus successfully.")
+                    .url(null)
+                    .build();
         }
         int unitBatchSize = 10;
         int contentBatchSize = 10;
