@@ -460,6 +460,7 @@ public class SyllabusServiceImpl implements SyllabusService {
 //                learningObjectiveList.clear();
 //                learningObjectiveList = new ArrayList<>();
             }
+
             log.info(syllabusObjectiveMap);
             syllabusObjectiveDAO.saveAll(syllabusObjectiveList);
 
