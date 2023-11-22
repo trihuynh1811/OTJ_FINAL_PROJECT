@@ -447,9 +447,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             log.info(syllabusObjectiveMap);
             syllabusObjectiveDAO.saveAll(syllabusObjectiveList);
 
-            int numberOfDay = trainingUnitDAO.countDayNumberBySyllabus_TopicCode(syllabus.getTopicCode());
-
-            syllabus.setNumberOfDay(numberOfDay);
+            syllabus.setNumberOfDay(request.getSyllabus().size());
             syllabusDAO.save(syllabus);
 
 //            for (int i = 0; i < request.getTrainingMaterials().size(); i++) {
