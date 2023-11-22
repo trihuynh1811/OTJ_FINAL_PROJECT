@@ -16,12 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "TrainingPrograms",  uniqueConstraints = {
-        @UniqueConstraint(
-                name = "training_program_name_constraint",
-                columnNames = "name"
-        )
-})
+@Table(name = "TrainingPrograms")
 public class TrainingProgram {
 
     @Id
@@ -37,7 +32,7 @@ public class TrainingProgram {
     @JoinColumn(name = "userId", referencedColumnName = "user_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @JsonBackReference
+//    @JsonBackReference
     private User userID;
 
     @Column(nullable = false, name = "start_date")

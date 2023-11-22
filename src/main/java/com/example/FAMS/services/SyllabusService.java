@@ -4,7 +4,7 @@ import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest
 import com.example.FAMS.dto.responses.Syllabus.CreateSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
-import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
+import com.example.FAMS.dto.responses.Syllabus.SyllabusResponse;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public interface SyllabusService {
 
-    public List<GetAllSyllabusResponse> getSyllabuses(@Nullable String type);
+    public List<SyllabusResponse> getSyllabuses(@Nullable String type);
 
     Syllabus getDetailSyllabus(String topicCode);
 
