@@ -6,6 +6,7 @@ import com.example.FAMS.dto.responses.ResponseTrainingProgram;
 import com.example.FAMS.dto.responses.TrainingProgramDTO;
 import com.example.FAMS.models.TrainingProgram;
 import com.example.FAMS.services.TrainingProgramService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -71,29 +72,35 @@ public class TrainingProgramController {
     }
 
 
-    @GetMapping("/duplicate/{trainingProgramCode}")
-    @PreAuthorize("hasAuthority('training:read')")
-    public ResponseEntity<TrainingProgram> duplicateTrainingProgram(
-            @PathVariable int trainingProgramCode) {
-        return ResponseEntity.ok(trainingProgram.duplicateTrainingProgram(trainingProgramCode));
+    @GetMapping("/duplicate/name/{name}")
+    @PreAuthorize("hasAnyAuthority('training:read')")
+    public ResponseEntity<TrainingProgram> duplicateTrainingProgramName(@PathVariable String name) {
+        try {
+            TrainingProgram duplicatedProgram = trainingProgram.duplicateTrainingProgramName(name);
+            return ResponseEntity.ok(duplicatedProgram);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
+
 
     @PostMapping("/importCSV")
     @PreAuthorize("hasAuthority('training:import')")
     public ResponseEntity<?> loadDataInFile(
             @RequestParam("file") MultipartFile file,
             @RequestParam("choice") String choice,
+            @RequestParam("separator") String separator,
             Authentication authentication)
             throws IOException {
         if (file.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File empty!");
         }
         try {
-            return trainingProgram.processDataFromCSV(file, choice, authentication);
+            return trainingProgram.processDataFromCSV(file, choice,separator, authentication);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while processing the file.");
+                    .body(new ResponseObject("Failed","couldn't found the list", e.getMessage()));
         }
     }
 
@@ -120,14 +127,15 @@ public class TrainingProgramController {
 
     @GetMapping("/TemplateCSV")
     public ResponseEntity<InputStreamResource> downloadTemplateCSV() {
-        String csvData = "trainingProgramCode,name,userID,startDate,duration,status,createdBy,createdDate,modifiedBy,modifiedDate";
-        String saveDirectory = "D:\\";
+        String csvData = "name,startDate,duration,userID,createdBy,createdDate,trainingProgramCode";
+        String computerAccountName = System.getProperty("user.name");
         try {
-            File file = new File(saveDirectory + "TemplateCSV.csv");
-            FileOutputStream outputStream = new FileOutputStream(file);
+            File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/Template.csv");
+            FileOutputStream outputStream = new FileOutputStream(csvFile);
             outputStream.write(csvData.getBytes());
             outputStream.close();
             HttpHeaders headers = new HttpHeaders();
+
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=TemplateCSV.csv");
             return ResponseEntity.ok()
                     .headers(headers)

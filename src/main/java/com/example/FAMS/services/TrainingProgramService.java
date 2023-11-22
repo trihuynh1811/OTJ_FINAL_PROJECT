@@ -12,8 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 public interface TrainingProgramService {
     ResponseEntity<ResponseObject> createTrainingProgram(TrainingProgramDTO trainingProgramDTO);
 
-//    ResponseEntity<ResponseObject> getAll();
-
     ResponseEntity<ResponseObject> getAllActive();
 
     ResponseEntity<ResponseObject> getAll();
@@ -22,11 +20,13 @@ public interface TrainingProgramService {
 
     TrainingProgram duplicateTrainingProgram(int trainingProgramCode);
 
+    TrainingProgram duplicateTrainingProgramName(String name);
+
     ResponseEntity<ResponseObject> changeTrainingProgramStatus(int trainingProgramCode, String value);
 
-    ResponseEntity<ResponseObject> processDataFromCSV(MultipartFile file, String choice, Authentication authentication) throws Exception;
-
+    ResponseEntity<ResponseObject> processDataFromCSV(MultipartFile file, String choice,String separator, Authentication authentication) throws Exception;
     TrainingProgram searchTrainingProgram(String keyword);
 
     ResponseEntity<ResponseObjectVersion2> getTrainingProgramByCode(int code);
 }
+

@@ -22,42 +22,49 @@ public interface TrainingProgramDAO extends JpaRepository<TrainingProgram, Integ
 
   Optional<TrainingProgram> getTrainingProgramByName(String name);
 
+
+
   @Query(
-      value =
-          "SELECT SUM(s.number_of_day) as 'totalTrainingProgramDates'\n"
-              + "FROM training_programs tp\n"
-              + "LEFT JOIN training_program_syllabuses tps ON tps.training_program_code = tp.training_program_code\n"
-              + "LEFT JOIN syllabus s ON s.topic_code = tps.topic_code\n"
-              + "WHERE tp.training_program_code = :code and tp.status = 'Active';",
-      nativeQuery = true)
+          value =
+                  "SELECT SUM(s.number_of_day) as 'totalTrainingProgramDates'\n"
+                          + "FROM training_programs tp\n"
+                          + "LEFT JOIN training_program_syllabuses tps ON tps.training_program_code = tp.training_program_code\n"
+                          + "LEFT JOIN syllabus s ON s.topic_code = tps.topic_code\n"
+                          + "WHERE tp.training_program_code = :code and tp.status = 'Active';",
+          nativeQuery = true)
   Integer totalSubjectDays(@Param("code") int training_program_code);
 
   @Query(
-      value =
-          "SELECT sum(tu.day_number) as 'totalSubjectDays'\n"
-              + "FROM training_programs tp\n"
-              + "LEFT JOIN training_program_syllabuses tps ON tps.training_program_code = tp.training_program_code\n"
-              + "LEFT JOIN syllabus s ON s.topic_code = tps.topic_code\n"
-              + "LEFT JOIN training_unit tu ON tu.topic_code = s.topic_code\n"
-              + "WHERE tp.training_program_code = :code and tp.status = 'Active'",
-      nativeQuery = true)
+          value =
+                  "SELECT sum(tu.day_number) as 'totalSubjectDays'\n"
+                          + "FROM training_programs tp\n"
+                          + "LEFT JOIN training_program_syllabuses tps ON tps.training_program_code = tp.training_program_code\n"
+                          + "LEFT JOIN syllabus s ON s.topic_code = tps.topic_code\n"
+                          + "LEFT JOIN training_unit tu ON tu.topic_code = s.topic_code\n"
+                          + "WHERE tp.training_program_code = :code and tp.status = 'Active'",
+          nativeQuery = true)
   Integer totalTrainingProgramDates(@Param("code") int training_program_code);
 
   @Query(
-      value =
-          "SELECT tp.name as 'trainingProgramName', tp.modified_by, tp.modified_date, s.course_objective,\n"
-              + "s.topic_name, s.publish_status, tu.unit_name, tu.day_number, tc.content_name, \n"
-              + "lo.name as 'objective', tc.duration \n"
-              + "FROM training_programs tp\n"
-              + "LEFT JOIN training_program_syllabuses tps ON tps.training_program_code = tp.training_program_code\n"
-              + "LEFT JOIN syllabus s ON s.topic_code = tps.topic_code\n"
-              + "LEFT JOIN training_unit tu ON tu.topic_code = s.topic_code\n"
-              + "LEFT JOIN training_contents tc ON tc.unit_code = tu.unit_code\t\n"
-              + "LEFT JOIN learning_objective lo ON lo.content_code = tc.content_code\n"
-              + "WHERE tp.training_program_code = :code and tp.status = 'Active'\n"
-              + "GROUP BY tp.training_program_code, tp.name , tu.day_number, tp.modified_by, tp.modified_by, s.course_objective,\n"
-              + "s.topic_name, s.publish_status, tu.unit_name, tc.content_name, \n"
-              + "lo.name, tc.duration;",
-      nativeQuery = true)
+          value =
+                  "SELECT tp.name as 'trainingProgramName', tp.modified_by, tp.modified_date, s.course_objective,\n"
+                          + "s.topic_name, s.publish_status, tu.unit_name, tu.day_number, tc.content_name, \n"
+                          + "lo.name as 'objective', tc.duration \n"
+                          + "FROM training_programs tp\n"
+                          + "LEFT JOIN training_program_syllabuses tps ON tps.training_program_code = tp.training_program_code\n"
+                          + "LEFT JOIN syllabus s ON s.topic_code = tps.topic_code\n"
+                          + "LEFT JOIN training_unit tu ON tu.topic_code = s.topic_code\n"
+                          + "LEFT JOIN training_contents tc ON tc.unit_code = tu.unit_code\t\n"
+                          + "LEFT JOIN learning_objective lo ON lo.content_code = tc.content_code\n"
+                          + "WHERE tp.training_program_code = :code and tp.status = 'Active'\n"
+                          + "GROUP BY tp.training_program_code, tp.name , tu.day_number, tp.modified_by, tp.modified_by, s.course_objective,\n"
+                          + "s.topic_name, s.publish_status, tu.unit_name, tc.content_name, \n"
+                          + "lo.name, tc.duration;",
+          nativeQuery = true)
   List<TrainingProgramDetails> getTrainingProgramDetails(@Param("code") int training_program_code);
+
+  int countByNameLike(String name);
+
+  @Query(value = "SELECT MAX(training_program_code) FROM training_programs", nativeQuery = true)
+  Integer findMaxTrainingProgramCode();
 }
