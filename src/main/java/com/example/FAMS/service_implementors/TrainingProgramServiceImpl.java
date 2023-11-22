@@ -39,6 +39,8 @@ import java.util.*;
 public class TrainingProgramServiceImpl implements TrainingProgramService {
     private final JWTService jwtService;
     private final SyllabusDAO syllabusDAO;
+
+    private static final String HEADER = "name,startDate,duration,userID,createdBy,createdDate,trainingProgramCode";
     private final Logger logger = LoggerFactory.getLogger(TrainingProgramServiceImpl.class);
     private final TrainingProgramDAO trainingProgramDAO;
     private final UserDAO userDAO;
@@ -269,33 +271,88 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         return trainingProgramDAO.save(newTrainingProgram);
     }
 
+
+    @Override
+    public TrainingProgram duplicateTrainingProgramName(String name) {
+        TrainingProgram originalTraining = trainingProgramDAO.findByName(name);
+        int version = trainingProgramDAO.countByNameLike(name + "%");
+
+        name = originalTraining.getName();
+        String trainingProgramName = name + "_" + version;
+        TrainingProgram newTrainingProgram = TrainingProgram.builder()
+                .name(trainingProgramName)
+                .duration(originalTraining.getDuration())
+                .userID(originalTraining.getUserID())
+                .startDate(originalTraining.getStartDate())
+                .createdBy(originalTraining.getCreatedBy())
+                .createdDate(originalTraining.getCreatedDate())
+                .modifiedDate(originalTraining.getModifiedDate())
+                .modifiedBy(originalTraining.getModifiedBy())
+                .status(originalTraining.getStatus())
+                .build();
+        return trainingProgramDAO.save(newTrainingProgram);
+    }
+
+
     @Override
     public ResponseEntity<ResponseObject> processDataFromCSV(
-            MultipartFile file, String choice, Authentication authentication) throws Exception {
+            MultipartFile file, String choice, String separator, Authentication authentication) throws Exception {
+        if (!isCSVFile(file)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ResponseObject.builder()
+                            .status("Import fail")
+                            .message("File is not csv")
+                            .payload(null)
+                            .build());
+        }
         int count = 0;
         BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
-        String line;
-        boolean firstLine = true;
+
         SimpleDateFormat[] dateFormats = {
                 new SimpleDateFormat("dd/MM/yyyy"),
                 new SimpleDateFormat("dd-MM-yyyy")
         };
+        String headerLine = reader.readLine();
+        if (headerLine != null && !isCSVHeaderValid(headerLine)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ResponseObject.builder()
+                            .status("Fail")
+                            .message("CSV file header does not match expected headers")
+                            .payload(null)
+                            .build());
+        }
+        String line;
+        boolean hasData = false;
+        boolean firstLine = true;
         while ((line = reader.readLine()) != null) {
             if (firstLine) {
                 firstLine = false;
                 continue;
             }
-            String[] data = line.split(",");
-            TrainingProgram trainingProgramOption =
-                    trainingProgramDAO.findById(Integer.parseInt(data[6])).orElse(null);
-            if (data.length == 7) {
-                if (choice.equalsIgnoreCase("Replace")) {
-                    if (trainingProgramOption != null) {
-                        trainingProgramDAO.deleteById(trainingProgramOption.getTrainingProgramCode());
-                    }
-                    count++;
-                    trainingProgramDAO.save(
-                            TrainingProgram.builder()
+            String[] data = line.split("[" + separator + "]");
+            if (data.length >= 7) {
+                hasData = true;
+                try {
+                    int importedId = Integer.parseInt(data[6]);
+                    TrainingProgram trainingProgramCodeCSV = trainingProgramDAO.findById(importedId).orElse(null);
+                    if (choice.equalsIgnoreCase("Replace")) {
+                        if (trainingProgramCodeCSV != null) {
+                            trainingProgramDAO.deleteById(importedId);
+                            count++;
+                        }
+                        TrainingProgram newProgram = createTrainingProgramFromCSVData(data, dateFormats, authentication);
+                        trainingProgramDAO.save(newProgram);
+                        count++;
+                    } else if (choice.equalsIgnoreCase("Skip")) {
+                        if (trainingProgramCodeCSV != null) {
+                            continue;
+                        }
+                        trainingProgramDAO.save(createTrainingProgramFromCSVData(data, dateFormats, authentication));
+                        count++;
+                    } else if (choice.equalsIgnoreCase("Allow")) {
+                        if (trainingProgramCodeCSV != null) {
+                            int newId = createNewId(trainingProgramDAO);
+                            TrainingProgram newTrainingProgram = TrainingProgram.builder()
                                     .name(data[0])
                                     .userID(getCreator(authentication))
                                     .startDate(parseDate(data[1], dateFormats))
@@ -305,27 +362,45 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
                                     .createdDate(parseDate(data[4], dateFormats))
                                     .modifiedBy(getCreator(authentication).getName())
                                     .modifiedDate(parseDate(data[5], dateFormats))
-                                    .trainingProgramCode(Integer.parseInt(data[6]))
-                                    .build());
-                }
-            } else {
-                if (trainingProgramOption == null) {
-                    count++;
-                    trainingProgramDAO.save(
-                            TrainingProgram.builder()
+                                    .trainingProgramCode(newId)
+                                    .build();
+                            trainingProgramDAO.save(newTrainingProgram);
+                            count++;
+                        } else {
+                            // ID doesn't exist, proceed with creating a new entry
+                            TrainingProgram newTrainingProgram = TrainingProgram.builder()
                                     .name(data[0])
                                     .userID(getCreator(authentication))
                                     .startDate(parseDate(data[1], dateFormats))
                                     .duration(Integer.parseInt(data[2]))
-                                    .status(data[3])
+                                    .status(data[3].equalsIgnoreCase("1") ? "active" : "inactive")
                                     .createdBy(getCreator(authentication).getName())
                                     .createdDate(parseDate(data[4], dateFormats))
                                     .modifiedBy(getCreator(authentication).getName())
                                     .modifiedDate(parseDate(data[5], dateFormats))
-                                    .trainingProgramCode(Integer.parseInt(data[6]))
+                                    .trainingProgramCode(importedId)
+                                    .build();
+                            trainingProgramDAO.save(newTrainingProgram);
+                            count++;
+                        }
+                    }
+                } catch (Exception e) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(ResponseObject.builder()
+                                    .status("Fail")
+                                    .message("Column data is missing or invalid")
+                                    .payload(null)
                                     .build());
                 }
             }
+        }
+        if (!hasData) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ResponseObject.builder()
+                            .status("Fail")
+                            .message("CSV file has no data")
+                            .payload(null)
+                            .build());
         }
         if (count > 0) {
             return ResponseEntity.status(HttpStatus.OK)
@@ -336,10 +411,39 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
                                     .payload(null)
                                     .build());
         }
-
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(
-                        ResponseObject.builder().status("Fail").message("Import failed").payload(null).build());
+                        ResponseObject.builder().
+                                status("Fail").
+                                message("Import failed").
+                                payload(null).
+                                build());
+    }
+
+    private boolean isCSVHeaderValid(String headerLine) {
+        String[] headers = headerLine.split(",");
+        String[] expectedHeaders = HEADER.split(","); // HEADER: "trainingProgramCode,name,userID,startDate,duration,status,createdBy,createdDate"
+
+        if (headers.length != expectedHeaders.length) {
+            return false;
+        }
+
+        for (int i = 0; i < headers.length; i++) {
+            if (!headers[i].equalsIgnoreCase(expectedHeaders[i].trim())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private int createNewId(TrainingProgramDAO trainingProgramDAO) {
+        Integer maxId = trainingProgramDAO.findMaxTrainingProgramCode();
+        if (maxId == null) {
+            return 1;
+        } else {// Ngược lại, tạo một ID mới không trùng lặp
+            return maxId + 1;
+        }
     }
     private java.sql.Date parseDate(String dateString, SimpleDateFormat[] dateFormats) throws ParseException {
         for (SimpleDateFormat dateFormat : dateFormats) {
@@ -353,6 +457,44 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         throw new ParseException("Không thể chuyển đổi ngày", 0);
     }
 
+    private boolean isCSVFile(MultipartFile file) {
+        String filename = file.getOriginalFilename();
+        return filename != null && filename.endsWith(".csv");
+    }
+
+
+    private TrainingProgram createTrainingProgramFromCSVData(String[] data, SimpleDateFormat[] dateFormats, Authentication authentication) throws ParseException {
+        int importedId = Integer.parseInt(data[6]);
+        TrainingProgram existingTrainingProgram = trainingProgramDAO.findById(importedId).orElse(null);
+
+        if (existingTrainingProgram != null) {
+            existingTrainingProgram.setName(data[0]);
+            existingTrainingProgram.setUserID(getCreator(authentication));
+            existingTrainingProgram.setStartDate(parseDate(data[1], dateFormats));
+            existingTrainingProgram.setDuration(Integer.parseInt(data[2]));
+            existingTrainingProgram.setStatus(data[3].equalsIgnoreCase("1") ? "active" : "inactive");
+            existingTrainingProgram.setCreatedBy(getCreator(authentication).getName());
+            existingTrainingProgram.setCreatedDate(parseDate(data[4], dateFormats));
+            existingTrainingProgram.setModifiedBy(getCreator(authentication).getName());
+            existingTrainingProgram.setModifiedDate(parseDate(data[5], dateFormats));
+            existingTrainingProgram.setTrainingProgramCode(importedId);
+            return existingTrainingProgram; // Return the updated existing record
+        } else {
+            // Create a new TrainingProgram if the ID does not exist in the database
+            return TrainingProgram.builder()
+                    .name(data[0])
+                    .userID(getCreator(authentication))
+                    .startDate(parseDate(data[1], dateFormats))
+                    .duration(Integer.parseInt(data[2]))
+                    .status(data[3].equalsIgnoreCase("1") ? "active" : "inactive")
+                    .createdBy(getCreator(authentication).getName())
+                    .createdDate(parseDate(data[4], dateFormats))
+                    .modifiedBy(getCreator(authentication).getName())
+                    .modifiedDate(parseDate(data[5], dateFormats))
+                    .trainingProgramCode(importedId)
+                    .build();
+        }
+    }
 
 
     @Override
