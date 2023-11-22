@@ -4,6 +4,7 @@ import com.amazonaws.HttpMethod;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.StandardOutputDTO;
+import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
 import com.example.FAMS.dto.requests.SyllbusRequest.*;
 import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
@@ -21,6 +22,8 @@ import com.example.FAMS.services.FileService;
 import com.example.FAMS.services.SyllabusService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -101,6 +104,17 @@ public class SyllabusServiceImpl implements SyllabusService {
         }
 
         return syllabuses;
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> getAllActiveSyllabus() {
+        try {
+            var list = syllabusDAO.findAllByPublishStatus("active");
+            return ResponseEntity.ok(new ResponseObject("Successful", "Found active syllabus", list));
+        } catch (Exception e) {
+            var list = Collections.emptyList();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Failed", "Not found user", list));
+        }
     }
 
     @Override

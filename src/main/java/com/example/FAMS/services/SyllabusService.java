@@ -4,11 +4,13 @@ import com.example.FAMS.dto.requests.SyllbusRequest.UpdateSyllabusGeneralRequest
 import com.example.FAMS.dto.requests.SyllbusRequest.UpdateSyllabusOutlineRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
+import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
 import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
 
@@ -18,6 +20,8 @@ import java.util.List;
 public interface SyllabusService {
 
     public List<GetAllSyllabusResponse> getSyllabuses();
+
+    ResponseEntity<ResponseObject> getAllActiveSyllabus();
 
     Syllabus getDetailSyllabus(String topicCode);
 

@@ -25,6 +25,8 @@ public interface UserDAO extends JpaRepository<User, Integer> {
 
     List<User> findUsersByRole(UserPermission role);
 
+    List<User> findUsersByRoleAndStatus(UserPermission role, boolean status);
+
     Optional<UserDTO> findUserByEmail(String email);
 
     List<ListUserResponse> findAllByRole(Enum role);

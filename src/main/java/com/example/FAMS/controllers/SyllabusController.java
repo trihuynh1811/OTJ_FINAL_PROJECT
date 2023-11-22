@@ -51,6 +51,12 @@ public class SyllabusController {
         return ResponseEntity.status(200).body(syllabusList);
     }
 
+    @GetMapping("/active")
+    @PreAuthorize("hasAuthority('syllabus:read')")
+    public ResponseEntity<ResponseObject> getAllTrainer() {
+        return syllabusService.getAllActiveSyllabus();
+    }
+
     @PostMapping("/get-presigned-url")
     @PreAuthorize("hasAuthority('syllabus:read')")
     public ResponseEntity<PresignedUrlResponse> get(@RequestBody FileNameDTO request) {

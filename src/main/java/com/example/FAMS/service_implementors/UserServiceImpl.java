@@ -235,7 +235,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ResponseObject> getAllTrainersByRole() {
         try {
-            var list = userDAO.findUsersByRole(userPermissionDAO.findById(2).orElse(null));
+            var list = userDAO.findUsersByRoleAndStatus(userPermissionDAO.findById(2).orElse(null), true);
             logger.info("Return list of user");
             return ResponseEntity.ok(new ResponseObject("Successful", "Found user", list));
         } catch (Exception e) {
