@@ -69,11 +69,11 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(userEmail, updateRequest));
     }
 
-    @DeleteMapping("/delete/{email}")
-    @PreAuthorize("hasAnyAuthority('user:delete')")
-    public ResponseEntity<ResponseObject> deletePermission(@PathVariable String email) {
-        return ResponseEntity.ok(userService.deleteUser(email));
-    }
+    //    @DeleteMapping("/delete/{email}")
+    //    @PreAuthorize("hasAnyAuthority('user:delete')")
+    //    public ResponseEntity<ResponseObject> deletePermission(@PathVariable String email) {
+    //        return ResponseEntity.ok(userService.deleteUser(email));
+    //    }
 
     @GetMapping("/authorize/{emailAddress}")
     public ResponseEntity<String> authorizeAccount(
