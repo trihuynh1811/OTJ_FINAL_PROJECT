@@ -24,6 +24,14 @@ public class SyllabusResponse {
     UserDTO createdBy = null;
     String duration = "";
     String syllabusStatus = "";
+    String level = "";
+    String attendeeNumber = "";
+    String technicalRequirement = "";
+    String courseObjective = "";
+    String trainingPrinciple = "";
+    String modifiedOn = "";
+    UserDTO modifiedBy = null;
+    String version = "";
     boolean deleted = false;
     List<String> syllabusObjectiveList = new ArrayList<>();
     List<DayDTO> dayList = new ArrayList<>();

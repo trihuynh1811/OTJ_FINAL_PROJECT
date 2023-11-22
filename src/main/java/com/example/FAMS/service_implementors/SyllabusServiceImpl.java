@@ -1148,11 +1148,24 @@ public class SyllabusServiceImpl implements SyllabusService {
             outputCodeList.add(syllabusObjectiveList.get(i).getOutputCode().getOutputCode());
         }
 
+        UserDTO modifier = null;
+
+        if(syllabus.getModifiedBy() != null){
+            User moder = userDAO.findByEmail(syllabus.getModifiedBy()).get();
+            modifier = UserDTO.builder()
+                    .userId(moder.getUserId())
+                    .userEmail(moder.getEmail())
+                    .userName(moder.getName())
+                    .build();
+        }
+
         UserDTO user = UserDTO.builder()
                 .userId(creator.getUserId())
                 .userName(creator.getName())
                 .userEmail(creator.getEmail())
                 .build();
+
+
 
         SyllabusResponse res = SyllabusResponse.builder()
                 .syllabusStatus(syllabus.getPublishStatus())
@@ -1161,6 +1174,14 @@ public class SyllabusServiceImpl implements SyllabusService {
                 .syllabusCode(syllabus.getTopicCode())
                 .createdBy(user)
                 .createdOn(convertToMMDDYYYY(syllabus.getCreatedDate().toString().split(" ")[0]))
+                .level(syllabus.getPriority())
+                .attendeeNumber(Integer.toString(syllabus.getTrainingAudience()))
+                .technicalRequirement(syllabus.getTechnicalGroup())
+                .courseObjective(syllabus.getCourseObjective())
+                .trainingPrinciple(syllabus.getTrainingPrinciples())
+                .version(syllabus.getVersion())
+                .modifiedBy(modifier)
+                .modifiedOn(convertToMMDDYYYY(syllabus.getModifiedDate().toString().split(" ")[0]))
                 .syllabusObjectiveList(outputCodeList)
                 .dayList(dayDTOList)
                 .deleted(syllabus.isDeleted())
