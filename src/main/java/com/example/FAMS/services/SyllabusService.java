@@ -8,7 +8,7 @@ import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.Syllabus.CreateSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
-import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
+import com.example.FAMS.dto.responses.Syllabus.SyllabusResponse;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ import java.util.List;
 
 public interface SyllabusService {
 
-    public List<GetAllSyllabusResponse> getSyllabuses(@Nullable String type);
+    public List<SyllabusResponse> getSyllabuses(@Nullable String type);
 
     ResponseEntity<ResponseObject> getAllActiveSyllabus();
 

@@ -24,7 +24,7 @@ public class Class {
     @Column(name = "class_code", nullable = false)
     private String classId;
 
-    @ManyToOne(cascade = CascadeType.DETACH, optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "training_program_code")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude

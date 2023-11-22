@@ -4,8 +4,8 @@ import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.Syllabus.CreateSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
-import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
+import com.example.FAMS.dto.responses.Syllabus.SyllabusResponse;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.repositories.SyllabusDAO;
@@ -45,16 +45,16 @@ public class SyllabusController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('syllabus:read')")
-    public ResponseEntity<List<GetAllSyllabusResponse>> get() {
-        List<GetAllSyllabusResponse> syllabusList = syllabusService.getSyllabuses("");
+    public ResponseEntity<List<SyllabusResponse>> get() {
+        List<SyllabusResponse> syllabusList = syllabusService.getSyllabuses("");
         log.info(syllabusList);
         return ResponseEntity.status(200).body(syllabusList);
     }
 
     @GetMapping("/{type}")
     @PreAuthorize("hasAuthority('syllabus:read')")
-    public ResponseEntity<List<GetAllSyllabusResponse>> get(@PathVariable(name = "type", required = false, value = "") Optional<String> type) {
-        List<GetAllSyllabusResponse> syllabusList = null;
+    public ResponseEntity<List<SyllabusResponse>> get(@PathVariable(name = "type", required = false, value = "") Optional<String> type) {
+        List<SyllabusResponse> syllabusList = null;
         if (type.isPresent()) {
             if (type.get().equalsIgnoreCase("All")) {
                 syllabusList = syllabusService.getSyllabuses(type.get());

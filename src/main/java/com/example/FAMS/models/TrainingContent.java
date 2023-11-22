@@ -66,7 +66,7 @@ public class TrainingContent {
     private boolean trainingFormat;
 
     @Column(name = "content_name")
-    private String content_name;
+    private String contentName;
 
     @Column(name = "note")
     private String note;

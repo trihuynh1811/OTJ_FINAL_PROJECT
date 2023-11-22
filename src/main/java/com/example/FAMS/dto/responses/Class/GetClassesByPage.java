@@ -1,6 +1,5 @@
 package com.example.FAMS.dto.responses.Class;
 
-import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

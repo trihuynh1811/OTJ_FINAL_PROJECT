@@ -1,19 +1,18 @@
 package com.example.FAMS.service_implementors;
 
 import com.amazonaws.HttpMethod;
-import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusGeneralRequest;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
+import com.example.FAMS.dto.responses.Class.UserDTO;
+import com.example.FAMS.dto.responses.Syllabus.MaterialDTO;
 import com.example.FAMS.dto.requests.SyllbusRequest.StandardOutputDTO;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.*;
-import com.example.FAMS.dto.requests.SyllbusRequest.*;
 import com.example.FAMS.models.*;
 import com.example.FAMS.models.composite_key.SyllabusStandardOutputCompositeKey;
 import com.example.FAMS.models.composite_key.SyllabusTrainingUnitCompositeKey;
 import com.example.FAMS.models.composite_key.SyllabusTrainingUnitTrainingContentCompositeKey;
 import com.example.FAMS.repositories.*;
-import com.example.FAMS.dto.requests.UpdateSyllabusRequest;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.repositories.SyllabusDAO;
@@ -21,6 +20,7 @@ import com.example.FAMS.services.FileService;
 import com.example.FAMS.services.SyllabusService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -32,12 +32,15 @@ import javax.annotation.Nullable;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.*;
+import java.net.URL;
 
 @Service
 @Log4j2
@@ -75,31 +78,44 @@ public class SyllabusServiceImpl implements SyllabusService {
     @Autowired
     TrainingMaterialDAO trainingMaterialDAO;
 
+    @Value("${cloud.aws.credentials.access-key}")
+    static String accessKey;
+
+    @Value("${cloud.aws.credentials.secret-key}")
+    static String secretKey;
+
     @Override
-    public List<GetAllSyllabusResponse> getSyllabuses(@Nullable String type) {
+    public List<SyllabusResponse> getSyllabuses(@Nullable String type) {
+        log.info(isPresignedUrlExpired("https://fams-datas.s3.ap-southeast-1.amazonaws.com/textAyyLmao.txt_TOPIC00111?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20231121T030414Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAZYNTKMTKQKDQI6PP%2F20231121%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Signature=47058d5c6267bbaf8936849e87c539f0efdbffb1c11f81f4b3d3b07b081cc240"));
+//        log.info("convert to utc: " + convertToUTCPlus7("20231116T144445Z"));
+//        log.info("millisecond today: " + new Date().getTime());
+//        log.info("millisecond in url expiration: " + convertToMilliseconds(convertToUTCPlus7("20231116T144445Z")));
+//        log.info("millisecond in url expiration + 86400 * 1000: " + (convertToMilliseconds(convertToUTCPlus7("20231116T144445Z")) + 86400 * 1000));
+//        log.info((convertToMilliseconds(convertToUTCPlus7("20231116T144445Z")) + 86400 * 1000) > new Date().getTime());
         List<Syllabus> syllabusList = type.equalsIgnoreCase("All") ?
                 syllabusDAO.findTop1000ByOrderByCreatedDateDesc() : syllabusDAO.findTop1000ByDeletedOrderByCreatedDateDesc(false);
-        List<GetAllSyllabusResponse> syllabuses = new ArrayList<>();
+        List<SyllabusResponse> syllabuses = new ArrayList<>();
         List<String> objectiveList = null;
         List<SyllabusObjective> syllabusObjectiveList = null;
 
         for (int i = 0; i < syllabusList.size(); i++) {
-                objectiveList = new ArrayList<>();
-                syllabusObjectiveList = syllabusList.get(i).getSyllabusObjectives().stream().toList();
-                for (int j = 0; j < syllabusObjectiveList.size(); j++) {
-                    objectiveList.add(syllabusObjectiveList.get(j).getOutputCode().getOutputCode());
-                }
-                GetAllSyllabusResponse res = GetAllSyllabusResponse.builder()
-                        .syllabusName(syllabusList.get(i).getTopicName())
-                        .syllabusCode(syllabusList.get(i).getTopicCode())
-                        .createdOn(syllabusList.get(i).getCreatedDate().getTime())
-                        .createdBy(syllabusList.get(i).getCreatedBy().getName())
-                        .duration(syllabusList.get(i).getNumberOfDay())
-                        .status(syllabusList.get(i).getPublishStatus())
-                        .syllabusObjectiveList(objectiveList)
-                        .build();
+            objectiveList = new ArrayList<>();
+            syllabusObjectiveList = syllabusList.get(i).getSyllabusObjectives().stream().toList();
+            for (int j = 0; j < syllabusObjectiveList.size(); j++) {
+                objectiveList.add(syllabusObjectiveList.get(j).getOutputCode().getOutputCode());
+            }
+//            GetAllSyllabusResponse res = GetAllSyllabusResponse.builder()
+//                    .syllabusName(syllabusList.get(i).getTopicName())
+//                    .syllabusCode(syllabusList.get(i).getTopicCode())
+//                    .createdOn(convertToMMDDYYYY(syllabusList.get(i).getCreatedDate().toString().split(" ")[0]))
+//                    .createdBy(syllabusList.get(i).getCreatedBy())
+//                    .duration(Integer.toString(syllabusList.get(i).getNumberOfDay()))
+//                    .status(syllabusList.get(i).getPublishStatus())
+//                    .syllabusObjectiveList(objectiveList)
+//                    .build();
+            SyllabusResponse res = getDetailOfSyllabus(syllabusList.get(i).getTopicCode());
 
-                syllabuses.add(res);
+            syllabuses.add(res);
         }
 
         return syllabuses;
@@ -121,7 +137,7 @@ public class SyllabusServiceImpl implements SyllabusService {
         try {
             List<Syllabus> syllabusList = syllabusDAO.findTop1000ByDeletedOrderByCreatedDateDesc(false);
             System.out.println(syllabusList);
-            List<GetAllSyllabusResponse> syllabuses = new ArrayList<>();
+            List<SyllabusResponse> syllabuses = new ArrayList<>();
             List<String> objectiveList = null;
             List<SyllabusObjective> syllabusObjectiveList = null;
             int totalNumberOfPages = syllabusList.size() == amount ? 1 : syllabusList.size() % amount == 0 ? syllabusList.size() / amount : (syllabusList.size() / amount) + 1;
@@ -143,15 +159,16 @@ public class SyllabusServiceImpl implements SyllabusService {
                     for (int j = 0; j < syllabusObjectiveList.size(); j++) {
                         objectiveList.add(syllabusObjectiveList.get(j).getOutputCode().getOutputCode());
                     }
-                    GetAllSyllabusResponse res = GetAllSyllabusResponse.builder()
-                            .syllabusName(syllabusList.get(i).getTopicName())
-                            .syllabusCode(syllabusList.get(i).getTopicCode())
-                            .createdOn(syllabusList.get(i).getCreatedDate().getTime())
-                            .createdBy(syllabusList.get(i).getCreatedBy().getName())
-                            .duration(syllabusList.get(i).getNumberOfDay())
-                            .status(syllabusList.get(i).getPublishStatus())
-                            .syllabusObjectiveList(objectiveList)
-                            .build();
+//                    GetAllSyllabusResponse res = GetAllSyllabusResponse.builder()
+//                            .syllabusName(syllabusList.get(i).getTopicName())
+//                            .syllabusCode(syllabusList.get(i).getTopicCode())
+//                            .createdOn(convertToMMDDYYYY(syllabusList.get(i).getCreatedDate().toString().split(" ")[0]))
+//                            .createdBy(syllabusList.get(i).getCreatedBy())
+//                            .duration(Integer.toString(syllabusList.get(i).getNumberOfDay()))
+//                            .status(syllabusList.get(i).getPublishStatus())
+//                            .syllabusObjectiveList(objectiveList)
+//                            .build();
+                    SyllabusResponse res = getDetailOfSyllabus(syllabusList.get(i).getTopicCode());
 
                     syllabuses.add(res);
                 }
@@ -182,15 +199,16 @@ public class SyllabusServiceImpl implements SyllabusService {
                 for (int j = 0; j < syllabusObjectiveList.size(); j++) {
                     objectiveList.add(syllabusObjectiveList.get(j).getOutputCode().getOutputCode());
                 }
-                GetAllSyllabusResponse res = GetAllSyllabusResponse.builder()
-                        .syllabusName(syllabusSubList.get(i).getTopicName())
-                        .syllabusCode(syllabusSubList.get(i).getTopicCode())
-                        .createdOn(syllabusSubList.get(i).getCreatedDate().getTime())
-                        .createdBy(syllabusSubList.get(i).getCreatedBy().getName())
-                        .duration(syllabusSubList.get(i).getNumberOfDay())
-                        .status(syllabusSubList.get(i).getPublishStatus())
-                        .syllabusObjectiveList(objectiveList)
-                        .build();
+//                GetAllSyllabusResponse res = GetAllSyllabusResponse.builder()
+//                        .syllabusName(syllabusSubList.get(i).getTopicName())
+//                        .syllabusCode(syllabusSubList.get(i).getTopicCode())
+//                        .createdOn(convertToMMDDYYYY(syllabusList.get(i).getCreatedDate().toString().split(" ")[0]))
+//                        .createdBy(syllabusList.get(i).getCreatedBy())
+//                        .duration(Integer.toString(syllabusList.get(i).getNumberOfDay()))
+//                        .status(syllabusSubList.get(i).getPublishStatus())
+//                        .syllabusObjectiveList(objectiveList)
+//                        .build();
+                SyllabusResponse res = getDetailOfSyllabus(syllabusList.get(i).getTopicCode());
 
                 syllabuses.add(res);
             }
@@ -219,7 +237,7 @@ public class SyllabusServiceImpl implements SyllabusService {
         Syllabus syllabus = syllabusDAO.findById(topicCode).get();
 
         syllabus.getTu().stream().toList();
-        for(int i = 0; i < syllabus.getTu().stream().toList().size(); i++){
+        for (int i = 0; i < syllabus.getTu().stream().toList().size(); i++) {
             syllabus.getTu().stream().toList().get(i).getTrainingContents();
             log.info(syllabus);
         }
@@ -230,18 +248,11 @@ public class SyllabusServiceImpl implements SyllabusService {
         return syllabus;
     }
 
-
-
-
     @Override
     public CreateSyllabusResponse createSyllabus(CreateSyllabusOutlineRequest request) {
 
         if (syllabusDAO.findById(request.getTopicCode()).isPresent()) {
-            return CreateSyllabusResponse.builder()
-                    .status(1)
-                    .message("syllabus with id " + request.getTopicCode() + " already existed.")
-                    .url(null)
-                    .build();
+            return null;
         }
         int unitBatchSize = 10;
         int contentBatchSize = 10;
@@ -307,7 +318,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                                 .unitCode(trainingUnit)
                                 .deliveryType(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getDeliveryType())
                                 .note(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getNote())
-                                .content_name(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getContent())
+                                .contentName(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getContent())
                                 .trainingFormat(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).isOnline())
                                 .duration(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getDuration())
                                 .outputCode(outputCode)
@@ -513,7 +524,7 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
-    public UpdateSyllabusResponse updateSyllabus(CreateSyllabusOutlineRequest request){
+    public UpdateSyllabusResponse updateSyllabus(CreateSyllabusOutlineRequest request) {
         Syllabus syllabus = syllabusDAO.findById(request.getTopicCode()).isEmpty() ? null : syllabusDAO.findById(request.getTopicCode()).get();
         if (syllabus == null) {
             return UpdateSyllabusResponse.builder()
@@ -538,26 +549,26 @@ public class SyllabusServiceImpl implements SyllabusService {
         User creator = userDAO.findByEmail(request.getCreatorEmail()).get();
         try {
 
-                    trainingUnitDAO.deleteAll(unitList);
-                    trainingContentDAO.deleteAll(contentList);
-                    syllabusObjectiveDAO.deleteAll(syllabusObjectiveList);
-                    trainingMaterialDAO.deleteAll(trainingMaterialList);
+            trainingUnitDAO.deleteAll(unitList);
+            trainingContentDAO.deleteAll(contentList);
+            syllabusObjectiveDAO.deleteAll(syllabusObjectiveList);
+            trainingMaterialDAO.deleteAll(trainingMaterialList);
 
-                    unitList.clear();
-                    contentList.clear();
-                    syllabusObjectiveList.clear();
-                    trainingMaterialList.clear();
+            unitList.clear();
+            contentList.clear();
+            syllabusObjectiveList.clear();
+            trainingMaterialList.clear();
 
-                    syllabus.setTopicName(request.getTopicName());
-                    syllabus.setTrainingAudience(Integer.parseInt(request.getTrainingAudience()));
-                    syllabus.setCourseObjective(request.getCourseObjective());
-                    syllabus.setTechnicalGroup(request.getTechnicalRequirement());
-                    syllabus.setPublishStatus(request.getPublishStatus());
-                    syllabus.setPriority(request.getPriority());
-                    syllabus.setVersion(request.getVersion());
-                    syllabus.setTrainingPrinciples(request.getTrainingPrinciple());
-                    syllabus.setModifiedDate(new Date());
-                    syllabus.setModifiedBy(creator.getEmail());
+            syllabus.setTopicName(request.getTopicName());
+            syllabus.setTrainingAudience(Integer.parseInt(request.getTrainingAudience()));
+            syllabus.setCourseObjective(request.getCourseObjective());
+            syllabus.setTechnicalGroup(request.getTechnicalRequirement());
+            syllabus.setPublishStatus(request.getPublishStatus());
+            syllabus.setPriority(request.getPriority());
+            syllabus.setVersion(request.getVersion());
+            syllabus.setTrainingPrinciples(request.getTrainingPrinciple());
+            syllabus.setModifiedDate(new Date());
+            syllabus.setModifiedBy(creator.getEmail());
 
             syllabusDAO.save(syllabus);
 
@@ -592,7 +603,7 @@ public class SyllabusServiceImpl implements SyllabusService {
 //                                .contentId(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getContentId())
                                 .deliveryType(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getDeliveryType())
                                 .note(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getNote())
-                                .content_name(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getContent())
+                                .contentName(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getContent())
                                 .trainingFormat(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).isOnline())
                                 .duration(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getDuration())
                                 .outputCode(outputCode)
@@ -798,79 +809,6 @@ public class SyllabusServiceImpl implements SyllabusService {
 
     }
 
-
-//    @Override
-//    public UpdateSyllabusResponse updateSyllabusOther(UpdateSyllabusGeneralRequest updateSyllabusGeneralRequest, String topicCode) {
-//        Syllabus syllabus = syllabusDAO.findById(topicCode).get();
-//        if (syllabus != null) {
-//            syllabus.setTrainingPrinciples(updateSyllabusGeneralRequest.getTrainingPrinciple());
-//            Syllabus syllabusUpdate = syllabusDAO.save(syllabus);
-//            if (syllabusUpdate != null) {
-//                return UpdateSyllabusResponse.builder()
-//                        .status("Update Syllbus successful")
-//                        .updateSyllabus(syllabusUpdate)
-//                        .build();
-//
-//
-//            } else {
-//                return UpdateSyllabusResponse.builder()
-//                        .status("Update Syllbus failed")
-//                        .updateSyllabus(null)
-//                        .build();
-//
-//            }
-//
-//        } else {
-//            return UpdateSyllabusResponse.builder()
-//                    .status("Syllabus not found")
-//                    .updateSyllabus(null)
-//                    .build();
-//
-//        }
-//    }
-//
-//    @Override
-//    public UpdateSyllabusResponse updateSyllabusGeneral(UpdateSyllabusGeneralRequest update, String topicCode) {
-//        Syllabus syllabus = syllabusDAO.findById(topicCode).get();
-//        if (syllabus != null) {
-//            syllabus.setTopicName(update.getTopicName());
-//            syllabus.setVersion(update.getVersion());
-//            syllabus.setTechnicalGroup(update.getTechnicalRequirement());
-//            syllabus.setPriority(update.getPriority());
-//            syllabus.setCourseObjective(update.getCourseObjective());
-//            syllabus.setPublishStatus(update.getPublishStatus());
-//            syllabus.setTrainingAudience(update.getTrainingAudience());
-//            Syllabus syllabusUpdate = syllabusDAO.save(syllabus);
-//            if (syllabusUpdate != null) {
-//                return UpdateSyllabusResponse.builder()
-//                        .status("Update Syllbus successful")
-//                        .updateSyllabus(syllabusUpdate)
-//                        .build();
-//
-//
-//            } else {
-//                return UpdateSyllabusResponse.builder()
-//                        .status("Update Syllbus failed")
-//                        .updateSyllabus(null)
-//                        .build();
-//
-//            }
-//        }
-//
-//        return UpdateSyllabusResponse.builder()
-//                .status("Syllabus not found")
-//                .updateSyllabus(null)
-//                .build();
-//
-//
-//    }
-//
-//    @Override
-//    public UpdateSyllabusResponse updateSyllabusOutline(UpdateSyllabusOutlineRequest update, String topicCode) {
-//        return null;
-//    }
-
-
     @Override
     public Syllabus getSyllabusById(String topicCode) {
         Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(topicCode);
@@ -1014,7 +952,6 @@ public class SyllabusServiceImpl implements SyllabusService {
         throw new ParseException("Không thể chuyển đổi ngày", 0);
     }
 
-
     public void downloadCSV() throws IOException {
         String computerAccountName = System.getProperty("user.name");
 
@@ -1091,33 +1028,169 @@ public class SyllabusServiceImpl implements SyllabusService {
         return null;
     }
 
-//    public PresignedUrlResponse generatePresignedUrl(List<String> files, String topicCode, int unitCode, int contentCode) {
-//        List<String> putPresignedUrlList = new ArrayList<>();
-//        List<String> getPresignedUrlList = new ArrayList<>();
-//        try {
-//            for (int i = 0; i < files.size(); i++) {
-//                String putPresignedUrl = fileService.generateUrl(files.get(i) + "_" + topicCode + Integer.toString(unitCode) + Integer.toString(contentCode), HttpMethod.PUT);
-//                String getPresignedUrl = fileService.generateUrl(files.get(i) + "_" + topicCode + Integer.toString(unitCode) + Integer.toString(contentCode), HttpMethod.GET);
-//                putPresignedUrlList.add(putPresignedUrl);
-//                getPresignedUrlList.add(getPresignedUrl);
-//            }
-//            return PresignedUrlResponse.builder()
-//                    .putPresignedUrl(putPresignedUrlList)
-//                    .getPresignedUrl(getPresignedUrlList)
-//                    .message("successfully generate presigned url.")
-//                    .status(0)
-//                    .build();
-//        } catch (Exception err) {
-//            err.printStackTrace();
-//            return PresignedUrlResponse.builder()
-//                    .putPresignedUrl(putPresignedUrlList)
-//                    .getPresignedUrl(getPresignedUrlList)
-//                    .message("fail to generate presigned url.")
-//                    .status(-1)
-//                    .build();
-//        }
-//
-//    }
+    public boolean isPresignedUrlExpired(String presignedUrl) {
+        try {
+            // Parse the presigned URL to extract the expiration timestamp string
+            String createDateMillisecond = convertToUTCPlus7(new URL(presignedUrl).getQuery().split("&")[1].split("=")[1]);
+            long expirationDurationMillisecond = Long.parseLong(new URL(presignedUrl).getQuery().split("&")[3].split("=")[1]) * 1000;
+
+            long todayMilliSecond = new Date().getTime();
+
+            long expirationDateMillisecond = convertToMilliseconds(createDateMillisecond) + expirationDurationMillisecond;
+
+            return todayMilliSecond > expirationDateMillisecond;
+        } catch (Exception e) {
+            // Handle exceptions (e.g., URL parsing, AWS SDK exceptions)
+            e.printStackTrace();
+            return false; // Assume the URL is not expired if an exception occurs
+        }
+    }
+
+    private String convertToUTCPlus7(String zuluTimeString) {
+        try {
+            // Define the date format for Zulu time
+            SimpleDateFormat zuluFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
+            zuluFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+            // Parse Zulu time string
+            Date zuluTime = zuluFormat.parse(zuluTimeString);
+
+            // Define the date format for UTC+7
+            SimpleDateFormat utcPlus7Format = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+            utcPlus7Format.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+
+            // Format the date as UTC+7 and return the result
+            return utcPlus7Format.format(zuluTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private long convertToMilliseconds(String utcPlus7TimeString) {
+        try {
+            // Define the date format for UTC+7
+            SimpleDateFormat utcPlus7Format = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+            utcPlus7Format.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+
+            // Parse UTC+7 time string
+            Date utcPlus7Time = utcPlus7Format.parse(utcPlus7TimeString);
+
+            // Return the time in milliseconds since epoch
+            return utcPlus7Time.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    private SyllabusResponse getDetailOfSyllabus(String topicCode) {
+        Syllabus syllabus = syllabusDAO.findById(topicCode).get();
+        User creator = syllabus.getCreatedBy();
+        List<TrainingUnit> trainingUnitList = syllabus.getTu().stream().toList();
+        List<TrainingContent> trainingContentList = new ArrayList<>();
+        List<TrainingMaterial> trainingMaterialList = new ArrayList<>();
+        List<SyllabusObjective> syllabusObjectiveList = syllabus.getSyllabusObjectives().stream().toList();
+        HashSet<Integer> dayList = new HashSet<>();
+        List<DayDTO> dayDTOList = new ArrayList<>();
+        List<UnitDTO> unitDTOList = new ArrayList<>();
+        List<ContentDTO> contentDTOList = new ArrayList<>();
+        List<MaterialDTO> trainingMaterialDTOList = new ArrayList<>();
+
+        for (int i = 0; i < trainingUnitList.size(); i++) {
+            dayList.add(trainingUnitList.get(i).getDayNumber());
+        }
+
+        log.info(dayList);
+
+        for (Integer dayNumber : dayList) {
+            for (int i = 0; i < trainingUnitList.size(); i++) {
+                if(trainingUnitList.get(i).getDayNumber() == dayNumber){
+                    trainingContentList = trainingUnitList.get(i).getTrainingContents().stream().toList();
+                    for (int j = 0; j < trainingContentList.size(); j++) {
+                        trainingMaterialList = trainingContentList.get(j).getTrainingMaterials().stream().toList();
+                        for (int z = 0; z < trainingMaterialList.size(); z++) {
+                            String source = trainingMaterialList.get(z).getSource();
+                            if (isPresignedUrlExpired(source)) {
+                                source = fileService.generateUrl(trainingMaterialList.get(z).getMaterial() + "_"
+                                        + syllabus.getTopicCode() + trainingUnitList.get(i).getId().getUCode() + trainingContentList.get(j).getId().getContentCode(), HttpMethod.GET);
+                                trainingMaterialList.get(z).setSource(source);
+                                trainingMaterialDAO.save(trainingMaterialList.get(z));
+                            }
+                            MaterialDTO trainingMaterial = MaterialDTO.builder()
+                                    .materialName(trainingMaterialList.get(z).getMaterial())
+                                    .materialSource(source)
+                                    .build();
+
+                            trainingMaterialDTOList.add(trainingMaterial);
+                        }
+                        ContentDTO content = ContentDTO.builder()
+                                .contentId(Integer.toString(trainingContentList.get(j).getId().getContentCode()))
+                                .contentName(trainingContentList.get(j).getContentName())
+                                .standardOutput(trainingContentList.get(j).getOutputCode().getOutputCode())
+                                .deliveryType(trainingContentList.get(j).getDeliveryType())
+                                .duration(Integer.toString(trainingContentList.get(j).getDuration()))
+                                .online(trainingContentList.get(j).isTrainingFormat())
+                                .trainingMaterial(trainingMaterialDTOList)
+                                .build();
+
+                        contentDTOList.add(content);
+                        trainingMaterialDTOList = new ArrayList<>();
+                    }
+                    UnitDTO unit = UnitDTO.builder()
+                            .unitId(Integer.toString(trainingUnitList.get(i).getId().getUCode()))
+                            .unitName(trainingUnitList.get(i).getUnitName())
+                            .contentList(contentDTOList)
+                            .build();
+
+                    unitDTOList.add(unit);
+                    contentDTOList = new ArrayList<>();
+                }
+            }
+            DayDTO day = DayDTO.builder()
+                    .dayNumber(Integer.toString(dayNumber))
+                    .unitList(unitDTOList)
+                    .build();
+
+            dayDTOList.add(day);
+            unitDTOList = new ArrayList<>();
+        }
+        List<String> outputCodeList = new ArrayList<>();
+        for(int i = 0; i < syllabusObjectiveList.size(); i++){
+            outputCodeList.add(syllabusObjectiveList.get(i).getOutputCode().getOutputCode());
+        }
+
+        UserDTO user = UserDTO.builder()
+                .userId(creator.getUserId())
+                .userName(creator.getName())
+                .userEmail(creator.getEmail())
+                .build();
+
+        SyllabusResponse res = SyllabusResponse.builder()
+                .syllabusStatus(syllabus.getPublishStatus())
+                .duration(Integer.toString(syllabus.getNumberOfDay()))
+                .syllabusName(syllabus.getTopicName())
+                .syllabusCode(syllabus.getTopicCode())
+                .createdBy(user)
+                .createdOn(convertToMMDDYYYY(syllabus.getCreatedDate().toString().split(" ")[0]))
+                .syllabusObjectiveList(outputCodeList)
+                .dayList(dayDTOList)
+                .deleted(syllabus.isDeleted())
+                .build();
+
+        return res;
+
+    }
+
+    public String convertToMMDDYYYY(String dateStr) {
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(dateStr, inputFormatter);
+
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        String formattedDate = date.format(outputFormatter);
+        return formattedDate;
+    }
+
 
 }
 

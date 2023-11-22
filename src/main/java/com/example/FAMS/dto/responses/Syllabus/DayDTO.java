@@ -7,15 +7,13 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Builder
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetSyllabusByPage {
+public class DayDTO {
 
-    int status;
-    String message;
-    int pageNumber;
-    int totalNumberOfPages;
-    List<SyllabusResponse> syllabusList;
+    String dayNumber;
+    List<UnitDTO> unitList;
+
 }
