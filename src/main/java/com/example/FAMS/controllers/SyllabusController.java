@@ -1,8 +1,11 @@
 package com.example.FAMS.controllers;
 
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
-import com.example.FAMS.dto.responses.Syllabus.*;
 import com.example.FAMS.dto.responses.ResponseObject;
+import com.example.FAMS.dto.responses.Syllabus.CreateSyllabusResponse;
+import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
+import com.example.FAMS.dto.responses.Syllabus.GetAllSyllabusResponse;
+import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
 import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.repositories.SyllabusDAO;
@@ -78,10 +81,9 @@ public class SyllabusController {
     public ResponseEntity<GetSyllabusByPage> get(@RequestParam int amount, @RequestParam int pageNumber) {
         GetSyllabusByPage syllabusList = syllabusService.paging(amount, pageNumber);
         log.info(syllabusList);
-        if(syllabusList.getStatus() > 0){
+        if (syllabusList.getStatus() > 0) {
             return ResponseEntity.status(400).body(syllabusList);
-        }
-        else if(syllabusList.getStatus() < 0){
+        } else if (syllabusList.getStatus() < 0) {
             return ResponseEntity.status(500).body(syllabusList);
         }
         return ResponseEntity.status(200).body(syllabusList);
@@ -110,9 +112,9 @@ public class SyllabusController {
 //    }
 
     @PostMapping("/importCSV")
-    public ResponseEntity<ResponseObject> loadDataInFile(@RequestParam("file") MultipartFile file,@RequestParam("choice") String choice, Authentication authentication) throws IOException {
+    public ResponseEntity<ResponseObject> loadDataInFile(@RequestParam("file") MultipartFile file, @RequestParam("choice") String choice, Authentication authentication) throws IOException {
         try {
-            List<Syllabus> syllabus = syllabusService.processDataFromCSV(file,choice, authentication);
+            List<Syllabus> syllabus = syllabusService.processDataFromCSV(file, choice, authentication);
             return ResponseEntity.ok(new ResponseObject("Successful", "List of CSV", syllabus));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't found the list", e.getMessage()));
@@ -199,10 +201,9 @@ public class SyllabusController {
     public ResponseEntity<CreateSyllabusResponse> create(@RequestBody CreateSyllabusOutlineRequest request) {
         CreateSyllabusResponse res = syllabusService.createSyllabus(request);
         log.info(request);
-        if(res.getStatus() > 0){
+        if (res.getStatus() > 0) {
             return ResponseEntity.status(418).body(res);
-        }
-        else if(res.getStatus() < 0){
+        } else if (res.getStatus() < 0) {
             return ResponseEntity.status(500).body(res);
         }
         return ResponseEntity.status(200).body(res);
@@ -263,6 +264,13 @@ public class SyllabusController {
 //        }
 //    }
 
+    @GetMapping("/active")
+    @PreAuthorize("hasAuthority('syllabus:read')")
+    public ResponseEntity<ResponseObject> getAllActiveSyllabus() {
+        return syllabusService.getAllActiveSyllabus();
+    }
+
+
     @PutMapping("/delete/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
     public ResponseEntity<DeleteSyllabusResponse> deleteSyllabus(
@@ -301,8 +309,7 @@ public class SyllabusController {
             @RequestParam(name = "createdDate", required = false)
             String createdDate,
             @RequestParam(name = "searchValue", required = false)
-            String searchValue)
-           {
+            String searchValue) {
         List<Syllabus> syllabusList = syllabusService.searchSyllabus(createdDate, searchValue);
         return ResponseEntity.ok(syllabusList);
     }

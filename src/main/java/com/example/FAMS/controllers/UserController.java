@@ -2,13 +2,11 @@ package com.example.FAMS.controllers;
 
 import com.example.FAMS.dto.requests.UpdatePasswordRequest;
 import com.example.FAMS.dto.requests.UpdateRequest;
-import com.example.FAMS.dto.responses.CreateResponse;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateResponse;
 import com.example.FAMS.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.connector.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +30,9 @@ public class UserController {
 
     @GetMapping("/get-all/trainee")
     @PreAuthorize("hasAuthority('user:read')")
-    public ResponseEntity<ResponseObject> getAllTrainee(){return userService.getAllTraineeByRole();}
+    public ResponseEntity<ResponseObject> getAllTrainee() {
+        return userService.getAllTraineeByRole();
+    }
 
     @GetMapping("/get-all/trainer")
     @PreAuthorize("hasAuthority('user:read')")
@@ -103,13 +103,13 @@ public class UserController {
 
     @GetMapping("/active/{id}")
     @PreAuthorize("hasAuthority('user:update')")
-    public ResponseEntity<ResponseObject> activeUser(@PathVariable int id){
+    public ResponseEntity<ResponseObject> activeUser(@PathVariable int id) {
         return userService.changeStatus(id, "active");
     }
 
     @GetMapping("/inactive/{id}")
     @PreAuthorize("hasAuthority('user:update')")
-    public ResponseEntity<ResponseObject> inactiveUser(@PathVariable int id){
+    public ResponseEntity<ResponseObject> inactiveUser(@PathVariable int id) {
         return userService.changeStatus(id, "inactive");
     }
 }
