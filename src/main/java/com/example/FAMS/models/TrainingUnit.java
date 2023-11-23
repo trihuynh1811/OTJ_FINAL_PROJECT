@@ -40,7 +40,6 @@ public class TrainingUnit {
     private Syllabus syllabus;
 
     @OneToMany(mappedBy = "unitCode", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonBackReference
     private final Set<TrainingContent> trainingContents = new HashSet<>();
 
 
@@ -50,10 +49,5 @@ public class TrainingUnit {
     @Column(name = "day_number", nullable = false)
     private int dayNumber;
 
-    @OneToMany(mappedBy = "trainingUnit", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Column(name = "training_materials")
-    @JsonManagedReference
-    @JsonIgnore
-    private Set<TrainingMaterial> trainingMaterials;
 
 }

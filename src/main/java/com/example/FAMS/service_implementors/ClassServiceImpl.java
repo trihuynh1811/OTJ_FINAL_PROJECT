@@ -2,27 +2,21 @@ package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
 import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
-import com.example.FAMS.dto.requests.ClassRequest.UpdateClass3Request;
 import com.example.FAMS.dto.requests.ClassRequest.UpdateClassDTO;
-import com.example.FAMS.dto.responses.*;
+import com.example.FAMS.dto.requests.ClassRequest.UpdateClass3Request;
 import com.example.FAMS.dto.responses.CalendarDayResponse;
 import com.example.FAMS.dto.responses.CalendarWeekResponse;
 import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.models.*;
+import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.models.Class;
 import com.example.FAMS.models.composite_key.ClassUserCompositeKey;
 import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import com.example.FAMS.repositories.*;
 import com.example.FAMS.services.ClassService;
 import com.google.common.base.Strings;
-import java.sql.Time;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import jakarta.persistence.EntityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,6 +25,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -244,7 +247,7 @@ public class ClassServiceImpl implements ClassService {
                     .fsu(request.getFsu())
                     .location(capitalizeLocation(request.getLocation()))
                     .status(request.getStatus())
-                    .trainingProgram(trainingProgramDAO.findByName(request.getTrainingProgram()))
+                    .trainingProgram(trainingProgramDAO.findById(Integer.parseInt(request.getTrainingProgram())).get())
                     .createdDate(new java.util.Date())
                     .build();
 
@@ -597,7 +600,6 @@ public class ClassServiceImpl implements ClassService {
                 existingClass.setFsu(request.getFsu());
                 existingClass.setLocation(request.getLocation());
                 existingClass.setStatus(request.getStatus());
-//                existingClass.setTrainingProgram(trainingProgramDAO.findById(Integer.parseInt(request.getTrainingProgram())).get());
 
 //                if (!existingClass.getTrainingProgram().getName().equalsIgnoreCase(request.getTrainingProgram())) {
 //                    existingClass.setTrainingProgram(trainingProgramDAO.findByName(request.getTrainingProgram()));
@@ -614,15 +616,39 @@ public class ClassServiceImpl implements ClassService {
                 Class updatedClass = classDAO.save(existingClass);
 
                 log.info("1");
-                List<ClassLearningDay> cldl = classLearningDayDAO.findByClassId_ClassId(request.getClassCode());
-                List<ClassUser> cu = classUserDAO.findByClassId_ClassId(request.getClassCode());
-                List<UserClassSyllabus> ucs = userClassSyllabusDAO.findByClassCode_ClassId(request.getClassCode());
-                log.info(ucs.size());
+                List<ClassLearningDay> cldl = classLearningDayDAO.findByClassId_ClassId(classCode);
+                List<ClassUser> cu = classUserDAO.findByClassId_ClassId(classCode);
+                List<UserClassSyllabus> ucs = userClassSyllabusDAO.findByClassCode_ClassId(classCode);
+//                classLearningDayDAO.deleteAllInBatch(cldl);
                 classLearningDayDAO.deleteAll(cldl);
+//                classLearningDayDAO.flush();
+//                classUserDAO.deleteAllInBatch(cu);
                 classUserDAO.deleteAll(cu);
-//                userClassSyllabusDAO.deleteAllInBatch(ucs);
+//                classUserDAO.flush();
+                userClassSyllabusDAO.deleteAllInBatch(ucs);
                 userClassSyllabusDAO.deleteAll(ucs);
                 userClassSyllabusDAO.flush();
+//                CompletableFuture<Void> deleteCldl = CompletableFuture.runAsync(() -> {
+//                    classLearningDayDAO.deleteAllInBatch(cldl);
+//                    classLearningDayDAO.deleteAll(cldl);
+//                    classLearningDayDAO.flush();
+//                });
+//
+//                CompletableFuture<Void> deleteCu = deleteCldl.thenCompose(ignored -> CompletableFuture.runAsync(() -> {
+//                    classUserDAO.deleteAllInBatch(cu);
+//                    classUserDAO.deleteAll(cu);
+//                    classUserDAO.flush();
+//                }));
+//
+//                CompletableFuture<Void> deleteUcs = deleteCu.thenCompose(ignored -> CompletableFuture.runAsync(() -> {
+//                    userClassSyllabusDAO.deleteAllInBatch(ucs);
+//                    userClassSyllabusDAO.deleteAll(ucs);
+//                    userClassSyllabusDAO.flush();
+//                }));
+//
+//// Wait for all deletion operations to complete
+//                deleteUcs.join();
+//                CompletableFuture.allOf(deleteCldl, deleteCu, deleteUcs).join();
 //                Location l = locationDAO.findById(Long.parseLong(request.getLocation())).get();
                 log.info("2");
 
@@ -695,10 +721,11 @@ public class ClassServiceImpl implements ClassService {
                     }
                 }
 
-
                 classLearningDayDAO.saveAll(classLearningDayList);
                 classUserDAO.saveAll(classUserList);
                 userClassSyllabusDAO.saveAll(userSyllabusList);
+                existingClass.setTrainingProgram(trainingProgramDAO.findById(Integer.parseInt(request.getTrainingProgram())).get());
+                classDAO.save(existingClass);
                 log.info("3");
                 String timeFrom = updatedClass.getTimeFrom().toString();
                 timeFrom = timeFrom.substring(0, timeFrom.lastIndexOf(":"));
@@ -755,7 +782,7 @@ public class ClassServiceImpl implements ClassService {
         return UpdateClassResponse.builder()
                 .status(1)
                 .updatedClass(null)
-                .message("class with id: " + request.getClassCode() + " doesn't exist")
+                .message("class with id: " + classCode + " doesn't exist")
                 .build();
     }
 
@@ -808,8 +835,8 @@ public class ClassServiceImpl implements ClassService {
         Time timeTo = request.getTimeTo();
         String value = request.getValue();
 
-    ClassLearningDay classLearningDay =
-        classLearningDayDAO.findByClassIdAndEnrollDate(classDAO.findById(request.getId()).orElse(null), eDate);
+        ClassLearningDay classLearningDay = classLearningDayDAO.findByClassId_ClassIdAndEnrollDate(id, eDate);
+
 
         if (classLearningDay != null) {
             if ("Only".equals(value)) {

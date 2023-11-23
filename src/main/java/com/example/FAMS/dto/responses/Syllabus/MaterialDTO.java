@@ -1,17 +1,16 @@
-package com.example.FAMS.dto.requests.SyllbusRequest;
+package com.example.FAMS.dto.responses.Syllabus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-@Builder
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FileNameDTO {
+public class MaterialDTO {
 
-    List<String> files;
+    String materialName;
+    String materialSource;
 }

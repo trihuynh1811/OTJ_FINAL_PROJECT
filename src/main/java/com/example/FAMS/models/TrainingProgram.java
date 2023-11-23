@@ -16,12 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "TrainingPrograms",  uniqueConstraints = {
-        @UniqueConstraint(
-                name = "training_program_name_constraint",
-                columnNames = "name"
-        )
-})
+@Table(name = "TrainingPrograms")
 public class TrainingProgram {
 
     @Id
