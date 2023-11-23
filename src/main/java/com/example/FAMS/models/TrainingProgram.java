@@ -1,11 +1,8 @@
 package com.example.FAMS.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Cache;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -16,12 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "TrainingPrograms",  uniqueConstraints = {
-        @UniqueConstraint(
-                name = "training_program_name_constraint",
-                columnNames = "name"
-        )
-})
+@Table(name = "TrainingPrograms")
 public class TrainingProgram {
 
     @Id
