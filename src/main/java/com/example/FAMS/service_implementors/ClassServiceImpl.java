@@ -835,7 +835,7 @@ public class ClassServiceImpl implements ClassService {
         Time timeTo = request.getTimeTo();
         String value = request.getValue();
 
-        ClassLearningDay classLearningDay = classLearningDayDAO.findByClassId_ClassIdAndEnrollDate(id, eDate);
+        ClassLearningDay classLearningDay = classLearningDayDAO.findByClassIdAndEnrollDate(classDAO.findById(request.getId()).orElse(null), eDate);
 
 
         if (classLearningDay != null) {
