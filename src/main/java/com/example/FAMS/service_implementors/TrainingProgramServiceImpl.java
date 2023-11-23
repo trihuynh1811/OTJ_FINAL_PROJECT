@@ -2,6 +2,7 @@ package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.enums.Role;
+import com.example.FAMS.models.Class;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.models.TrainingProgram;
 import com.example.FAMS.models.TrainingProgramSyllabus;
@@ -32,6 +33,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -136,12 +138,57 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
   @Override
   public ResponseEntity<ResponseObject> getAll() {
-//    List<TrainingProgramModified> userList;
     List<TrainingProgram> userList;
+    List<TrainingProgramDTOV2> responseList = new ArrayList<>();
     try {
-//      userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
-      userList = trainingProgramDAO.getAllBy();
-      return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
+      userList = trainingProgramDAO.findTrainingProgramsBy();
+      for (TrainingProgram element : userList) {
+        TrainingProgramDTOV2 trainingProgramDTOV2 =
+                TrainingProgramDTOV2.builder()
+                        .trainingProgramSyllabus(element.getTrainingProgramSyllabus())
+                        .classes(
+                                element.getClasses().stream()
+                                        .map(
+                                                classEntity -> {
+                                                  return Class.builder()
+                                                          .classId(classEntity.getClassId())
+                                                          .approve(classEntity.getApprove())
+                                                          .attendeeActual(classEntity.getAttendeeActual())
+                                                          .attendeePlanned(classEntity.getAttendeePlanned())
+                                                          .attendee(classEntity.getAttendee())
+                                                          .attendeeAccepted(classEntity.getAttendeeAccepted())
+                                                          .fsu(classEntity.getFsu())
+                                                          .endDate(classEntity.getEndDate())
+                                                          .className(classEntity.getClassName())
+                                                          .location(classEntity.getLocation())
+                                                          .review(classEntity.getReview())
+                                                          .timeTo(classEntity.getTimeTo())
+                                                          .timeFrom(classEntity.getTimeFrom())
+                                                          .modifiedDate(classEntity.getModifiedDate())
+                                                          .startDate(classEntity.getStartDate())
+                                                          .status(classEntity.getStatus())
+                                                          .modifiedBy(classEntity.getModifiedBy())
+                                                          .duration(classEntity.getDuration())
+                                                          .createdBy(classEntity.getCreatedBy())
+                                                          .createdDate(classEntity.getCreatedDate())
+                                                          .deactivated(classEntity.isDeactivated())
+                                                          .build();
+                                                })
+                                        .collect(Collectors.toSet()))
+                        .userID(element.getUserID())
+                        .trainingProgramCode(element.getTrainingProgramCode())
+                        .name(element.getName())
+                        .createdDate(element.getCreatedDate())
+                        .createdBy(element.getCreatedBy())
+                        .status(element.getStatus())
+                        .startDate(element.getStartDate())
+                        .modifiedBy(element.getModifiedBy())
+                        .modifiedDate(element.getModifiedDate())
+                        .duration(element.getDuration())
+                        .build();
+        responseList.add(trainingProgramDTOV2);
+      }
+      return ResponseEntity.ok(new ResponseObject("Successful", "Found user", responseList));
     } catch (Exception e) {
       userList = Collections.emptyList();
       return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
