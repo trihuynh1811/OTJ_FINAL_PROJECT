@@ -13,7 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 public class UpdateClassDTO {
 
-    String classCode;
     String nameClass;
     String totalTimeLearning;
     String classTimeFrom;

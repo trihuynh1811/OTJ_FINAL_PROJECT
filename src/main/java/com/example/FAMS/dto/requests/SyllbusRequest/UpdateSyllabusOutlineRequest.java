@@ -8,17 +8,11 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class ContentDTO {
 
-    int contentId;
-    String content = "";
-    String note = "";
-    String deliveryType;
-    boolean isOnline;
-    int duration;
-    String standardOutput;
-    List<String> trainingMaterials;
+public class UpdateSyllabusOutlineRequest {
+    String topicName;
+    List<DayDTO> syllabus;
 }

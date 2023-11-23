@@ -22,7 +22,6 @@ public class CreateSyllabusGeneralRequest {
     String publishStatus = "inactive";
     String trainingPrinciple;
     int trainingAudience;
-    boolean updated = false;
 
 
 }

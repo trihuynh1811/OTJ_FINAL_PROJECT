@@ -13,6 +13,7 @@ import com.example.FAMS.models.UserClassSyllabus;
 import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import com.example.FAMS.repositories.UserClassSyllabusDAO;
 import com.example.FAMS.service_implementors.ClassServiceImpl;
+import com.example.FAMS.services.ClassService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +35,7 @@ import java.util.List;
 public class ClassController {
 
     @Autowired
-    ClassServiceImpl classService;
+    ClassService classService;
 
     @Autowired
     UserClassSyllabusDAO userClassSyllabusDAO;
@@ -51,6 +52,20 @@ public class ClassController {
         return ResponseEntity.status(HttpStatus.OK).body(classService.getClasses());
     }
 
+    @GetMapping("/page")
+    @PreAuthorize("hasAuthority('class:read')")
+    public ResponseEntity<GetClassesByPage> getClasses(@RequestParam int amount, @RequestParam int pageNumber) {
+        GetClassesByPage classList = classService.paging(amount, pageNumber);
+
+        if(classList.getStatus() > 0){
+            return ResponseEntity.status(400).body(classList);
+        }
+        else if(classList.getStatus() < 0){
+            return ResponseEntity.status(500).body(classList);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(classList);
+    }
+
 //    @GetMapping("/detail")
 //    @PreAuthorize("hasAuthority('class:read')")
 //    public ResponseEntity<List<Class>> getDetailClasses() {
@@ -64,19 +79,22 @@ public class ClassController {
             Authentication authentication) {
         // Xử lý tạo lớp học dựa trên thông tin từ request
         CreateClassResponse result = classService.createClass(createClassDTO, authentication);
-        if (result != null) {
+        if (result.getStatus() == 0) {
             return ResponseEntity.status(200).body(result);
         }
-        return ResponseEntity.status(400).body(result);
+        else if(result.getStatus() > 0){
+            return ResponseEntity.status(418).body(result);
+        }
+        return ResponseEntity.status(500).body(result);
     }
 
-    @PutMapping("/update")
+    @PutMapping("/update/{id}")
     @PreAuthorize("hasAuthority('class:update')")
-    public ResponseEntity<UpdateClassResponse> updateClass(@RequestBody UpdateClassDTO updateClassRequest) {
-        UpdateClassResponse updatedClass = classService.updateClass(updateClassRequest);
+    public ResponseEntity<UpdateClassResponse> updateClass(@RequestBody UpdateClassDTO updateClassRequest, @PathVariable("id") String classCode) {
+        UpdateClassResponse updatedClass = classService.updateClass(updateClassRequest, classCode);
         if (updatedClass.getStatus() == 0) {
             return ResponseEntity.ok(updatedClass);
-        } else if (updatedClass.getStatus() == 1) {
+        } else if (updatedClass.getStatus() > 0) {
             return ResponseEntity.status(400).body(updatedClass);
         } else {
             return ResponseEntity.status(500).body(updatedClass);

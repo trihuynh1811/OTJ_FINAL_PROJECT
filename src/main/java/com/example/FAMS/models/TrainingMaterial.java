@@ -1,10 +1,8 @@
 package com.example.FAMS.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Data
@@ -21,21 +19,26 @@ public class TrainingMaterial {
     @Column(nullable = false)
     private String material;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 10000)
     private String source;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "syllabus")
-    private Syllabus syllabus;
+//    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "syllabus", referencedColumnName = "topic_code")
+//    @EqualsAndHashCode.Exclude
+//    @ToString.Exclude
+//    @JsonBackReference
+//    private Syllabus syllabus;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
     @JoinColumns({
-            @JoinColumn(name="unit_code", referencedColumnName="unit_code"),
-            @JoinColumn(name="topic_code", referencedColumnName="topic_code")
-    })
-    private TrainingUnit trainingUnit;
+            @JoinColumn(name = "unit_code", referencedColumnName = "unit_code"),
+            @JoinColumn(name = "content_code", referencedColumnName = "content_code"),
+            @JoinColumn(name = "topic_code", referencedColumnName = "topic_code")
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "training_content")
+    })
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
     private TrainingContent trainingContent;
 }

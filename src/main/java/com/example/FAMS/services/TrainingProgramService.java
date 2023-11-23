@@ -29,3 +29,4 @@ public interface TrainingProgramService {
 
     ResponseEntity<ResponseObjectVersion2> getTrainingProgramByCode(int code);
 }
+

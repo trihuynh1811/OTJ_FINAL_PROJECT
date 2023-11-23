@@ -1,7 +1,5 @@
-package com.example.FAMS.dto.responses;
+package com.example.FAMS.dto.responses.Syllabus;
 
-import com.example.FAMS.dto.responses.Syllabus.PresignedUrlResponse;
-import com.example.FAMS.models.Syllabus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,14 +9,11 @@ import java.util.List;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class UpdateSyllabusResponse {
+@NoArgsConstructor
+public class CreateSyllabusResponse {
 
     int status;
     String message;
     List<PresignedUrlResponse> url;
-//    Syllabus updateSyllabus;
-
-
 }

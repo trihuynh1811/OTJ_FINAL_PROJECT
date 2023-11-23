@@ -15,20 +15,20 @@ import java.util.List;
 public class ClassDetailResponse {
 
     private String message = "";
+    private String oldClassCode;
     private String classCode;
     private String nameClass;
     private String totalTimeLearning;
     private String status;
     private String classTimeFrom;
     private String classTimeTo;
-//    private List<String> location;
     private String location;
     private String fsu;
     private String startDate;
     private String endDate;
-    private String created;
-    private String review;
-    private String approve;
+    private UserDTO created;
+    private UserDTO review;
+    private UserDTO approve;
     private String attendee;
     private String attendeePlanned;
     private String attendeeAccepted;
@@ -42,8 +42,8 @@ public class ClassDetailResponse {
     private List<UserDTO> admin = new ArrayList<>();
     private List<UserDTO> attendeeList = new ArrayList<>();
 
-    TrainingProgramDTO trainingProgram;
-
+//    TrainingProgramDTO trainingProgram;
+    String trainingProgram;
     List<SyllabusDTO> syllabusList = new ArrayList<>();
     List<String> listDay = new ArrayList<>();
 

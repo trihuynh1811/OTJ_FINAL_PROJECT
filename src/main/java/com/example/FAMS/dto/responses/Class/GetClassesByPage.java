@@ -1,18 +1,21 @@
 package com.example.FAMS.dto.responses.Class;
 
-import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
+import java.util.List;
+
 @Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateClassResponse {
+public class GetClassesByPage {
 
-    String message;
     int status;
-    CreateClassDTO createdClass;
+    String message;
+    int pageNumber;
+    int totalNumberOfPages;
+    List<ClassDetailResponse> classList;
 }

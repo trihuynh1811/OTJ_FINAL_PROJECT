@@ -1,4 +1,4 @@
-package com.example.FAMS.dto.requests.SyllbusRequest;
+package com.example.FAMS.dto.responses.Syllabus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,17 +8,16 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class ContentDTO {
 
-    int contentId;
-    String content = "";
-    String note = "";
+    String contentId;
+    String contentName;
     String deliveryType;
-    boolean isOnline;
-    int duration;
     String standardOutput;
-    List<String> trainingMaterials;
+    String duration;
+    Boolean online;
+    List<MaterialDTO> trainingMaterial;
 }
