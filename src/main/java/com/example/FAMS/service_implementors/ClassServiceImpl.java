@@ -1127,8 +1127,15 @@ public class ClassServiceImpl implements ClassService {
         User creator = userDAO.findByEmail(c.getCreatedBy()).get();
         User reviewer = userDAO.findByEmail(c.getReview()).get();
         User approver = userDAO.findByEmail(c.getApprove()).get();
-        User moder = userDAO.findByEmail(c.getModifiedBy()).get();
-
+        UserDTO modify = null;
+        User moder = userDAO.findByEmail(c.getModifiedBy()).isPresent() ? userDAO.findByEmail(c.getModifiedBy()).get() : null;
+        if(moder != null){
+            modify = UserDTO.builder()
+                    .userId(moder.getUserId())
+                    .userEmail(moder.getEmail())
+                    .userName(moder.getName())
+                    .build();
+        }
         UserDTO created = UserDTO.builder()
                 .userEmail(creator.getEmail())
                 .userName(creator.getName())
@@ -1147,11 +1154,7 @@ public class ClassServiceImpl implements ClassService {
                 .userId(approver.getUserId())
                 .build();
 
-        UserDTO modify = UserDTO.builder()
-                .userName(moder.getName())
-                .userEmail(moder.getEmail())
-                .userId(moder.getUserId())
-                .build();
+
 
 
         return ClassDetailResponse.builder()
