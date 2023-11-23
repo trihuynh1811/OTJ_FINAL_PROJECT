@@ -4,7 +4,6 @@ import com.amazonaws.HttpMethod;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.responses.Class.UserDTO;
 import com.example.FAMS.dto.responses.Syllabus.MaterialDTO;
-import com.example.FAMS.dto.requests.SyllbusRequest.StandardOutputDTO;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.*;
@@ -288,6 +287,17 @@ public class SyllabusServiceImpl implements SyllabusService {
                     .trainingPrinciples(request.getTrainingPrinciple())
                     .modifiedDate(new Date())
                     .modifiedBy(creator.getEmail())
+                    .assignmentLab(request.getAssignmentLab())
+                    .conceptLecture(request.getConceptLecture())
+                    .guideReview(request.getGuideReview())
+                    .testQuiz(request.getTestQuiz())
+                    .exam(request.getExam())
+                    .quiz(request.getQuiz())
+                    .assignment(request.getAssignment())
+                    .final_(request.getFin())
+                    .finalTheory(request.getFinalTheory())
+                    .finalPractice(request.getFinalPractice())
+                    .gpa(request.getGpa())
                     .build();
 
             syllabusDAO.save(syllabus);
@@ -572,6 +582,17 @@ public class SyllabusServiceImpl implements SyllabusService {
             syllabus.setTrainingPrinciples(request.getTrainingPrinciple());
             syllabus.setModifiedDate(new Date());
             syllabus.setModifiedBy(creator.getEmail());
+            syllabus.setAssignmentLab(request.getAssignmentLab());
+            syllabus.setConceptLecture(request.getConceptLecture());
+            syllabus.setGuideReview(request.getGuideReview());
+            syllabus.setTestQuiz(request.getTestQuiz());
+            syllabus.setExam(request.getExam());
+            syllabus.setQuiz(request.getQuiz());
+            syllabus.setAssignment(request.getAssignment());
+            syllabus.setFinal_(request.getFin());
+            syllabus.setFinalTheory(request.getFinalTheory());
+            syllabus.setFinalPractice(request.getFinalPractice());
+            syllabus.setGpa(request.getGpa());
 
             syllabusDAO.save(syllabus);
 
@@ -747,9 +768,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             log.info(syllabusObjectiveMap);
             syllabusObjectiveDAO.saveAll(syllabusObjectiveList);
 
-            int numberOfDay = trainingUnitDAO.countDayNumberBySyllabus_TopicCode(syllabus.getTopicCode());
-
-            syllabus.setNumberOfDay(numberOfDay);
+            syllabus.setNumberOfDay(request.getSyllabus().size());
             syllabusDAO.save(syllabus);
 
 //            for (int i = 0; i < request.getTrainingMaterials().size(); i++) {
@@ -1108,7 +1127,7 @@ public class SyllabusServiceImpl implements SyllabusService {
 
         for (Integer dayNumber : dayList) {
             for (int i = 0; i < trainingUnitList.size(); i++) {
-                if(trainingUnitList.get(i).getDayNumber() == dayNumber){
+                if (trainingUnitList.get(i).getDayNumber() == dayNumber) {
                     trainingContentList = trainingUnitList.get(i).getTrainingContents().stream().toList();
                     for (int j = 0; j < trainingContentList.size(); j++) {
                         trainingMaterialList = trainingContentList.get(j).getTrainingMaterials().stream().toList();
@@ -1159,13 +1178,13 @@ public class SyllabusServiceImpl implements SyllabusService {
             unitDTOList = new ArrayList<>();
         }
         List<String> outputCodeList = new ArrayList<>();
-        for(int i = 0; i < syllabusObjectiveList.size(); i++){
+        for (int i = 0; i < syllabusObjectiveList.size(); i++) {
             outputCodeList.add(syllabusObjectiveList.get(i).getOutputCode().getOutputCode());
         }
 
         UserDTO modifier = null;
 
-        if(syllabus.getModifiedBy() != null){
+        if (syllabus.getModifiedBy() != null) {
             User moder = userDAO.findByEmail(syllabus.getModifiedBy()).get();
             modifier = UserDTO.builder()
                     .userId(moder.getUserId())
@@ -1181,8 +1200,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                 .build();
 
 
-
-        SyllabusResponse res = SyllabusResponse.builder()
+        return SyllabusResponse.builder()
                 .syllabusStatus(syllabus.getPublishStatus())
                 .duration(Integer.toString(syllabus.getNumberOfDay()))
                 .syllabusName(syllabus.getTopicName())
@@ -1199,10 +1217,19 @@ public class SyllabusServiceImpl implements SyllabusService {
                 .modifiedOn(convertToMMDDYYYY(syllabus.getModifiedDate().toString().split(" ")[0]))
                 .syllabusObjectiveList(outputCodeList)
                 .dayList(dayDTOList)
+                .assignmentLab(syllabus.getAssignmentLab())
+                .conceptLecture(syllabus.getConceptLecture())
+                .guideReview(syllabus.getGuideReview())
+                .testQuiz(syllabus.getTestQuiz())
+                .exam(syllabus.getExam())
+                .quiz(syllabus.getQuiz())
+                .assignment(syllabus.getAssignment())
+                .final_(syllabus.getFinal_())
+                .finalTheory(syllabus.getFinalTheory())
+                .finalPractice(syllabus.getFinalPractice())
+                .gpa(syllabus.getGpa())
                 .deleted(syllabus.isDeleted())
                 .build();
-
-        return res;
 
     }
 

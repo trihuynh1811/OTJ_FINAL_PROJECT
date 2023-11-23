@@ -554,6 +554,7 @@ public class ClassServiceImpl implements ClassService {
     @Override
     public UpdateClassResponse updateClass(UpdateClassDTO request, String classCode) {
         Class existingClass = classDAO.findById(classCode).get();
+        User moder = userDAO.findByEmail(request.getModerEmail()).get();
         try {
             if (existingClass != null) {
 //                if(!existingClass.getClassId().equalsIgnoreCase(request.getClassCode())){
@@ -568,24 +569,29 @@ public class ClassServiceImpl implements ClassService {
 //                    }
 
 //                }
-                List<ClassUser> classUserList = new ArrayList<>();
-                List<UserClassSyllabus> userSyllabusList = new ArrayList<>();
-                List<ClassLearningDay> classLearningDayList = new ArrayList<>();
                 User user = null;
-                boolean trainingProgramChanges = false;
                 SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-                Date today = new Date();
                 String timeFromStr = request.getClassTimeFrom().split(":").length == 3 ? request.getClassTimeFrom() : request.getClassTimeFrom() + ":00";
                 String timeToStr = request.getClassTimeTo().split(":").length == 3 ? request.getClassTimeTo() : request.getClassTimeTo() + ":00";
+                List<ClassUser> classUserList = classUserDAO.findByClassId_ClassId(classCode);
+                List<UserClassSyllabus> userSyllabusList = userClassSyllabusDAO.findByClassCode_ClassId(classCode);
+                List<ClassLearningDay> classLearningDayList = classLearningDayDAO.findByClassId_ClassId(classCode);
 
                 if (sdf.parse(request.getStartDate()).before(existingClass.getStartDate())) {
-                    UpdateClassResponse res = UpdateClassResponse.builder()
+                    return UpdateClassResponse.builder()
                             .message("start date for this class should be after today")
                             .updatedClass(null)
                             .status(2)
                             .build();
-                    return res;
                 }
+                log.info("1");
+                classLearningDayDAO.deleteAll(classLearningDayList);
+                classUserDAO.deleteAll(classUserList);
+                userClassSyllabusDAO.deleteAllInBatch(userSyllabusList);
+
+                classLearningDayList.clear();
+                classUserList.clear();
+                userSyllabusList.clear();
 
                 existingClass.setClassName(request.getNameClass());
                 existingClass.setDuration(request.getTotalTimeLearning());
@@ -600,6 +606,8 @@ public class ClassServiceImpl implements ClassService {
                 existingClass.setFsu(request.getFsu());
                 existingClass.setLocation(request.getLocation());
                 existingClass.setStatus(request.getStatus());
+                existingClass.setModifiedDate(new Date());
+                existingClass.setModifiedBy(moder.getEmail());
 
 //                if (!existingClass.getTrainingProgram().getName().equalsIgnoreCase(request.getTrainingProgram())) {
 //                    existingClass.setTrainingProgram(trainingProgramDAO.findByName(request.getTrainingProgram()));
@@ -615,41 +623,6 @@ public class ClassServiceImpl implements ClassService {
 
                 Class updatedClass = classDAO.save(existingClass);
 
-                log.info("1");
-                List<ClassLearningDay> cldl = classLearningDayDAO.findByClassId_ClassId(classCode);
-                List<ClassUser> cu = classUserDAO.findByClassId_ClassId(classCode);
-                List<UserClassSyllabus> ucs = userClassSyllabusDAO.findByClassCode_ClassId(classCode);
-//                classLearningDayDAO.deleteAllInBatch(cldl);
-                classLearningDayDAO.deleteAll(cldl);
-//                classLearningDayDAO.flush();
-//                classUserDAO.deleteAllInBatch(cu);
-                classUserDAO.deleteAll(cu);
-//                classUserDAO.flush();
-                userClassSyllabusDAO.deleteAllInBatch(ucs);
-                userClassSyllabusDAO.deleteAll(ucs);
-                userClassSyllabusDAO.flush();
-//                CompletableFuture<Void> deleteCldl = CompletableFuture.runAsync(() -> {
-//                    classLearningDayDAO.deleteAllInBatch(cldl);
-//                    classLearningDayDAO.deleteAll(cldl);
-//                    classLearningDayDAO.flush();
-//                });
-//
-//                CompletableFuture<Void> deleteCu = deleteCldl.thenCompose(ignored -> CompletableFuture.runAsync(() -> {
-//                    classUserDAO.deleteAllInBatch(cu);
-//                    classUserDAO.deleteAll(cu);
-//                    classUserDAO.flush();
-//                }));
-//
-//                CompletableFuture<Void> deleteUcs = deleteCu.thenCompose(ignored -> CompletableFuture.runAsync(() -> {
-//                    userClassSyllabusDAO.deleteAllInBatch(ucs);
-//                    userClassSyllabusDAO.deleteAll(ucs);
-//                    userClassSyllabusDAO.flush();
-//                }));
-//
-//// Wait for all deletion operations to complete
-//                deleteUcs.join();
-//                CompletableFuture.allOf(deleteCldl, deleteCu, deleteUcs).join();
-//                Location l = locationDAO.findById(Long.parseLong(request.getLocation())).get();
                 log.info("2");
 
                 for (int i = 0; i < request.getListDay().size(); i++) {
@@ -1154,6 +1127,7 @@ public class ClassServiceImpl implements ClassService {
         User creator = userDAO.findByEmail(c.getCreatedBy()).get();
         User reviewer = userDAO.findByEmail(c.getReview()).get();
         User approver = userDAO.findByEmail(c.getApprove()).get();
+        User moder = userDAO.findByEmail(c.getModifiedBy()).get();
 
         UserDTO created = UserDTO.builder()
                 .userEmail(creator.getEmail())
@@ -1173,8 +1147,14 @@ public class ClassServiceImpl implements ClassService {
                 .userId(approver.getUserId())
                 .build();
 
+        UserDTO modify = UserDTO.builder()
+                .userName(moder.getName())
+                .userEmail(moder.getEmail())
+                .userId(moder.getUserId())
+                .build();
 
-        ClassDetailResponse res = ClassDetailResponse.builder()
+
+        return ClassDetailResponse.builder()
                 .oldClassCode(classCode)
                 .classCode(classCode.split("_")[0])
                 .nameClass(c.getClassName())
@@ -1183,7 +1163,7 @@ public class ClassServiceImpl implements ClassService {
                 .deactivated(c.isDeactivated())
                 .totalTimeLearning(c.getDuration())
                 .endDate(convertToMMDDYYYY(c.getEndDate().toString().split(" ")[0]))
-                .modifiedBy(c.getModifiedBy())
+                .modifiedBy(modify)
                 .modifiedDate(c.getModifiedDate() != null ? convertToMMDDYYYY(c.getModifiedDate().toString().split(" ")[0]) : "")
                 .startDate(convertToMMDDYYYY(c.getStartDate().toString().split(" ")[0]))
                 .status(c.getStatus())
@@ -1214,8 +1194,6 @@ public class ClassServiceImpl implements ClassService {
                 .admin(adminList)
                 .message("found class with id " + classCode)
                 .build();
-
-        return res;
 
     }
 
