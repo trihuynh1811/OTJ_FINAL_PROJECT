@@ -112,9 +112,12 @@ public class SyllabusController {
 //    }
 
     @PostMapping("/importCSV")
-    public ResponseEntity<ResponseObject> loadDataInFile(@RequestParam("file") MultipartFile file, @RequestParam("choice") String choice, Authentication authentication) throws IOException {
+    public ResponseEntity<ResponseObject> loadDataInFile(@RequestParam("file") MultipartFile file, @RequestParam("choice") String choice, @RequestParam("seperator") String seperator, @RequestParam("scan") String scan, Authentication authentication) throws IOException {
         try {
-            List<Syllabus> syllabus = syllabusService.processDataFromCSV(file, choice, authentication);
+            if (file.isEmpty()) {
+                throw new IllegalArgumentException("File is empty.");
+            }
+            List<Syllabus> syllabus = syllabusService.processDataFromCSV(file, choice, seperator, scan, authentication);
             return ResponseEntity.ok(new ResponseObject("Successful", "List of CSV", syllabus));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't found the list", e.getMessage()));
@@ -294,6 +297,17 @@ public class SyllabusController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/duplicateByName")
+    @PreAuthorize("hasAuthority('syllabus:update')")
+    public ResponseEntity<?> duplicateTopicName(@RequestParam String topicCode,
+                                                @RequestParam String topicName,
+                                                Authentication authentication) {
+        Syllabus duplicatedSyllabus = syllabusService.duplicateSyllabusByName(topicCode, topicName, authentication);
+
+        return ResponseEntity.ok(duplicatedSyllabus);
+    }
+
 
     @GetMapping("/duplicate/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
