@@ -53,7 +53,7 @@ public class SyllabusController {
 
     @GetMapping("/active")
     @PreAuthorize("hasAuthority('syllabus:read')")
-    public ResponseEntity<ResponseObject> getAllTrainer() {
+    public ResponseEntity<ResponseObject> getAllActiveSyllabus() {
         return syllabusService.getAllActiveSyllabus();
     }
 
