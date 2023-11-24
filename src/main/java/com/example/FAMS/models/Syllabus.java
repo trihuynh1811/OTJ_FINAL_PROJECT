@@ -26,7 +26,7 @@ public class Syllabus {
     private String topicName;
 
     @Column(name = "number_of_day")
-    private int numberOfDay = 1;
+    private int duration = 1;
 
     @Column(name = "technical_group", nullable = false, length = 2048)
     private String technicalGroup;

@@ -45,6 +45,12 @@ public class TrainingProgramController {
         return trainingProgram.getTrainingProgramByCode(id);
     }
 
+//    @GetMapping("/get-all")
+//    @PreAuthorize("hasAuthority('user:read')")
+//    public ResponseEntity<ResponseObject> getAllTrainingProgram() {
+//        return trainingProgram.getAll();
+//    }
+
     @GetMapping("/get-all")
     @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<ResponseObject> getAllActiveTrainingProgram() {
@@ -66,13 +72,6 @@ public class TrainingProgramController {
     }
 
 
-    @GetMapping("/duplicate/{trainingProgramCode}")
-    @PreAuthorize("hasAuthority('training:read')")
-    public ResponseEntity<TrainingProgram> duplicateTrainingProgram(
-            @PathVariable int trainingProgramCode) {
-        return ResponseEntity.ok(trainingProgram.duplicateTrainingProgram(trainingProgramCode));
-    }
-
     @GetMapping("/duplicate/name/{name}")
     @PreAuthorize("hasAnyAuthority('training:read')")
     public ResponseEntity<TrainingProgram> duplicateTrainingProgramName(@PathVariable String name) {
@@ -83,6 +82,7 @@ public class TrainingProgramController {
             return ResponseEntity.notFound().build();
         }
     }
+
 
     @PostMapping("/importCSV")
     @PreAuthorize("hasAuthority('training:import')")
@@ -125,8 +125,6 @@ public class TrainingProgramController {
         return trainingProgram.changeTrainingProgramStatus(trainingProgramCode, "De-activate");
     }
 
-
-
     @GetMapping("/TemplateCSV")
     public ResponseEntity<InputStreamResource> downloadTemplateCSV() {
         String csvData = "name,startDate,duration,userID,createdBy,createdDate,trainingProgramCode";
@@ -137,6 +135,7 @@ public class TrainingProgramController {
             outputStream.write(csvData.getBytes());
             outputStream.close();
             HttpHeaders headers = new HttpHeaders();
+
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=TemplateCSV.csv");
             return ResponseEntity.ok()
                     .headers(headers)

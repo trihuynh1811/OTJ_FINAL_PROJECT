@@ -16,7 +16,6 @@ import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey
 import com.example.FAMS.repositories.*;
 import com.example.FAMS.services.ClassService;
 import com.google.common.base.Strings;
-import jakarta.persistence.EntityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,7 +31,6 @@ import java.util.*;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -1109,7 +1107,7 @@ public class ClassServiceImpl implements ClassService {
         }
         for (int i = 0; i < trainingProgramSyllabuses.size(); i++) {
             SyllabusDTO syllabus = SyllabusDTO.builder()
-                    .numberOfDay(trainingProgramSyllabuses.get(i).getTopicCode().getNumberOfDay())
+                    .numberOfDay(trainingProgramSyllabuses.get(i).getTopicCode().getDuration())
                     .version(trainingProgramSyllabuses.get(i).getTopicCode().getVersion())
                     .createdDate(convertToMMDDYYYY(trainingProgramSyllabuses.get(i).getTopicCode().getCreatedDate().toString().split(" ")[0]))
                     .createdBy(trainingProgramSyllabuses.get(i).getTopicCode().getCreatedBy().getName())
