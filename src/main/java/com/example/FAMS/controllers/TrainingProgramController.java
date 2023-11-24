@@ -66,13 +66,6 @@ public class TrainingProgramController {
     }
 
 
-    @GetMapping("/duplicate/{trainingProgramCode}")
-    @PreAuthorize("hasAuthority('training:read')")
-    public ResponseEntity<TrainingProgram> duplicateTrainingProgram(
-            @PathVariable int trainingProgramCode) {
-        return ResponseEntity.ok(trainingProgram.duplicateTrainingProgram(trainingProgramCode));
-    }
-
     @GetMapping("/duplicate/name/{name}")
     @PreAuthorize("hasAnyAuthority('training:read')")
     public ResponseEntity<TrainingProgram> duplicateTrainingProgramName(@PathVariable String name) {
@@ -83,6 +76,7 @@ public class TrainingProgramController {
             return ResponseEntity.notFound().build();
         }
     }
+
 
     @PostMapping("/importCSV")
     @PreAuthorize("hasAuthority('training:import')")
@@ -124,8 +118,6 @@ public class TrainingProgramController {
             @PathVariable int trainingProgramCode) {
         return trainingProgram.changeTrainingProgramStatus(trainingProgramCode, "De-activate");
     }
-
-
 
     @GetMapping("/TemplateCSV")
     public ResponseEntity<InputStreamResource> downloadTemplateCSV() {
