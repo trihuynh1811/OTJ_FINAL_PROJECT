@@ -474,7 +474,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             log.info(syllabusObjectiveMap);
             syllabusObjectiveDAO.saveAll(syllabusObjectiveList);
 
-            syllabus.setNumberOfDay(request.getSyllabus().size());
+            syllabus.setDuration(request.getSyllabus().size());
             syllabusDAO.save(syllabus);
 
 //            for (int i = 0; i < request.getTrainingMaterials().size(); i++) {
@@ -768,7 +768,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             log.info(syllabusObjectiveMap);
             syllabusObjectiveDAO.saveAll(syllabusObjectiveList);
 
-            syllabus.setNumberOfDay(request.getSyllabus().size());
+            syllabus.setDuration(request.getSyllabus().size());
             syllabusDAO.save(syllabus);
 
 //            for (int i = 0; i < request.getTrainingMaterials().size(); i++) {
@@ -1312,7 +1312,7 @@ public class SyllabusServiceImpl implements SyllabusService {
 
         return SyllabusResponse.builder()
                 .syllabusStatus(syllabus.getPublishStatus())
-                .duration(Integer.toString(syllabus.getNumberOfDay()))
+                .duration(Integer.toString(syllabus.getDuration()))
                 .syllabusName(syllabus.getTopicName())
                 .syllabusCode(syllabus.getTopicCode())
                 .createdBy(user)

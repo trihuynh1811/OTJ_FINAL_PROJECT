@@ -45,6 +45,12 @@ public class TrainingProgramController {
         return trainingProgram.getTrainingProgramByCode(id);
     }
 
+//    @GetMapping("/get-all")
+//    @PreAuthorize("hasAuthority('user:read')")
+//    public ResponseEntity<ResponseObject> getAllTrainingProgram() {
+//        return trainingProgram.getAll();
+//    }
+
     @GetMapping("/get-all")
     @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<ResponseObject> getAllActiveTrainingProgram() {
@@ -129,6 +135,7 @@ public class TrainingProgramController {
             outputStream.write(csvData.getBytes());
             outputStream.close();
             HttpHeaders headers = new HttpHeaders();
+
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=TemplateCSV.csv");
             return ResponseEntity.ok()
                     .headers(headers)
