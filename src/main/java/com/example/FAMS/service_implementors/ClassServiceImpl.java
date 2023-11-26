@@ -16,7 +16,6 @@ import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey
 import com.example.FAMS.repositories.*;
 import com.example.FAMS.services.ClassService;
 import com.google.common.base.Strings;
-import jakarta.persistence.EntityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,7 +31,6 @@ import java.util.*;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -554,7 +552,6 @@ public class ClassServiceImpl implements ClassService {
     @Override
     public UpdateClassResponse updateClass(UpdateClassDTO request, String classCode) {
         Class existingClass = classDAO.findById(classCode).get();
-        User moder = userDAO.findByEmail(request.getModerEmail()).get();
         try {
             if (existingClass != null) {
 //                if(!existingClass.getClassId().equalsIgnoreCase(request.getClassCode())){
@@ -573,9 +570,9 @@ public class ClassServiceImpl implements ClassService {
                 SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
                 String timeFromStr = request.getClassTimeFrom().split(":").length == 3 ? request.getClassTimeFrom() : request.getClassTimeFrom() + ":00";
                 String timeToStr = request.getClassTimeTo().split(":").length == 3 ? request.getClassTimeTo() : request.getClassTimeTo() + ":00";
-                List<ClassUser> classUserList = classUserDAO.findByClassId_ClassId(classCode);
-                List<UserClassSyllabus> userSyllabusList = userClassSyllabusDAO.findByClassCode_ClassId(classCode);
-                List<ClassLearningDay> classLearningDayList = classLearningDayDAO.findByClassId_ClassId(classCode);
+                List<ClassUser> classUserList = new ArrayList<>();
+                List<UserClassSyllabus> userSyllabusList = new ArrayList<>();
+                List<ClassLearningDay> classLearningDayList = new ArrayList<>();
 
                 if (sdf.parse(request.getStartDate()).before(existingClass.getStartDate())) {
                     return UpdateClassResponse.builder()
@@ -584,15 +581,6 @@ public class ClassServiceImpl implements ClassService {
                             .status(2)
                             .build();
                 }
-                log.info("1");
-                classLearningDayDAO.deleteAll(classLearningDayList);
-                classUserDAO.deleteAll(classUserList);
-                userClassSyllabusDAO.deleteAllInBatch(userSyllabusList);
-
-                classLearningDayList.clear();
-                classUserList.clear();
-                userSyllabusList.clear();
-
                 existingClass.setClassName(request.getNameClass());
                 existingClass.setDuration(request.getTotalTimeLearning());
                 existingClass.setStartDate(sdf.parse(request.getStartDate()));
@@ -607,7 +595,6 @@ public class ClassServiceImpl implements ClassService {
                 existingClass.setLocation(request.getLocation());
                 existingClass.setStatus(request.getStatus());
                 existingClass.setModifiedDate(new Date());
-                existingClass.setModifiedBy(moder.getEmail());
 
 //                if (!existingClass.getTrainingProgram().getName().equalsIgnoreCase(request.getTrainingProgram())) {
 //                    existingClass.setTrainingProgram(trainingProgramDAO.findByName(request.getTrainingProgram()));
@@ -623,6 +610,19 @@ public class ClassServiceImpl implements ClassService {
 
                 Class updatedClass = classDAO.save(existingClass);
 
+                log.info("1");
+                List<ClassLearningDay> cldl = classLearningDayDAO.findByClassId_ClassId(classCode);
+                List<ClassUser> cu = classUserDAO.findByClassId_ClassId(classCode);
+                List<UserClassSyllabus> ucs = userClassSyllabusDAO.findByClassCode_ClassId(classCode);
+//                classLearningDayDAO.deleteAllInBatch(cldl);
+                classLearningDayDAO.deleteAll(cldl);
+//                classLearningDayDAO.flush();
+//                classUserDAO.deleteAllInBatch(cu);
+                classUserDAO.deleteAll(cu);
+//                classUserDAO.flush();
+                userClassSyllabusDAO.deleteAllInBatch(ucs);
+                userClassSyllabusDAO.deleteAll(ucs);
+                userClassSyllabusDAO.flush();
                 log.info("2");
 
                 for (int i = 0; i < request.getListDay().size(); i++) {
@@ -693,6 +693,9 @@ public class ClassServiceImpl implements ClassService {
                         userSyllabusList.add(userClassSyllabus);
                     }
                 }
+
+                User moder = userDAO.findByEmail(request.getModerEmail()).get();
+                existingClass.setModifiedBy(moder.getEmail());
 
                 classLearningDayDAO.saveAll(classLearningDayList);
                 classUserDAO.saveAll(classUserList);
@@ -808,7 +811,7 @@ public class ClassServiceImpl implements ClassService {
         Time timeTo = request.getTimeTo();
         String value = request.getValue();
 
-        ClassLearningDay classLearningDay = classLearningDayDAO.findByClassId_ClassIdAndEnrollDate(id, eDate);
+        ClassLearningDay classLearningDay = classLearningDayDAO.findByClassIdAndEnrollDate(classDAO.findById(request.getId()).orElse(null), eDate);
 
 
         if (classLearningDay != null) {
@@ -1104,7 +1107,7 @@ public class ClassServiceImpl implements ClassService {
         }
         for (int i = 0; i < trainingProgramSyllabuses.size(); i++) {
             SyllabusDTO syllabus = SyllabusDTO.builder()
-                    .numberOfDay(trainingProgramSyllabuses.get(i).getTopicCode().getNumberOfDay())
+                    .numberOfDay(trainingProgramSyllabuses.get(i).getTopicCode().getDuration())
                     .version(trainingProgramSyllabuses.get(i).getTopicCode().getVersion())
                     .createdDate(convertToMMDDYYYY(trainingProgramSyllabuses.get(i).getTopicCode().getCreatedDate().toString().split(" ")[0]))
                     .createdBy(trainingProgramSyllabuses.get(i).getTopicCode().getCreatedBy().getName())

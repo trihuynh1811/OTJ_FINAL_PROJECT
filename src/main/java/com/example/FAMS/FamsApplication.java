@@ -448,7 +448,7 @@ public class FamsApplication {
                                 .publishStatus(i % 2 == 0 ? "active" : "inactive")
                                 .technicalGroup("mao ze dong picture at home.")
                                 .priority("low")
-                                .numberOfDay(4)
+                                .duration(4)
                                 .courseObjective("glory to ccp.")
                                 .trainingAudience(10)
                                 .createdBy(userDAO.findByEmail("admin@gmail.com").get())

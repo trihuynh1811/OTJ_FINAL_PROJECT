@@ -2,6 +2,7 @@ package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.enums.Role;
+import com.example.FAMS.models.Class;
 import com.example.FAMS.models.Syllabus;
 import com.example.FAMS.models.TrainingProgram;
 import com.example.FAMS.models.TrainingProgramSyllabus;
@@ -32,6 +33,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -40,44 +42,47 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
   private final JWTService jwtService;
   private final SyllabusDAO syllabusDAO;
 
-  private static final String HEADER = "name,startDate,duration,userID,createdBy,createdDate,trainingProgramCode";
+  private static final String HEADER =
+      "name,startDate,duration,userID,createdBy,createdDate,trainingProgramCode";
   private final Logger logger = LoggerFactory.getLogger(TrainingProgramServiceImpl.class);
   private final TrainingProgramDAO trainingProgramDAO;
   private final UserDAO userDAO;
   private final TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
 
-
   @Override
   public ResponseEntity<ResponseObject> createTrainingProgram(
-          TrainingProgramDTO trainingProgramDTO) {
+      TrainingProgramDTO trainingProgramDTO) {
     TrainingProgram trainingProgram = new TrainingProgram();
     Date date = new Date();
     String token =
-            ((ServletRequestAttributes)
-                    Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
-                    .getRequest()
-                    .getHeader("Authorization")
-                    .substring(7);
+        ((ServletRequestAttributes)
+                Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
+            .getRequest()
+            .getHeader("Authorization")
+            .substring(7);
     String userEmail = jwtService.extractUserEmail(token);
     var requester = userDAO.findUserByEmail(userEmail).orElse(null);
     var person = userDAO.findByEmail(trainingProgramDTO.getTrainerGmail()).orElse(null);
-    if (trainingProgramDAO.getTrainingProgramByName(trainingProgramDTO.getTrainingProgramName()).orElse(null) == null) {
+    if (trainingProgramDAO
+            .getTrainingProgramByName(trainingProgramDTO.getTrainingProgramName())
+            .orElse(null)
+        == null) {
       trainingProgram.setName(trainingProgramDTO.getTrainingProgramName());
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseObject("Failed", "The Training Program name already been used", null));
+          .body(new ResponseObject("Failed", "The Training Program name already been used", null));
     }
     if (trainingProgramDTO.getDuration() > 0) {
       trainingProgram.setDuration(trainingProgramDTO.getDuration());
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseObject("Failed", "The duration cannot be negative", null));
+          .body(new ResponseObject("Failed", "The duration cannot be negative", null));
     }
     if (person != null && person.getRole().getRole() == Role.TRAINER) {
       trainingProgram.setUserID(person);
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseObject("Failed", "The person is not a trainer or not found", null));
+          .body(new ResponseObject("Failed", "The person is not a trainer or not found", null));
     }
     if (requester != null) {
       trainingProgram.setStatus("active");
@@ -92,7 +97,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
       return ResponseEntity.ok(new ResponseObject("Successful", "Added training program", result));
     } else {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseObject("Failed", "Cannot found the user", null));
+          .body(new ResponseObject("Failed", "Cannot found the user", null));
     }
   }
 
@@ -102,16 +107,16 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         var Item = syllabusDAO.findById(element).orElse(null);
         if (Item != null) {
           TrainingProgramSyllabus trainingProgramSyllabus =
-                  TrainingProgramSyllabus.builder()
-                          .id(
-                                  SyllabusTrainingProgramCompositeKey.builder()
-                                          .topicCode(Item.getTopicCode())
-                                          .trainingProgramCode(trainingProgram.getTrainingProgramCode())
-                                          .build())
-                          .topicCode(Item)
-                          .trainingProgramCode(trainingProgram)
-                          .deleted(false)
-                          .build();
+              TrainingProgramSyllabus.builder()
+                  .id(
+                      SyllabusTrainingProgramCompositeKey.builder()
+                          .topicCode(Item.getTopicCode())
+                          .trainingProgramCode(trainingProgram.getTrainingProgramCode())
+                          .build())
+                  .topicCode(Item)
+                  .trainingProgramCode(trainingProgram)
+                  .deleted(false)
+                  .build();
           trainingProgramSyllabusDAO.save(trainingProgramSyllabus);
         }
       }
@@ -122,12 +127,56 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
   @Override
   public ResponseEntity<ResponseObject> getAllActive() {
-//    List<TrainingProgramModified> userList;
     List<TrainingProgram> userList;
+    List<TrainingProgramDTOV2> responseList = new ArrayList<>();
     try {
-//      userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
       userList = trainingProgramDAO.findTrainingProgramsByStatus("active");
-      return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
+      for (TrainingProgram element : userList) {
+        TrainingProgramDTOV2 trainingProgramDTOV2 =
+            TrainingProgramDTOV2.builder()
+                .trainingProgramSyllabus(element.getTrainingProgramSyllabus())
+                .classes(
+                    element.getClasses().stream()
+                        .map(
+                            classEntity ->
+                                Class.builder()
+                                    .classId(classEntity.getClassId())
+                                    .approve(classEntity.getApprove())
+                                    .attendeeActual(classEntity.getAttendeeActual())
+                                    .attendeePlanned(classEntity.getAttendeePlanned())
+                                    .attendee(classEntity.getAttendee())
+                                    .attendeeAccepted(classEntity.getAttendeeAccepted())
+                                    .fsu(classEntity.getFsu())
+                                    .endDate(classEntity.getEndDate())
+                                    .className(classEntity.getClassName())
+                                    .location(classEntity.getLocation())
+                                    .review(classEntity.getReview())
+                                    .timeTo(classEntity.getTimeTo())
+                                    .timeFrom(classEntity.getTimeFrom())
+                                    .modifiedDate(classEntity.getModifiedDate())
+                                    .startDate(classEntity.getStartDate())
+                                    .status(classEntity.getStatus())
+                                    .modifiedBy(classEntity.getModifiedBy())
+                                    .duration(classEntity.getDuration())
+                                    .createdBy(classEntity.getCreatedBy())
+                                    .createdDate(classEntity.getCreatedDate())
+                                    .deactivated(classEntity.isDeactivated())
+                                    .build())
+                        .collect(Collectors.toSet()))
+                .userID(element.getUserID())
+                .trainingProgramCode(element.getTrainingProgramCode())
+                .name(element.getName())
+                .createdDate(element.getCreatedDate())
+                .createdBy(element.getCreatedBy())
+                .status(element.getStatus())
+                .startDate(element.getStartDate())
+                .modifiedBy(element.getModifiedBy())
+                .modifiedDate(element.getModifiedDate())
+                .duration(element.getDuration())
+                .build();
+        responseList.add(trainingProgramDTOV2);
+      }
+      return ResponseEntity.ok(new ResponseObject("Successful", "Found user", responseList));
     } catch (Exception e) {
       userList = Collections.emptyList();
       return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
@@ -136,12 +185,56 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
   @Override
   public ResponseEntity<ResponseObject> getAll() {
-//    List<TrainingProgramModified> userList;
     List<TrainingProgram> userList;
+    List<TrainingProgramDTOV2> responseList = new ArrayList<>();
     try {
-//      userList = trainingProgramDAO.findBy(TrainingProgramModified.class);
-      userList = trainingProgramDAO.getAllBy();
-      return ResponseEntity.ok(new ResponseObject("Successful", "Found user", userList));
+      userList = trainingProgramDAO.findTrainingProgramsBy();
+      for (TrainingProgram element : userList) {
+        TrainingProgramDTOV2 trainingProgramDTOV2 =
+            TrainingProgramDTOV2.builder()
+                .trainingProgramSyllabus(element.getTrainingProgramSyllabus())
+                .classes(
+                    element.getClasses().stream()
+                        .map(
+                            classEntity ->
+                                Class.builder()
+                                    .classId(classEntity.getClassId())
+                                    .approve(classEntity.getApprove())
+                                    .attendeeActual(classEntity.getAttendeeActual())
+                                    .attendeePlanned(classEntity.getAttendeePlanned())
+                                    .attendee(classEntity.getAttendee())
+                                    .attendeeAccepted(classEntity.getAttendeeAccepted())
+                                    .fsu(classEntity.getFsu())
+                                    .endDate(classEntity.getEndDate())
+                                    .className(classEntity.getClassName())
+                                    .location(classEntity.getLocation())
+                                    .review(classEntity.getReview())
+                                    .timeTo(classEntity.getTimeTo())
+                                    .timeFrom(classEntity.getTimeFrom())
+                                    .modifiedDate(classEntity.getModifiedDate())
+                                    .startDate(classEntity.getStartDate())
+                                    .status(classEntity.getStatus())
+                                    .modifiedBy(classEntity.getModifiedBy())
+                                    .duration(classEntity.getDuration())
+                                    .createdBy(classEntity.getCreatedBy())
+                                    .createdDate(classEntity.getCreatedDate())
+                                    .deactivated(classEntity.isDeactivated())
+                                    .build())
+                        .collect(Collectors.toSet()))
+                .userID(element.getUserID())
+                .trainingProgramCode(element.getTrainingProgramCode())
+                .name(element.getName())
+                .createdDate(element.getCreatedDate())
+                .createdBy(element.getCreatedBy())
+                .status(element.getStatus())
+                .startDate(element.getStartDate())
+                .modifiedBy(element.getModifiedBy())
+                .modifiedDate(element.getModifiedDate())
+                .duration(element.getDuration())
+                .build();
+        responseList.add(trainingProgramDTOV2);
+      }
+      return ResponseEntity.ok(new ResponseObject("Successful", "Found user", responseList));
     } catch (Exception e) {
       userList = Collections.emptyList();
       return ResponseEntity.ok(new ResponseObject("Failed", "Not found user", userList));
@@ -150,40 +243,51 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
   @Override
   public ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(
-          int trainingProgramCode,
-          TrainingProgramDTO trainingProgramDTO) {
-    TrainingProgram trainingProgramExisted = trainingProgramDAO.findById(trainingProgramCode).orElse(null);
+      int trainingProgramCode, TrainingProgramDTO trainingProgramDTO) {
+    TrainingProgram trainingProgramExisted =
+        trainingProgramDAO.findById(trainingProgramCode).orElse(null);
 
     if (trainingProgramExisted == null) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseTrainingProgram("Failed", "Training program not found", 0, null, null));
+          .body(new ResponseTrainingProgram("Failed", "Training program not found", 0, null, null));
     }
 
     if (!trainingProgramDTO.getTrainingProgramName().equals(trainingProgramExisted.getName())) {
-      if (trainingProgramDAO.getTrainingProgramByName(trainingProgramDTO.getTrainingProgramName()).isPresent()) {
+      if (trainingProgramDAO
+          .getTrainingProgramByName(trainingProgramDTO.getTrainingProgramName())
+          .isPresent()) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ResponseTrainingProgram("Failed", "The Training Program name is already in use",0, null,null));
+            .body(
+                new ResponseTrainingProgram(
+                    "Failed", "The Training Program name is already in use", 0, null, null));
       }
     }
 
     if (trainingProgramDTO.getDuration() <= 0) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseTrainingProgram("Failed", "The duration cannot be negative", 0,null,null));
+          .body(
+              new ResponseTrainingProgram(
+                  "Failed", "The duration cannot be negative", 0, null, null));
     }
     if (!"Active".equalsIgnoreCase(trainingProgramDTO.getStatus())) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseTrainingProgram("Failed", "The status must be Active", 0,null,null));
+          .body(new ResponseTrainingProgram("Failed", "The status must be Active", 0, null, null));
     }
-    User trainer = userDAO.findByEmail(trainingProgramDTO.getTrainerGmail())
+    User trainer =
+        userDAO
+            .findByEmail(trainingProgramDTO.getTrainerGmail())
             .filter(user -> user.getRole().getRole() == Role.TRAINER)
             .orElse(null);
     if (trainer == null) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseTrainingProgram("Failed", "The person is not a trainer or not found",0,null, null));
+          .body(
+              new ResponseTrainingProgram(
+                  "Failed", "The person is not a trainer or not found", 0, null, null));
     }
 
-    String token = ((ServletRequestAttributes)
-            Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
+    String token =
+        ((ServletRequestAttributes)
+                Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
             .getRequest()
             .getHeader("Authorization")
             .substring(7);
@@ -192,7 +296,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
     if (requester == null) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(new ResponseTrainingProgram("Failed", "Cannot find the user",0,null, null));
+          .body(new ResponseTrainingProgram("Failed", "Cannot find the user", 0, null, null));
     }
     trainingProgramExisted.setName(trainingProgramDTO.getTrainingProgramName());
     trainingProgramExisted.setDuration(trainingProgramDTO.getDuration());
@@ -206,14 +310,21 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
     TrainingProgram updatedProgram = trainingProgramDAO.save(trainingProgramExisted);
 
+    List<TrainingProgramSyllabus> trainingProgramSyllabusList =
+        updateTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
 
-    List<TrainingProgramSyllabus> trainingProgramSyllabusList = updateTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
-
-    return ResponseEntity.ok(new ResponseTrainingProgram("Successful", "Updated training program", 0, updatedProgram, trainingProgramSyllabusList));
+    return ResponseEntity.ok(
+        new ResponseTrainingProgram(
+            "Successful",
+            "Updated training program",
+            0,
+            updatedProgram,
+            trainingProgramSyllabusList));
   }
 
   // Trong hàm updateTrainingSyllabus
-  private List<TrainingProgramSyllabus> updateTrainingSyllabus(TrainingProgram trainingProgram, String[] topicCodes) {
+  private List<TrainingProgramSyllabus> updateTrainingSyllabus(
+      TrainingProgram trainingProgram, String[] topicCodes) {
     List<TrainingProgramSyllabus> trainingProgramSyllabusList = new ArrayList<>();
     SyllabusTrainingProgramCompositeKey compositeKey = new SyllabusTrainingProgramCompositeKey();
     compositeKey.setTrainingProgramCode(trainingProgram.getTrainingProgramCode());
@@ -222,22 +333,27 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
       Syllabus syllabus = syllabusDAO.findById(element).orElse(null);
 
       if (syllabus != null) {
-        boolean exists = trainingProgram.getTrainingProgramSyllabus().stream()
-                .anyMatch(existingSyllabus ->
-                        existingSyllabus.getTopicCode().getTopicCode().equals(syllabus.getTopicCode()));
+        boolean exists =
+            trainingProgram.getTrainingProgramSyllabus().stream()
+                .anyMatch(
+                    existingSyllabus ->
+                        existingSyllabus
+                            .getTopicCode()
+                            .getTopicCode()
+                            .equals(syllabus.getTopicCode()));
 
         if (!exists) {
           TrainingProgramSyllabus trainingProgramSyllabus =
-                  TrainingProgramSyllabus.builder()
-                          .id(
-                                  SyllabusTrainingProgramCompositeKey.builder()
-                                          .topicCode(syllabus.getTopicCode())
-                                          .trainingProgramCode(trainingProgram.getTrainingProgramCode())
-                                          .build())
-                          .topicCode(syllabus)
-                          .trainingProgramCode(trainingProgram)
-                          .deleted(false)
-                          .build();
+              TrainingProgramSyllabus.builder()
+                  .id(
+                      SyllabusTrainingProgramCompositeKey.builder()
+                          .topicCode(syllabus.getTopicCode())
+                          .trainingProgramCode(trainingProgram.getTrainingProgramCode())
+                          .build())
+                  .topicCode(syllabus)
+                  .trainingProgramCode(trainingProgram)
+                  .deleted(false)
+                  .build();
           trainingProgramSyllabusList.add(trainingProgramSyllabus);
         }
       }
@@ -246,18 +362,18 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
     return trainingProgramSyllabusList;
   }
 
-
-
-
-
-
-
   @Override
   public TrainingProgram duplicateTrainingProgram(int trainingProgramCode) {
-    TrainingProgram originalTraining = trainingProgramDAO.findById(trainingProgramCode)
-            .orElseThrow(() -> new EntityNotFoundException("Training program not found with code: " + trainingProgramCode));
+    TrainingProgram originalTraining =
+        trainingProgramDAO
+            .findById(trainingProgramCode)
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(
+                        "Training program not found with code: " + trainingProgramCode));
 
-    TrainingProgram newTrainingProgram = TrainingProgram.builder()
+    TrainingProgram newTrainingProgram =
+        TrainingProgram.builder()
             .name(originalTraining.getName() + LocalTime.now().toString())
             .duration(originalTraining.getDuration())
             .userID(originalTraining.getUserID())
@@ -271,7 +387,6 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
     return trainingProgramDAO.save(newTrainingProgram);
   }
 
-
   @Override
   public TrainingProgram duplicateTrainingProgramName(String name) {
     TrainingProgram originalTraining = trainingProgramDAO.findByName(name);
@@ -279,7 +394,8 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
     name = originalTraining.getName();
     String trainingProgramName = name + "_" + version;
-    TrainingProgram newTrainingProgram = TrainingProgram.builder()
+    TrainingProgram newTrainingProgram =
+        TrainingProgram.builder()
             .name(trainingProgramName)
             .duration(originalTraining.getDuration())
             .userID(originalTraining.getUserID())
@@ -293,33 +409,34 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
     return trainingProgramDAO.save(newTrainingProgram);
   }
 
-
   @Override
   public ResponseEntity<ResponseObject> processDataFromCSV(
-          MultipartFile file, String choice, String separator, Authentication authentication) throws Exception {
+      MultipartFile file, String choice, String separator, Authentication authentication)
+      throws Exception {
     if (!isCSVFile(file)) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(ResponseObject.builder()
-                      .status("Import fail")
-                      .message("File is not csv")
-                      .payload(null)
-                      .build());
+          .body(
+              ResponseObject.builder()
+                  .status("Import fail")
+                  .message("File is not csv")
+                  .payload(null)
+                  .build());
     }
     int count = 0;
     BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
 
     SimpleDateFormat[] dateFormats = {
-            new SimpleDateFormat("dd/MM/yyyy"),
-            new SimpleDateFormat("dd-MM-yyyy")
+      new SimpleDateFormat("dd/MM/yyyy"), new SimpleDateFormat("dd-MM-yyyy")
     };
     String headerLine = reader.readLine();
     if (headerLine != null && !isCSVHeaderValid(headerLine)) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(ResponseObject.builder()
-                      .status("Fail")
-                      .message("CSV file header does not match expected headers")
-                      .payload(null)
-                      .build());
+          .body(
+              ResponseObject.builder()
+                  .status("Fail")
+                  .message("CSV file header does not match expected headers")
+                  .payload(null)
+                  .build());
     }
     String line;
     boolean hasData = false;
@@ -334,25 +451,29 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         hasData = true;
         try {
           int importedId = Integer.parseInt(data[6]);
-          TrainingProgram trainingProgramCodeCSV = trainingProgramDAO.findById(importedId).orElse(null);
+          TrainingProgram trainingProgramCodeCSV =
+              trainingProgramDAO.findById(importedId).orElse(null);
           if (choice.equalsIgnoreCase("Replace")) {
             if (trainingProgramCodeCSV != null) {
               trainingProgramDAO.deleteById(importedId);
               count++;
             }
-            TrainingProgram newProgram = createTrainingProgramFromCSVData(data, dateFormats, authentication);
+            TrainingProgram newProgram =
+                createTrainingProgramFromCSVData(data, dateFormats, authentication);
             trainingProgramDAO.save(newProgram);
             count++;
           } else if (choice.equalsIgnoreCase("Skip")) {
             if (trainingProgramCodeCSV != null) {
               continue;
             }
-            trainingProgramDAO.save(createTrainingProgramFromCSVData(data, dateFormats, authentication));
+            trainingProgramDAO.save(
+                createTrainingProgramFromCSVData(data, dateFormats, authentication));
             count++;
           } else if (choice.equalsIgnoreCase("Allow")) {
             if (trainingProgramCodeCSV != null) {
               int newId = createNewId(trainingProgramDAO);
-              TrainingProgram newTrainingProgram = TrainingProgram.builder()
+              TrainingProgram newTrainingProgram =
+                  TrainingProgram.builder()
                       .name(data[0])
                       .userID(getCreator(authentication))
                       .startDate(parseDate(data[1], dateFormats))
@@ -368,7 +489,8 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
               count++;
             } else {
               // ID doesn't exist, proceed with creating a new entry
-              TrainingProgram newTrainingProgram = TrainingProgram.builder()
+              TrainingProgram newTrainingProgram =
+                  TrainingProgram.builder()
                       .name(data[0])
                       .userID(getCreator(authentication))
                       .startDate(parseDate(data[1], dateFormats))
@@ -386,43 +508,42 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
           }
         } catch (Exception e) {
           return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                  .body(ResponseObject.builder()
-                          .status("Fail")
-                          .message("Column data is missing or invalid")
-                          .payload(null)
-                          .build());
+              .body(
+                  ResponseObject.builder()
+                      .status("Fail")
+                      .message("Column data is missing or invalid")
+                      .payload(null)
+                      .build());
         }
       }
     }
     if (!hasData) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(ResponseObject.builder()
-                      .status("Fail")
-                      .message("CSV file has no data")
-                      .payload(null)
-                      .build());
+          .body(
+              ResponseObject.builder()
+                  .status("Fail")
+                  .message("CSV file has no data")
+                  .payload(null)
+                  .build());
     }
     if (count > 0) {
       return ResponseEntity.status(HttpStatus.OK)
-              .body(
-                      ResponseObject.builder()
-                              .status("Success")
-                              .message("Import successfully")
-                              .payload(null)
-                              .build());
+          .body(
+              ResponseObject.builder()
+                  .status("Success")
+                  .message("Import successfully")
+                  .payload(null)
+                  .build());
     }
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(
-                    ResponseObject.builder().
-                            status("Fail").
-                            message("Import failed").
-                            payload(null).
-                            build());
+        .body(
+            ResponseObject.builder().status("Fail").message("Import failed").payload(null).build());
   }
 
   private boolean isCSVHeaderValid(String headerLine) {
     String[] headers = headerLine.split(",");
-    String[] expectedHeaders = HEADER.split(","); // HEADER: "trainingProgramCode,name,userID,startDate,duration,status,createdBy,createdDate"
+    String[] expectedHeaders = HEADER.split(","); // HEADER:
+    // "trainingProgramCode,name,userID,startDate,duration,status,createdBy,createdDate"
 
     if (headers.length != expectedHeaders.length) {
       return false;
@@ -441,11 +562,13 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
     Integer maxId = trainingProgramDAO.findMaxTrainingProgramCode();
     if (maxId == null) {
       return 1;
-    } else {// Ngược lại, tạo một ID mới không trùng lặp
+    } else { // Ngược lại, tạo một ID mới không trùng lặp
       return maxId + 1;
     }
   }
-  private java.sql.Date parseDate(String dateString, SimpleDateFormat[] dateFormats) throws ParseException {
+
+  private java.sql.Date parseDate(String dateString, SimpleDateFormat[] dateFormats)
+      throws ParseException {
     for (SimpleDateFormat dateFormat : dateFormats) {
       try {
         Date parsedDate = dateFormat.parse(dateString);
@@ -462,8 +585,9 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
     return filename != null && filename.endsWith(".csv");
   }
 
-
-  private TrainingProgram createTrainingProgramFromCSVData(String[] data, SimpleDateFormat[] dateFormats, Authentication authentication) throws ParseException {
+  private TrainingProgram createTrainingProgramFromCSVData(
+      String[] data, SimpleDateFormat[] dateFormats, Authentication authentication)
+      throws ParseException {
     int importedId = Integer.parseInt(data[6]);
     TrainingProgram existingTrainingProgram = trainingProgramDAO.findById(importedId).orElse(null);
 
@@ -482,20 +606,19 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
     } else {
       // Create a new TrainingProgram if the ID does not exist in the database
       return TrainingProgram.builder()
-              .name(data[0])
-              .userID(getCreator(authentication))
-              .startDate(parseDate(data[1], dateFormats))
-              .duration(Integer.parseInt(data[2]))
-              .status(data[3].equalsIgnoreCase("1") ? "active" : "inactive")
-              .createdBy(getCreator(authentication).getName())
-              .createdDate(parseDate(data[4], dateFormats))
-              .modifiedBy(getCreator(authentication).getName())
-              .modifiedDate(parseDate(data[5], dateFormats))
-              .trainingProgramCode(importedId)
-              .build();
+          .name(data[0])
+          .userID(getCreator(authentication))
+          .startDate(parseDate(data[1], dateFormats))
+          .duration(Integer.parseInt(data[2]))
+          .status(data[3].equalsIgnoreCase("1") ? "active" : "inactive")
+          .createdBy(getCreator(authentication).getName())
+          .createdDate(parseDate(data[4], dateFormats))
+          .modifiedBy(getCreator(authentication).getName())
+          .modifiedDate(parseDate(data[5], dateFormats))
+          .trainingProgramCode(importedId)
+          .build();
     }
   }
-
 
   @Override
   public TrainingProgram searchTrainingProgram(String keyword) {
@@ -516,19 +639,19 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
       List<TrainingProgramDetails> object = trainingProgramDAO.getTrainingProgramDetails(code);
       return ResponseEntity.ok(
-              new ResponseObjectVersion2(
-                      "Successful", "Found user", totalSubjectDays, totalTrainingProgramDates, object));
+          new ResponseObjectVersion2(
+              "Successful", "Found user", totalSubjectDays, totalTrainingProgramDates, object));
     } catch (Exception e) {
       var object = Collections.emptyList();
       return ResponseEntity.ok(
-              new ResponseObjectVersion2("Failed", "Not found user", 0, 0, object));
+          new ResponseObjectVersion2("Failed", "Not found user", 0, 0, object));
     }
   }
 
   private TrainingProgram getNameIfExisted(String name, List<TrainingProgram> trainingProgramList) {
     for (TrainingProgram trainingProgram : trainingProgramList) {
       if (trainingProgram.getName().equalsIgnoreCase(name)
-              && trainingProgram.getStatus().equalsIgnoreCase("active")) return trainingProgram;
+          && trainingProgram.getStatus().equalsIgnoreCase("active")) return trainingProgram;
     }
     return null;
   }
@@ -536,14 +659,14 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
   private TrainingProgram getCodeIfExisted(String code, List<TrainingProgram> trainingProgramList) {
     for (TrainingProgram trainingProgram : trainingProgramList) {
       if (Integer.toString(trainingProgram.getTrainingProgramCode()).equalsIgnoreCase(code)
-              && trainingProgram.getStatus().equalsIgnoreCase("active")) return trainingProgram;
+          && trainingProgram.getStatus().equalsIgnoreCase("active")) return trainingProgram;
     }
     return null;
   }
 
   @Override
   public ResponseEntity<ResponseObject> changeTrainingProgramStatus(
-          int trainingProgramCode, String value) {
+      int trainingProgramCode, String value) {
     if (checkExisted(trainingProgramCode, value)) {
       switch (value) {
         case "Activate":
@@ -554,21 +677,25 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
           break;
       }
       return ResponseEntity.status(HttpStatus.OK)
-              .body(
-                      new ResponseObject(
-                              value + " training program successfully",
-                              "Training program with code "
-                                      + trainingProgramCode
-                                      + " is now "
-                                      + value.toLowerCase(),
-                              trainingProgramDAO.findById(trainingProgramCode).orElse(null)));
+          .body(
+              new ResponseObject(
+                  value + " training program successfully",
+                  "Training program with code "
+                      + trainingProgramCode
+                      + " is now "
+                      + value.toLowerCase(),
+                  trainingProgramDAO.findById(trainingProgramCode).orElse(null)));
     }
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(
-                    new ResponseObject(
-                            value + " training program failed",
-                            "Training program with code " + trainingProgramCode + " is not found or already be " + value.toLowerCase() + "d",
-                            "No data"));
+        .body(
+            new ResponseObject(
+                value + " training program failed",
+                "Training program with code "
+                    + trainingProgramCode
+                    + " is not found or already be "
+                    + value.toLowerCase()
+                    + "d",
+                "No data"));
   }
 
   private void activateProgram(int trainingProgramCode) {
