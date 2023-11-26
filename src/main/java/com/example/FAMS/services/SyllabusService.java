@@ -46,5 +46,7 @@ public interface SyllabusService {
 
     Syllabus duplicateSyllabusByName(String topicCode, String topicName, Authentication authentication);
 
+    Syllabus duplicateSyllabusByNameAndCode(String topicCode, String topicName, Authentication authentication);
+
     Syllabus duplicateSyllabus(String topicCode, Authentication authentication);
 }

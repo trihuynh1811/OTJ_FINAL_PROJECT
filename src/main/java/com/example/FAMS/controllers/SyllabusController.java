@@ -298,12 +298,12 @@ public class SyllabusController {
         }
     }
 
-    @GetMapping("/duplicateByName")
+    @GetMapping("/duplicateByNameCode")
     @PreAuthorize("hasAuthority('syllabus:update')")
     public ResponseEntity<?> duplicateTopicName(@RequestParam String topicCode,
                                                 @RequestParam String topicName,
                                                 Authentication authentication) {
-        Syllabus duplicatedSyllabus = syllabusService.duplicateSyllabusByName(topicCode, topicName, authentication);
+        Syllabus duplicatedSyllabus = syllabusService.duplicateSyllabusByNameAndCode(topicCode, topicName, authentication);
 
         return ResponseEntity.ok(duplicatedSyllabus);
     }
