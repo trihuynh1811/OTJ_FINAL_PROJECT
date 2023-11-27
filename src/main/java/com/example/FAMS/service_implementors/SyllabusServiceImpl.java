@@ -1111,7 +1111,7 @@ public class SyllabusServiceImpl implements SyllabusService {
     public void downloadCSV() throws IOException {
         String computerAccountName = System.getProperty("user.name");
 
-        File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/Template.csv");
+        File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/TemplateSyllabus.csv");
 
         // Sử dụng FileWriter để ghi vào tệp CSV
         FileWriter fileWriter = new FileWriter(csvFile, false); // Use false to overwrite the file

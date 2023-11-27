@@ -125,12 +125,12 @@ public class SyllabusController {
     }
 
 
-    @PostMapping("/downloadCSV")
+    @GetMapping("/downloadCSV")
     public ResponseEntity<byte[]> downloadFile() throws IOException {
         syllabusService.downloadCSV();
 
         String computerAccountName = System.getProperty("user.name");
-        File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/Template.csv");
+        File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/TemplateSyllabus.csv");
 
         if (csvFile.exists()) {
             byte[] data = Files.readAllBytes(csvFile.toPath());
