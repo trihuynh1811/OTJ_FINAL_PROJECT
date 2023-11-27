@@ -309,7 +309,7 @@ public class SyllabusController {
     }
 
 
-    @GetMapping("/duplicate/{topicCode}")
+    @PostMapping("/duplicate/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
     public ResponseEntity<?> duplicateTopicCode(@PathVariable String topicCode, Authentication authentication) {
         Syllabus duplicatedSyllabus = syllabusService.duplicateSyllabus(topicCode, authentication);

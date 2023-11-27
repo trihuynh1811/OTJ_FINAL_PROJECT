@@ -36,6 +36,7 @@ public interface SyllabusService {
 //    UpdateSyllabusResponse updateSyllabusOther(UpdateSyllabusGeneralRequest updateSyllabusGeneralRequest, String topicCode);
 //    UpdateSyllabusResponse updateSyllabusGeneral(UpdateSyllabusGeneralRequest update , String topicCode);
 //    UpdateSyllabusResponse updateSyllabusOutline(UpdateSyllabusOutlineRequest update ,String topicCode);
+
     Syllabus getSyllabusById(String topicCode);
 
     DeleteSyllabusResponse deleteSyllabus(String topicCode);
