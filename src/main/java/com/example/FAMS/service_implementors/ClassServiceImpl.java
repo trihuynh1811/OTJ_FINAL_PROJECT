@@ -916,7 +916,9 @@ public class ClassServiceImpl implements ClassService {
 
     @Override
     public UpdateCalendarResponse updateClassLearningDay(UpdateCalendarRequest request) throws ParseException {
-        String id = request.getId();
+//        String id = request.getId();
+        int id = Integer.parseInt(request.getId());
+        String classid = request.getClassid();
         String enrollDate = request.getEnrollDate();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date eDate = dateFormat.parse(enrollDate);
@@ -944,7 +946,8 @@ public class ClassServiceImpl implements ClassService {
             }
         }
 
-        ClassLearningDay classLearningDay = classLearningDayDAO.findByClassIdAndEnrollDate(classDAO.findById(request.getId()).orElse(null), eDate);
+        // ClassLearningDay classLearningDay = classLearningDayDAO.findByClassIdAndEnrollDate(classDAO.findById(request.getId()).orElse(null), eDate);
+        ClassLearningDay classLearningDay = classLearningDayDAO.findByIdAndAndEnrollDate(id,eDate);
 
         if (classLearningDay != null) {
             if ("Only".equals(value)) {
@@ -952,7 +955,8 @@ public class ClassServiceImpl implements ClassService {
                 classLearningDay.setTimeTo(timeTo);
                 classLearningDay = classLearningDayDAO.save(classLearningDay);
             } else if ("All".equals(value)) {
-                List<ClassLearningDay> classLearningDays = classLearningDayDAO.findByClassId_ClassId(id);
+               // List<ClassLearningDay> classLearningDays = classLearningDayDAO.findByClassId_ClassId(id);
+                List<ClassLearningDay> classLearningDays = classLearningDayDAO.findByClassId_ClassId(classid);
                 for (ClassLearningDay day : classLearningDays) {
                     day.setTimeFrom(timeFrom);
                     day.setTimeTo(timeTo);
@@ -960,7 +964,7 @@ public class ClassServiceImpl implements ClassService {
                 classLearningDayDAO.saveAll(classLearningDays);
             }
 
-            if (classLearningDay != null) {
+            if (classLearningDay != null ) {
                 return UpdateCalendarResponse.builder()
                         .status("Update Calendar successful")
                         .updateClassLearningDay(classLearningDay)
