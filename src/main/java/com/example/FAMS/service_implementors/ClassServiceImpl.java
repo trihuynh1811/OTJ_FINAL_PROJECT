@@ -626,9 +626,28 @@ public class ClassServiceImpl implements ClassService {
                 String timeFromStr = request.getClassTimeFrom().split(":").length == 3 ? request.getClassTimeFrom() : request.getClassTimeFrom() + ":00";
                 String timeToStr = request.getClassTimeTo().split(":").length == 3 ? request.getClassTimeTo() : request.getClassTimeTo() + ":00";
                 Date today = new Date();
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+                LocalDate startDate = LocalDate.parse(request.getStartDate(), dateFormatter);
+                LocalDate endDate = LocalDate.parse(request.getEndDate(), dateFormatter);
                 List<ClassUser> classUserList = new ArrayList<>();
                 List<UserClassSyllabus> userSyllabusList = new ArrayList<>();
                 List<ClassLearningDay> classLearningDayList = new ArrayList<>();
+
+                if (!isValidDate(startDate, request.getStartDate())) {
+                    return UpdateClassResponse.builder()
+                            .message("invalid start date.")
+                            .updatedClass(null)
+                            .status(2)
+                            .build();
+                }
+
+                if (!isValidDate(endDate, request.getEndDate())) {
+                    return UpdateClassResponse.builder()
+                            .message("invalid end date.")
+                            .updatedClass(null)
+                            .status(2)
+                            .build();
+                }
 
                 if (sdf.parse(request.getStartDate()).before(existingClass.getStartDate())) {
                     return UpdateClassResponse.builder()
