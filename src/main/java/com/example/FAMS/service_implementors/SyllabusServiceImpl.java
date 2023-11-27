@@ -1130,19 +1130,19 @@ public class SyllabusServiceImpl implements SyllabusService {
     public Syllabus duplicateSyllabusByNameAndCode(String topicCode, String topicName, Authentication authentication) {
         int duplicateName = syllabusDAO.countByTopicNameLike(topicName + "%");
         int duplicateCode = syllabusDAO.countByTopicCodeLike(topicCode + "%");
-        String topicCodeCloneCode = "";
+        String topicCodeClone = "";
         Syllabus originalSyllabusName = syllabusDAO.findByTopicName(topicName).get();
         Syllabus originalSyllabusCode = syllabusDAO.findById(topicCode).get();
         if (originalSyllabusCode != null) {
             topicCode = originalSyllabusCode.getTopicCode();
-            topicCodeCloneCode = topicCode + "_" + duplicateCode;
+            topicCodeClone = topicCode + "_" + duplicateCode;
         } else {
-            topicCodeCloneCode = originalSyllabusCode.getTopicCode();
+            topicCodeClone = originalSyllabusCode.getTopicCode();
         }
         topicName = originalSyllabusName.getTopicName();
-        String topicCodeCloneName = topicName + "_" + duplicateName;
+        String topicNameClone = topicName + "_" + duplicateName;
         Syllabus duplicatedSyllabusByName = Syllabus.builder()
-                .topicName(topicCodeCloneName)
+                .topicName(topicNameClone)
                 .trainingPrinciples(originalSyllabusName.getTrainingPrinciples())
                 .version(originalSyllabusName.getVersion())
                 .technicalGroup(originalSyllabusName.getTechnicalGroup())
@@ -1156,7 +1156,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                 .modifiedBy(originalSyllabusName.getModifiedBy())
                 .modifiedDate(new Date())
                 .courseObjective(originalSyllabusName.getCourseObjective())
-                .topicCode(topicCodeCloneCode)
+                .topicCode(topicCodeClone)
                 .build();
 
         syllabusDAO.save(duplicatedSyllabusByName);
