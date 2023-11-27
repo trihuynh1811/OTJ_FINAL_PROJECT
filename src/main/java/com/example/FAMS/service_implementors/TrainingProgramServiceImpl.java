@@ -644,7 +644,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
     } catch (Exception e) {
       var object = Collections.emptyList();
       return ResponseEntity.ok(
-          new ResponseObjectVersion2("Failed", "Not found user", 0, 0, object));
+          new ResponseObjectVersion2("Failed", "Not found training program", 0, 0, object));
     }
   }
 

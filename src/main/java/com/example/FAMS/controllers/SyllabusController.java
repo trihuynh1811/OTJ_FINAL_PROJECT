@@ -51,6 +51,7 @@ public class SyllabusController {
         return ResponseEntity.status(200).body(syllabusList);
     }
 
+
     @GetMapping("/{type}")
     @PreAuthorize("hasAuthority('syllabus:read')")
     public ResponseEntity<List<SyllabusResponse>> get(@PathVariable(name = "type", required = false, value = "") Optional<String> type) {

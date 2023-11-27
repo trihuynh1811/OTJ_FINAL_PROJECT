@@ -946,7 +946,6 @@ public class ClassServiceImpl implements ClassService {
 
         ClassLearningDay classLearningDay = classLearningDayDAO.findByClassIdAndEnrollDate(classDAO.findById(request.getId()).orElse(null), eDate);
 
-
         if (classLearningDay != null) {
             if ("Only".equals(value)) {
                 classLearningDay.setTimeFrom(timeFrom);
