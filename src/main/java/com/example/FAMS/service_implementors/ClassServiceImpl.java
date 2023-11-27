@@ -25,8 +25,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.sql.Time;
 import java.text.ParseException;
@@ -195,12 +198,11 @@ public class ClassServiceImpl implements ClassService {
         try {
             boolean existingClass = classDAO.findById(request.getClassCode()).isPresent();
             if (existingClass) {
-                CreateClassResponse res = CreateClassResponse.builder()
+                return CreateClassResponse.builder()
                         .message("class with id: " + request.getClassCode() + " already exist.")
                         .createdClass(null)
                         .status(1)
                         .build();
-                return res;
             }
             log.info(request);
             Class classInfo = null;
@@ -212,19 +214,45 @@ public class ClassServiceImpl implements ClassService {
 //            Location l = null;
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
             Date today = new Date();
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+            LocalDate startDate = LocalDate.parse(request.getStartDate(), dateFormatter);
+            LocalDate endDate = LocalDate.parse(request.getEndDate(), dateFormatter);
             User user = null;
 //            String review = userDAO.findByEmail(request.getReview()).get().getName();
 //            String approve = userDAO.findByEmail(request.getApprove()).get().getName();
             String timeFromStr = request.getClassTimeFrom().split(":").length == 3 ? request.getClassTimeFrom() : request.getClassTimeFrom() + ":00";
             String timeToStr = request.getClassTimeTo().split(":").length == 3 ? request.getClassTimeTo() : request.getClassTimeTo() + ":00";
 
-            if (sdf.parse(request.getStartDate()).before(today) || sdf.parse(request.getStartDate()) == today) {
-                CreateClassResponse res = CreateClassResponse.builder()
+            if (!isValidDate(startDate, request.getStartDate())) {
+                return CreateClassResponse.builder()
+                        .message("invalid start date.")
+                        .createdClass(null)
+                        .status(2)
+                        .build();
+            }
+
+            if (!isValidDate(endDate, request.getEndDate())) {
+                return CreateClassResponse.builder()
+                        .message("invalid end date.")
+                        .createdClass(null)
+                        .status(2)
+                        .build();
+            }
+
+            if (!sdf.parse(request.getStartDate()).after(today)) {
+                return CreateClassResponse.builder()
                         .message("start date for this class should be after today")
                         .createdClass(null)
                         .status(2)
                         .build();
-                return res;
+            }
+
+            if (!sdf.parse(request.getEndDate()).after(sdf.parse(request.getStartDate()))) {
+                return CreateClassResponse.builder()
+                        .message("end date for this class should be after start date")
+                        .createdClass(null)
+                        .status(2)
+                        .build();
             }
 
             classInfo = Class.builder()
@@ -271,6 +299,13 @@ public class ClassServiceImpl implements ClassService {
 
             for (int j = 0; j < request.getListDay().size(); j++) {
                 Date date = sdf.parse(request.getListDay().get(j));
+                if (!date.after(today)) {
+                    return CreateClassResponse.builder()
+                            .message("one of class study date should be after today")
+                            .createdClass(null)
+                            .status(2)
+                            .build();
+                }
                 String[] getDate = request.getListDay().get(j).split("/");
                 ClassLearningDay learningDay = ClassLearningDay.builder()
                         .classId(classInfo)
@@ -288,7 +323,14 @@ public class ClassServiceImpl implements ClassService {
 
 
             for (int i = 0; i < request.getAttendeeList().size(); i++) {
-                user = userDAO.findByEmail(request.getAttendeeList().get(i)).get();
+                user = userDAO.findByEmail(request.getAttendeeList().get(i)).orElse(null);
+                if (user == null || !user.getRole().getRole().name().equalsIgnoreCase("USER")) {
+                    return CreateClassResponse.builder()
+                            .message("one of the class attendee of this class may not be a class attendee or not exist, please fix it or else.")
+                            .createdClass(null)
+                            .status(2)
+                            .build();
+                }
                 ClassUser classUser = ClassUser.builder()
                         .id(ClassUserCompositeKey.builder()
                                 .userId(user.getUserId())
@@ -302,7 +344,14 @@ public class ClassServiceImpl implements ClassService {
                 classUserList.add(classUser);
             }
             for (int i = 0; i < request.getAdmin().size(); i++) {
-                user = userDAO.findByEmail(request.getAdmin().get(i)).get();
+                user = userDAO.findByEmail(request.getAdmin().get(i)).orElse(null);
+                if (user == null || !user.getRole().getRole().name().equalsIgnoreCase("CLASS_ADMIN")) {
+                    return CreateClassResponse.builder()
+                            .message("one of the class admin of this class may not be a class admin or not exist, please fix it or else.")
+                            .createdClass(null)
+                            .status(2)
+                            .build();
+                }
                 ClassUser classAdmin = ClassUser.builder()
                         .id(ClassUserCompositeKey.builder()
                                 .userId(user.getUserId())
@@ -318,7 +367,14 @@ public class ClassServiceImpl implements ClassService {
             }
 
             for (int i = 0; i < request.getTrainer().size(); i++) {
-                user = userDAO.findByEmail(request.getTrainer().get(i).getGmail()).get();
+                user = userDAO.findByEmail(request.getTrainer().get(i).getGmail()).orElse(null);
+                if (user == null || !user.getRole().getRole().name().equalsIgnoreCase("TRAINER")) {
+                    return CreateClassResponse.builder()
+                            .message("one of the trainer of this class may not be a trainer or not exist, please fix it or else.")
+                            .createdClass(null)
+                            .status(2)
+                            .build();
+                }
                 for (int j = 0; j < request.getTrainer().get(i).getClassCode().size(); j++) {
                     Syllabus s = syllabusDAO.findById(request.getTrainer().get(i).getClassCode().get(j)).get();
 
@@ -376,12 +432,11 @@ public class ClassServiceImpl implements ClassService {
 
                     .build();
 
-            CreateClassResponse res = CreateClassResponse.builder()
+            return CreateClassResponse.builder()
                     .message("create class successfully.")
                     .createdClass(createClassDTO)
                     .status(0)
                     .build();
-            return res;
 
         } catch (Exception err) {
             err.printStackTrace();
@@ -570,6 +625,7 @@ public class ClassServiceImpl implements ClassService {
                 SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
                 String timeFromStr = request.getClassTimeFrom().split(":").length == 3 ? request.getClassTimeFrom() : request.getClassTimeFrom() + ":00";
                 String timeToStr = request.getClassTimeTo().split(":").length == 3 ? request.getClassTimeTo() : request.getClassTimeTo() + ":00";
+                Date today = new Date();
                 List<ClassUser> classUserList = new ArrayList<>();
                 List<UserClassSyllabus> userSyllabusList = new ArrayList<>();
                 List<ClassLearningDay> classLearningDayList = new ArrayList<>();
@@ -581,6 +637,15 @@ public class ClassServiceImpl implements ClassService {
                             .status(2)
                             .build();
                 }
+
+                if (!sdf.parse(request.getEndDate()).after(sdf.parse(request.getStartDate()))) {
+                    return UpdateClassResponse.builder()
+                            .message("end date for this class should be after start date")
+                            .updatedClass(null)
+                            .status(2)
+                            .build();
+                }
+
                 existingClass.setClassName(request.getNameClass());
                 existingClass.setDuration(request.getTotalTimeLearning());
                 existingClass.setStartDate(sdf.parse(request.getStartDate()));
@@ -627,6 +692,13 @@ public class ClassServiceImpl implements ClassService {
 
                 for (int i = 0; i < request.getListDay().size(); i++) {
                     Date date = sdf.parse(request.getListDay().get(i));
+                    if (!date.after(today)) {
+                        return UpdateClassResponse.builder()
+                                .message("one of class study date should be after today")
+                                .updatedClass(null)
+                                .status(2)
+                                .build();
+                    }
                     String[] getDate = request.getListDay().get(i).split("/");
                     ClassLearningDay learningDay = ClassLearningDay.builder()
                             .classId(existingClass)
@@ -642,7 +714,14 @@ public class ClassServiceImpl implements ClassService {
                 }
 
                 for (int i = 0; i < request.getAttendeeList().size(); i++) {
-                    user = userDAO.findByEmail(request.getAttendeeList().get(i)).get();
+                    user = userDAO.findByEmail(request.getAttendeeList().get(i)).orElse(null);
+                    if (user == null || !user.getRole().getRole().name().equalsIgnoreCase("USER")) {
+                        return UpdateClassResponse.builder()
+                                .message("one of the class attendee of this class may not be a class attendee or not exist, please fix it or else.")
+                                .updatedClass(null)
+                                .status(2)
+                                .build();
+                    }
                     ClassUser classUser = ClassUser.builder()
                             .id(ClassUserCompositeKey.builder()
                                     .userId(user.getUserId())
@@ -657,7 +736,15 @@ public class ClassServiceImpl implements ClassService {
                     classUserList.add(classUser);
                 }
                 for (int i = 0; i < request.getAdmin().size(); i++) {
-                    user = userDAO.findByEmail(request.getAdmin().get(i)).get();
+                    user = userDAO.findByEmail(request.getAdmin().get(i)).orElse(null);
+                    if (user == null || !user.getRole().getRole().name().equalsIgnoreCase("CLASS_ADMIN")) {
+                        return UpdateClassResponse.builder()
+                                .message("one of the class admin of this class may not be a class admin or not exist, please fix it or else.")
+                                .updatedClass(null)
+                                .status(2)
+                                .build();
+                    }
+
                     ClassUser classAdmin = ClassUser.builder()
                             .id(ClassUserCompositeKey.builder()
                                     .userId(user.getUserId())
@@ -673,7 +760,14 @@ public class ClassServiceImpl implements ClassService {
                 }
 
                 for (int i = 0; i < request.getTrainer().size(); i++) {
-                    user = userDAO.findByEmail(request.getTrainer().get(i).getGmail()).get();
+                    user = userDAO.findByEmail(request.getTrainer().get(i).getGmail()).orElse(null);
+                    if (user == null || !user.getRole().getRole().name().equalsIgnoreCase("TRAINER")) {
+                        return UpdateClassResponse.builder()
+                                .message("one of the trainer of this class may not be a trainer or not exist, please fix it or else.")
+                                .updatedClass(null)
+                                .status(2)
+                                .build();
+                    }
                     for (int j = 0; j < request.getTrainer().get(i).getClassCode().size(); j++) {
                         Syllabus s = syllabusDAO.findById(request.getTrainer().get(i).getClassCode().get(j)).get();
 
@@ -1036,6 +1130,22 @@ public class ClassServiceImpl implements ClassService {
         return result.trim();
     }
 
+    private boolean isValidDate(LocalDate date, String originalDateString) {
+        try {
+            // Parse the original string to extract the day of the month
+            int originalDay = Integer.parseInt(originalDateString.substring(3, 5));
+            log.info(date);
+            log.info(originalDateString);
+            log.info(originalDay);
+            log.info(date.getDayOfMonth() == originalDay);
+            // Check if the parsed day of the month matches the original input
+            return date.getDayOfMonth() == originalDay;
+        } catch (NumberFormatException | DateTimeException e) {
+            // Invalid date, e.g., Feb 31 or invalid day format
+            return false;
+        }
+    }
+
     private ClassDetailResponse getFullClassDetail(String classCode) {
         Class c = classDAO.findById(classCode).isPresent() ? classDAO.findById(classCode).get() : null;
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
@@ -1132,7 +1242,7 @@ public class ClassServiceImpl implements ClassService {
         User approver = userDAO.findByEmail(c.getApprove()).get();
         UserDTO modify = null;
         User moder = userDAO.findByEmail(c.getModifiedBy()).isPresent() ? userDAO.findByEmail(c.getModifiedBy()).get() : null;
-        if(moder != null){
+        if (moder != null) {
             modify = UserDTO.builder()
                     .userId(moder.getUserId())
                     .userEmail(moder.getEmail())
@@ -1156,8 +1266,6 @@ public class ClassServiceImpl implements ClassService {
                 .userEmail(approver.getEmail())
                 .userId(approver.getUserId())
                 .build();
-
-
 
 
         return ClassDetailResponse.builder()
