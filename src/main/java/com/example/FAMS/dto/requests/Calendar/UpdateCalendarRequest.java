@@ -12,6 +12,8 @@ import java.sql.Time;
 @AllArgsConstructor
 public class UpdateCalendarRequest {
     private String id;
+    private String classid;
+//    private int id;
     private String enrollDate;
     private Time timeFrom;
     private Time timeTo;
