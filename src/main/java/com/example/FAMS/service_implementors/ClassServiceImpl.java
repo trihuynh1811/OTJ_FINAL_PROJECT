@@ -835,8 +835,27 @@ public class ClassServiceImpl implements ClassService {
         Time timeTo = request.getTimeTo();
         String value = request.getValue();
 
-        ClassLearningDay classLearningDay = classLearningDayDAO.findByClassIdAndEnrollDate(classDAO.findById(request.getId()).orElse(null), eDate);
+        if (timeFrom.after(timeTo)) {
+            return UpdateCalendarResponse.builder()
+                    .status("Invalid time range: timeFrom must be before timeTo")
+                    .updateClassLearningDay(null)
+                    .build();
+        }  else {
+            int startHour = timeFrom.getHours();
+            int endHour = timeTo.getHours();
 
+            if ((startHour >= 8 && startHour < 12) && (endHour > 8 && endHour <= 12)) {
+            } else if ((startHour >= 13 && startHour < 17) && (endHour > 13 && endHour <= 17)) {
+            } else if ((startHour >= 18 && startHour < 22) && (endHour > 18 && endHour <= 22)) {
+            } else {
+                return UpdateCalendarResponse.builder()
+                        .status("Invalid time range: Start time and end time are not in 1 shift")
+                        .updateClassLearningDay(null)
+                        .build();
+            }
+        }
+
+        ClassLearningDay classLearningDay = classLearningDayDAO.findByClassIdAndEnrollDate(classDAO.findById(request.getId()).orElse(null), eDate);
 
         if (classLearningDay != null) {
             if ("Only".equals(value)) {

@@ -8,8 +8,6 @@ public interface CalendarWeekResponse {
 
     public Time getTimeTo();
 
-    public Integer getClassId();
-
     public String getClassCode();
 
     public String getStatus();
