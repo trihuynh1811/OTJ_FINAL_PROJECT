@@ -922,27 +922,54 @@ public class SyllabusServiceImpl implements SyllabusService {
 //                        syllabusexits.setUserID(getCreator(authentication));
                         syllabusDAO.save(syllabusexits);
                     } else {
-                        Syllabus c = new Syllabus();
+                        if (scan.equals("Name")) {
+                            Optional<Syllabus> SyllabusCode = syllabusDAO.findById(data[0]);
+                            if (SyllabusCode.isEmpty()) {
+                                Syllabus c = new Syllabus();
 
-                        c.setTopicCode(data[0]);
-                        c.setCreatedBy(getCreator(authentication));
-                        // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
-                        c.setCreatedDate(parseDate(data[1], dateFormats));
-                        c.setModifiedBy(getCreator(authentication).getName());
-                        c.setModifiedDate(parseDate(data[2], dateFormats));
-                        c.setPriority(data[3]);
-                        c.setPublishStatus(data[4]);
-                        c.setTechnicalGroup(data[5]);
-                        c.setTopicName(data[6]);
-                        c.setTopicOutline(data[7]);
-                        c.setTrainingAudience(Integer.parseInt(data[8]));
+                                c.setTopicCode(data[0]);
+                                c.setCreatedBy(getCreator(authentication));
+                                // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
+                                c.setCreatedDate(parseDate(data[1], dateFormats));
+                                c.setModifiedBy(getCreator(authentication).getName());
+                                c.setModifiedDate(parseDate(data[2], dateFormats));
+                                c.setPriority(data[3]);
+                                c.setPublishStatus(data[4]);
+                                c.setTechnicalGroup(data[5]);
+                                c.setTopicName(data[6]);
+                                c.setTopicOutline(data[7]);
+                                c.setTrainingAudience(Integer.parseInt(data[8]));
 //                        c.setTrainingMaterials(data[9]);
-                        c.setTrainingPrinciples(data[9]);
-                        c.setVersion(data[10]);
-                        c.setCourseObjective(data[11]);
+                                c.setTrainingPrinciples(data[9]);
+                                c.setVersion(data[10]);
+                                c.setCourseObjective(data[11]);
 //                        c.setUserID(getCreator(authentication));
-                        syllabusList.add(c);
-                        syllabusDAO.saveAll(syllabusList);
+                                syllabusList.add(c);
+                                syllabusDAO.saveAll(syllabusList);
+                            }
+                        } else {
+                            Syllabus c = new Syllabus();
+
+                            c.setTopicCode(data[0]);
+                            c.setCreatedBy(getCreator(authentication));
+                            // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
+                            c.setCreatedDate(parseDate(data[1], dateFormats));
+                            c.setModifiedBy(getCreator(authentication).getName());
+                            c.setModifiedDate(parseDate(data[2], dateFormats));
+                            c.setPriority(data[3]);
+                            c.setPublishStatus(data[4]);
+                            c.setTechnicalGroup(data[5]);
+                            c.setTopicName(data[6]);
+                            c.setTopicOutline(data[7]);
+                            c.setTrainingAudience(Integer.parseInt(data[8]));
+//                        c.setTrainingMaterials(data[9]);
+                            c.setTrainingPrinciples(data[9]);
+                            c.setVersion(data[10]);
+                            c.setCourseObjective(data[11]);
+//                        c.setUserID(getCreator(authentication));
+                            syllabusList.add(c);
+                            syllabusDAO.saveAll(syllabusList);
+                        }
                     }
                 } else if (choice.equals("Skip")) {
                     if (syllabusexits != null) {
