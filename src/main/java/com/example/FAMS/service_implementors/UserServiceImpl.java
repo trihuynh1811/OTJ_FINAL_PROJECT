@@ -91,14 +91,12 @@ public class UserServiceImpl implements UserService {
             existedUser.setPhone(updateRequest.getPhone());
             existedUser.setDob(updateRequest.getDob());
             existedUser.setGender(updateRequest.getGender());
-            existedUser.setStatus(updateRequest.isStatus());
             existedUser.setModifiedBy(updateRequest.getModifiedBy());
             existedUser.setModifiedDate(new Date());
 
             // Save the updated user
             User updatedUser = userDAO.save(existedUser);
 
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             return UpdateResponse.builder()
                     .status("Update successful")
                     .updatedUser(UserWithRoleDTO.builder()

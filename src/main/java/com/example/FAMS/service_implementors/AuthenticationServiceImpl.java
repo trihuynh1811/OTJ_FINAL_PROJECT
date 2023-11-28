@@ -30,6 +30,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
@@ -100,11 +101,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .dob(createRequest.getDob())
                 .gender(createRequest.getGender())
                 .role(permission)
-                .status(createRequest.isStatus())
-                .createdBy(createRequest.getCreatedBy())
+                .status(true)
+                .createdBy(requester.getEmail())
                 .createdDate(new Date())
-                .modifiedBy(createRequest.getModifiedBy())
-                .modifiedDate(new Date())
+                .modifiedBy(null)
+                .modifiedDate(null)
                 .build();
         var existedUser = userDAO.findByEmail(user.getEmail()).orElse(null);
         if (existedUser == null) {
