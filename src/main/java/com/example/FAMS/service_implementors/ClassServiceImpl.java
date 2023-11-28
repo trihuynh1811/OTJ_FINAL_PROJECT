@@ -299,9 +299,10 @@ public class ClassServiceImpl implements ClassService {
 
             for (int j = 0; j < request.getListDay().size(); j++) {
                 Date date = sdf.parse(request.getListDay().get(j));
-                if (!date.after(today)) {
+                LocalDate enrollDate = LocalDate.parse(request.getListDay().get(j), dateFormatter);
+                if (!date.after(today) || !isValidDate(enrollDate, request.getListDay().get(j))) {
                     return CreateClassResponse.builder()
-                            .message("one of class study date should be after today")
+                            .message("one of class study date is invalid or should be after today")
                             .createdClass(null)
                             .status(2)
                             .build();
@@ -711,9 +712,10 @@ public class ClassServiceImpl implements ClassService {
 
                 for (int i = 0; i < request.getListDay().size(); i++) {
                     Date date = sdf.parse(request.getListDay().get(i));
-                    if (!date.after(today)) {
+                    LocalDate enrollDate = LocalDate.parse(request.getListDay().get(i), dateFormatter);
+                    if (!date.after(today) || !isValidDate(enrollDate, request.getListDay().get(i))) {
                         return UpdateClassResponse.builder()
-                                .message("one of class study date should be after today")
+                                .message("one of class study date is invalid or  should be after today")
                                 .updatedClass(null)
                                 .status(2)
                                 .build();
