@@ -3,10 +3,7 @@ package com.example.FAMS.service_implementors;
 import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.Class;
-import com.example.FAMS.models.Syllabus;
-import com.example.FAMS.models.TrainingProgram;
-import com.example.FAMS.models.TrainingProgramSyllabus;
-import com.example.FAMS.models.User;
+import com.example.FAMS.models.*;
 import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import com.example.FAMS.repositories.SyllabusDAO;
 import com.example.FAMS.repositories.TrainingProgramDAO;
@@ -42,14 +39,12 @@ import java.util.stream.Collectors;
 public class TrainingProgramServiceImpl implements TrainingProgramService {
     private final JWTService jwtService;
     private final SyllabusDAO syllabusDAO;
-
+    private final TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
     private final DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-
     private static final String[] HEADER = {"name", "startDate", "duration", "userID", "status", "trainingProgramCode"};
     private final Logger logger = LoggerFactory.getLogger(TrainingProgramServiceImpl.class);
     private final TrainingProgramDAO trainingProgramDAO;
     private final UserDAO userDAO;
-    private final TrainingProgramSyllabusDAO trainingProgramSyllabusDAO;
 
     @Override
     public ResponseEntity<ResponseObject> createTrainingProgram(
@@ -245,7 +240,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
     @Override
     public ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(
-            int trainingProgramCode, TrainingProgramDTO trainingProgramDTO) {
+            int trainingProgramCode, TrainingProgramDTO2 trainingProgramDTO) {
         TrainingProgram trainingProgramExisted =
                 trainingProgramDAO.findById(trainingProgramCode).orElse(null);
 
@@ -302,11 +297,8 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         }
         trainingProgramExisted.setName(trainingProgramDTO.getTrainingProgramName());
         trainingProgramExisted.setDuration(trainingProgramDTO.getDuration());
-        trainingProgramExisted.setStatus(trainingProgramDTO.getStatus());
         trainingProgramExisted.setUserID(trainer);
         trainingProgramExisted.setStartDate(new Date());
-        trainingProgramExisted.setCreatedBy(requester.getName());
-        trainingProgramExisted.setCreatedDate(new Date());
         trainingProgramExisted.setModifiedBy(requester.getName());
         trainingProgramExisted.setModifiedDate(new Date());
 
@@ -669,7 +661,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         } catch (Exception e) {
             var object = Collections.emptyList();
             return ResponseEntity.ok(
-                    new ResponseObjectVersion2("Failed", "Not found training program", 0, 0, object));
+                    new ResponseObjectVersion2("Failed", "Not found user", 0, 0, object));
         }
     }
 

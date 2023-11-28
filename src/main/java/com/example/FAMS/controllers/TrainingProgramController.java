@@ -1,9 +1,6 @@
 package com.example.FAMS.controllers;
 
-import com.example.FAMS.dto.responses.ResponseObject;
-import com.example.FAMS.dto.responses.ResponseObjectVersion2;
-import com.example.FAMS.dto.responses.ResponseTrainingProgram;
-import com.example.FAMS.dto.responses.TrainingProgramDTO;
+import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.models.TrainingProgram;
 import com.example.FAMS.services.TrainingProgramService;
 import jakarta.persistence.EntityNotFoundException;
@@ -67,7 +64,7 @@ public class TrainingProgramController {
     @PreAuthorize("hasAnyAuthority('training:update')")
     public ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(
             @PathVariable int trainingProgramCode,
-            @RequestBody TrainingProgramDTO trainingProgramDTO) {
+            @RequestBody TrainingProgramDTO2 trainingProgramDTO) {
         return trainingProgram.updateTrainingProgram(trainingProgramCode, trainingProgramDTO);
     }
 

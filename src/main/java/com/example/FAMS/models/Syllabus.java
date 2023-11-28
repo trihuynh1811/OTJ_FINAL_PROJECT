@@ -8,7 +8,6 @@ import lombok.*;
 
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -27,7 +26,7 @@ public class Syllabus {
     private String topicName;
 
     @Column(name = "number_of_day")
-    private int numberOfDay = 1;
+    private int duration = 1;
 
     @Column(name = "technical_group", nullable = false, length = 2048)
     private String technicalGroup;
@@ -72,6 +71,29 @@ public class Syllabus {
     private String courseObjective;
 
     private boolean deleted = false;
+
+    private String assignmentLab;
+
+    private String conceptLecture;
+
+    private String guideReview;
+
+    private String testQuiz;
+
+    private String exam;
+
+    private String quiz;
+
+    private String assignment;
+
+    @Column(name = "final")
+    private String final_;
+
+    private String finalTheory;
+
+    private String finalPractice;
+
+    private String gpa;
 
     @OneToMany(mappedBy = "topicCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference

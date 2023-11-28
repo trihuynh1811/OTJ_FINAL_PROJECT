@@ -113,9 +113,12 @@ public class SyllabusController {
 //    }
 
     @PostMapping("/importCSV")
-    public ResponseEntity<ResponseObject> loadDataInFile(@RequestParam("file") MultipartFile file, @RequestParam("choice") String choice, Authentication authentication) throws IOException {
+    public ResponseEntity<ResponseObject> loadDataInFile(@RequestParam("file") MultipartFile file, @RequestParam("choice") String choice, @RequestParam("seperator") String seperator, @RequestParam("scan") String scan, Authentication authentication) throws IOException {
         try {
-            List<Syllabus> syllabus = syllabusService.processDataFromCSV(file, choice, authentication);
+            if (file.isEmpty()) {
+                throw new IllegalArgumentException("File is empty.");
+            }
+            List<Syllabus> syllabus = syllabusService.processDataFromCSV(file, choice, seperator, scan, authentication);
             return ResponseEntity.ok(new ResponseObject("Successful", "List of CSV", syllabus));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Failed", "Couldn't found the list", e.getMessage()));
@@ -123,12 +126,12 @@ public class SyllabusController {
     }
 
 
-    @PostMapping("/downloadCSV")
+    @GetMapping("/downloadCSV")
     public ResponseEntity<byte[]> downloadFile() throws IOException {
         syllabusService.downloadCSV();
 
         String computerAccountName = System.getProperty("user.name");
-        File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/Template.csv");
+        File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/TemplateSyllabus.csv");
 
         if (csvFile.exists()) {
             byte[] data = Files.readAllBytes(csvFile.toPath());
@@ -296,7 +299,18 @@ public class SyllabusController {
         }
     }
 
-    @GetMapping("/duplicate/{topicCode}")
+    @GetMapping("/duplicateByNameCode")
+    @PreAuthorize("hasAuthority('syllabus:update')")
+    public ResponseEntity<?> duplicateTopicName(@RequestParam String topicCode,
+                                                @RequestParam String topicName,
+                                                Authentication authentication) {
+        Syllabus duplicatedSyllabus = syllabusService.duplicateSyllabusByNameAndCode(topicCode, topicName, authentication);
+
+        return ResponseEntity.ok(duplicatedSyllabus);
+    }
+
+
+    @PostMapping("/duplicate/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
     public ResponseEntity<?> duplicateTopicCode(@PathVariable String topicCode, Authentication authentication) {
         Syllabus duplicatedSyllabus = syllabusService.duplicateSyllabus(topicCode, authentication);

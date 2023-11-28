@@ -36,12 +36,18 @@ public interface SyllabusService {
 //    UpdateSyllabusResponse updateSyllabusOther(UpdateSyllabusGeneralRequest updateSyllabusGeneralRequest, String topicCode);
 //    UpdateSyllabusResponse updateSyllabusGeneral(UpdateSyllabusGeneralRequest update , String topicCode);
 //    UpdateSyllabusResponse updateSyllabusOutline(UpdateSyllabusOutlineRequest update ,String topicCode);
+
     Syllabus getSyllabusById(String topicCode);
 
     DeleteSyllabusResponse deleteSyllabus(String topicCode);
 
 
-    List<Syllabus> processDataFromCSV(MultipartFile file, String choice, Authentication authentication) throws IOException;
+
+    List<Syllabus> processDataFromCSV(MultipartFile file, String choice, String seperator, String scan, Authentication authentication) throws IOException;
+
+    Syllabus duplicateSyllabusByName(String topicCode, String topicName, Authentication authentication);
+
+    Syllabus duplicateSyllabusByNameAndCode(String topicCode, String topicName, Authentication authentication);
 
     Syllabus duplicateSyllabus(String topicCode, Authentication authentication);
 }
