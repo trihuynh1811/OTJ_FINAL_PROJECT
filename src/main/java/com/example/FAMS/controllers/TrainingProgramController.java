@@ -72,16 +72,16 @@ public class TrainingProgramController {
     }
 
 
-    @GetMapping("/duplicate/name/{name}")
-    @PreAuthorize("hasAnyAuthority('training:read')")
-    public ResponseEntity<TrainingProgram> duplicateTrainingProgramName(@PathVariable String name) {
-        try {
-            TrainingProgram duplicatedProgram = trainingProgram.duplicateTrainingProgramName(name);
-            return ResponseEntity.ok(duplicatedProgram);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
+//    @GetMapping("/duplicate/name/{name}")
+//    @PreAuthorize("hasAnyAuthority('training:read')")
+//    public ResponseEntity<TrainingProgram> duplicateTrainingProgramName(@PathVariable String name) {
+//        try {
+//            TrainingProgram duplicatedProgram = trainingProgram.duplicateTrainingProgramName(name);
+//            return ResponseEntity.ok(duplicatedProgram);
+//        } catch (EntityNotFoundException e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
 
 
     @PostMapping("/importCSV")
@@ -90,13 +90,14 @@ public class TrainingProgramController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("choice") String choice,
             @RequestParam("separator") String separator,
+            @RequestParam("scan") String scan,
             Authentication authentication)
             throws IOException {
         if (file.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File empty!");
         }
         try {
-            return trainingProgram.processDataFromCSV(file, choice,separator, authentication);
+            return trainingProgram.processDataFromCSV(file, choice,separator,scan, authentication);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -127,7 +128,7 @@ public class TrainingProgramController {
 
     @GetMapping("/TemplateCSV")
     public ResponseEntity<InputStreamResource> downloadTemplateCSV() {
-        String csvData = "name,startDate,duration,userID,createdBy,createdDate,trainingProgramCode";
+        String csvData = "name,startDate,duration,userID,status,trainingProgramCode";
         String computerAccountName = System.getProperty("user.name");
         try {
             File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/Template.csv");

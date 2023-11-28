@@ -18,13 +18,10 @@ public interface TrainingProgramService {
 
     ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(int trainingProgramCode, TrainingProgramDTO trainingProgramDTO);
 
-    TrainingProgram duplicateTrainingProgram(int trainingProgramCode);
-
-    TrainingProgram duplicateTrainingProgramName(String name);
 
     ResponseEntity<ResponseObject> changeTrainingProgramStatus(int trainingProgramCode, String value);
 
-    ResponseEntity<ResponseObject> processDataFromCSV(MultipartFile file, String choice,String separator, Authentication authentication) throws Exception;
+    ResponseEntity<ResponseObject> processDataFromCSV(MultipartFile file, String choice,String separator,String scan, Authentication authentication) throws Exception;
     TrainingProgram searchTrainingProgram(String keyword);
 
     ResponseEntity<ResponseObjectVersion2> getTrainingProgramByCode(int code);
