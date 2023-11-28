@@ -51,6 +51,7 @@ public class SyllabusController {
         return ResponseEntity.status(200).body(syllabusList);
     }
 
+
     @GetMapping("/{type}")
     @PreAuthorize("hasAuthority('syllabus:read')")
     public ResponseEntity<List<SyllabusResponse>> get(@PathVariable(name = "type", required = false, value = "") Optional<String> type) {
@@ -125,12 +126,12 @@ public class SyllabusController {
     }
 
 
-    @PostMapping("/downloadCSV")
+    @GetMapping("/downloadCSV")
     public ResponseEntity<byte[]> downloadFile() throws IOException {
         syllabusService.downloadCSV();
 
         String computerAccountName = System.getProperty("user.name");
-        File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/Template.csv");
+        File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/TemplateSyllabus.csv");
 
         if (csvFile.exists()) {
             byte[] data = Files.readAllBytes(csvFile.toPath());
@@ -298,18 +299,18 @@ public class SyllabusController {
         }
     }
 
-    @GetMapping("/duplicateByName")
+    @GetMapping("/duplicateByNameCode")
     @PreAuthorize("hasAuthority('syllabus:update')")
     public ResponseEntity<?> duplicateTopicName(@RequestParam String topicCode,
                                                 @RequestParam String topicName,
                                                 Authentication authentication) {
-        Syllabus duplicatedSyllabus = syllabusService.duplicateSyllabusByName(topicCode, topicName, authentication);
+        Syllabus duplicatedSyllabus = syllabusService.duplicateSyllabusByNameAndCode(topicCode, topicName, authentication);
 
         return ResponseEntity.ok(duplicatedSyllabus);
     }
 
 
-    @GetMapping("/duplicate/{topicCode}")
+    @PostMapping("/duplicate/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
     public ResponseEntity<?> duplicateTopicCode(@PathVariable String topicCode, Authentication authentication) {
         Syllabus duplicatedSyllabus = syllabusService.duplicateSyllabus(topicCode, authentication);

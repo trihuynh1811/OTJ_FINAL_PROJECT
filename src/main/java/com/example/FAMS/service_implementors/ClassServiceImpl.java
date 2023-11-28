@@ -626,9 +626,28 @@ public class ClassServiceImpl implements ClassService {
                 String timeFromStr = request.getClassTimeFrom().split(":").length == 3 ? request.getClassTimeFrom() : request.getClassTimeFrom() + ":00";
                 String timeToStr = request.getClassTimeTo().split(":").length == 3 ? request.getClassTimeTo() : request.getClassTimeTo() + ":00";
                 Date today = new Date();
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+                LocalDate startDate = LocalDate.parse(request.getStartDate(), dateFormatter);
+                LocalDate endDate = LocalDate.parse(request.getEndDate(), dateFormatter);
                 List<ClassUser> classUserList = new ArrayList<>();
                 List<UserClassSyllabus> userSyllabusList = new ArrayList<>();
                 List<ClassLearningDay> classLearningDayList = new ArrayList<>();
+
+                if (!isValidDate(startDate, request.getStartDate())) {
+                    return UpdateClassResponse.builder()
+                            .message("invalid start date.")
+                            .updatedClass(null)
+                            .status(2)
+                            .build();
+                }
+
+                if (!isValidDate(endDate, request.getEndDate())) {
+                    return UpdateClassResponse.builder()
+                            .message("invalid end date.")
+                            .updatedClass(null)
+                            .status(2)
+                            .build();
+                }
 
                 if (sdf.parse(request.getStartDate()).before(existingClass.getStartDate())) {
                     return UpdateClassResponse.builder()
@@ -897,7 +916,9 @@ public class ClassServiceImpl implements ClassService {
 
     @Override
     public UpdateCalendarResponse updateClassLearningDay(UpdateCalendarRequest request) throws ParseException {
-        String id = request.getId();
+//        String id = request.getId();
+        int id = Integer.parseInt(request.getId());
+        String classid = request.getClassid();
         String enrollDate = request.getEnrollDate();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date eDate = dateFormat.parse(enrollDate);
@@ -905,8 +926,28 @@ public class ClassServiceImpl implements ClassService {
         Time timeTo = request.getTimeTo();
         String value = request.getValue();
 
-        ClassLearningDay classLearningDay = classLearningDayDAO.findByClassIdAndEnrollDate(classDAO.findById(request.getId()).orElse(null), eDate);
+        if (timeFrom.after(timeTo)) {
+            return UpdateCalendarResponse.builder()
+                    .status("Invalid time range: timeFrom must be before timeTo")
+                    .updateClassLearningDay(null)
+                    .build();
+        }  else {
+            int startHour = timeFrom.getHours();
+            int endHour = timeTo.getHours();
 
+            if ((startHour >= 8 && startHour < 12) && (endHour > 8 && endHour <= 12)) {
+            } else if ((startHour >= 13 && startHour < 17) && (endHour > 13 && endHour <= 17)) {
+            } else if ((startHour >= 18 && startHour < 22) && (endHour > 18 && endHour <= 22)) {
+            } else {
+                return UpdateCalendarResponse.builder()
+                        .status("Invalid time range: Start time and end time are not in 1 shift")
+                        .updateClassLearningDay(null)
+                        .build();
+            }
+        }
+
+        // ClassLearningDay classLearningDay = classLearningDayDAO.findByClassIdAndEnrollDate(classDAO.findById(request.getId()).orElse(null), eDate);
+        ClassLearningDay classLearningDay = classLearningDayDAO.findByIdAndAndEnrollDate(id,eDate);
 
         if (classLearningDay != null) {
             if ("Only".equals(value)) {
@@ -914,7 +955,8 @@ public class ClassServiceImpl implements ClassService {
                 classLearningDay.setTimeTo(timeTo);
                 classLearningDay = classLearningDayDAO.save(classLearningDay);
             } else if ("All".equals(value)) {
-                List<ClassLearningDay> classLearningDays = classLearningDayDAO.findByClassId_ClassId(id);
+               // List<ClassLearningDay> classLearningDays = classLearningDayDAO.findByClassId_ClassId(id);
+                List<ClassLearningDay> classLearningDays = classLearningDayDAO.findByClassId_ClassId(classid);
                 for (ClassLearningDay day : classLearningDays) {
                     day.setTimeFrom(timeFrom);
                     day.setTimeTo(timeTo);
@@ -922,7 +964,7 @@ public class ClassServiceImpl implements ClassService {
                 classLearningDayDAO.saveAll(classLearningDays);
             }
 
-            if (classLearningDay != null) {
+            if (classLearningDay != null ) {
                 return UpdateCalendarResponse.builder()
                         .status("Update Calendar successful")
                         .updateClassLearningDay(classLearningDay)
