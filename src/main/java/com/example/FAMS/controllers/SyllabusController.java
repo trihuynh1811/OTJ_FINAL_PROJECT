@@ -275,7 +275,7 @@ public class SyllabusController {
     }
 
 
-    @PostMapping("/delete/{topicCode}")
+    @PutMapping("/delete/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
     public ResponseEntity<DeleteSyllabusResponse> deleteSyllabus(
             @PathVariable String topicCode) {
@@ -288,7 +288,7 @@ public class SyllabusController {
         return ResponseEntity.ok(deleteSyllabus);
     }
 
-    @PostMapping("/undelete/{topicCode}")
+    @PutMapping("/undelete/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:update')")
     public ResponseEntity<DeleteSyllabusResponse> unDeleteSyllabus(
             @PathVariable String topicCode) {
