@@ -844,6 +844,7 @@ public class SyllabusServiceImpl implements SyllabusService {
         try {
             if (existedSyllabus != null) {
                 existedSyllabus.setDeleted(true);
+                existedSyllabus.setPublishStatus("inactive");
                 syllabusDAO.save(existedSyllabus);
                 return DeleteSyllabusResponse.builder()
                         .status(0)
@@ -870,6 +871,7 @@ public class SyllabusServiceImpl implements SyllabusService {
         try {
             if (existedSyllabus != null) {
                 existedSyllabus.setDeleted(false);
+                existedSyllabus.setPublishStatus("active");
                 syllabusDAO.save(existedSyllabus);
                 return DeleteSyllabusResponse.builder()
                         .status(0)
@@ -1224,29 +1226,38 @@ public class SyllabusServiceImpl implements SyllabusService {
 
     @Override
     public Syllabus duplicateSyllabus(String topicCode, Authentication authentication) {
-        int tuanSoiMapDit = syllabusDAO.countByTopicCodeLike(topicCode + "%");
+        int numberOfSameTopicCode = syllabusDAO.countByTopicCodeLike(topicCode + "%");
         Syllabus originalSyllabus = syllabusDAO.findById(topicCode).get();
 
         topicCode = originalSyllabus.getTopicCode();
-        String topicCodeClone = topicCode + "_" + tuanSoiMapDit;
+        String topicCodeClone = topicCode + "_" + numberOfSameTopicCode;
 
 
         Syllabus duplicatedSyllabus = Syllabus.builder()
+                .topicCode(topicCodeClone)
                 .topicName(originalSyllabus.getTopicName())
-                .trainingPrinciples(originalSyllabus.getTrainingPrinciples())
-                .version(originalSyllabus.getVersion())
-                .technicalGroup(originalSyllabus.getTechnicalGroup())
                 .trainingAudience(originalSyllabus.getTrainingAudience())
-                .topicOutline(originalSyllabus.getTopicOutline())
-//                .trainingMaterials(originalSyllabus.getTrainingMaterials())
-                .priority(originalSyllabus.getPriority())
+                .courseObjective(originalSyllabus.getCourseObjective())
+                .technicalGroup(originalSyllabus.getTechnicalGroup())
                 .publishStatus(originalSyllabus.getPublishStatus())
+                .priority(originalSyllabus.getPriority())
+                .version(originalSyllabus.getVersion())
                 .createdBy(originalSyllabus.getCreatedBy())
                 .createdDate(new Date())
-                .modifiedBy(originalSyllabus.getModifiedBy())
+                .trainingPrinciples(originalSyllabus.getTrainingPrinciples())
                 .modifiedDate(new Date())
-                .courseObjective(originalSyllabus.getCourseObjective())
-                .topicCode(topicCodeClone)
+                .modifiedBy(originalSyllabus.getModifiedBy())
+                .assignmentLab(originalSyllabus.getAssignmentLab())
+                .conceptLecture(originalSyllabus.getConceptLecture())
+                .guideReview(originalSyllabus.getGuideReview())
+                .testQuiz(originalSyllabus.getTestQuiz())
+                .exam(originalSyllabus.getExam())
+                .quiz(originalSyllabus.getQuiz())
+                .assignment(originalSyllabus.getAssignment())
+                .final_(originalSyllabus.getFinal_())
+                .finalTheory(originalSyllabus.getFinalTheory())
+                .finalPractice(originalSyllabus.getFinalPractice())
+                .gpa(originalSyllabus.getGpa())
                 .build();
 
         syllabusDAO.save(duplicatedSyllabus);
