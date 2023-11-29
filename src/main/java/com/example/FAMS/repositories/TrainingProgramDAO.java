@@ -18,6 +18,7 @@ public interface TrainingProgramDAO extends JpaRepository<TrainingProgram, Integ
 
   List<TrainingProgram> getAllBy();
 
+
   List<TrainingProgram> findTrainingProgramsByStatus(String status);
 
   TrainingProgram findByName(String trainingProgramName);
