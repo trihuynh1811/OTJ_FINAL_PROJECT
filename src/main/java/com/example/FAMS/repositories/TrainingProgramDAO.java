@@ -18,6 +18,7 @@ public interface TrainingProgramDAO extends JpaRepository<TrainingProgram, Integ
 
   List<TrainingProgram> getAllBy();
 
+
   List<TrainingProgram> findTrainingProgramsByStatus(String status);
 
   TrainingProgram findByName(String trainingProgramName);
@@ -75,4 +76,6 @@ public interface TrainingProgramDAO extends JpaRepository<TrainingProgram, Integ
 
   @Query(value = "SELECT MAX(training_program_code) FROM training_programs", nativeQuery = true)
   Integer findMaxTrainingProgramCode();
+
+    Optional<TrainingProgram> findTrainingProgramByNameAndTrainingProgramCode(String name, Integer trainingProgramCode);
 }
