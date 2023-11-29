@@ -246,7 +246,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
         if (trainingProgramExisted == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseTrainingProgram("Failed", "Training program not found", 0, null, null));
+                    .body(new ResponseTrainingProgram("Failed", "Training program not found", 0, null));
         }
 
         if (!trainingProgramDTO.getTrainingProgramName().equals(trainingProgramExisted.getName())) {
@@ -256,7 +256,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(
                                 new ResponseTrainingProgram(
-                                        "Failed", "The Training Program name is already in use", 0, null, null));
+                                        "Failed", "The Training Program name is already in use", 0, null));
             }
         }
 
@@ -264,11 +264,11 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(
                             new ResponseTrainingProgram(
-                                    "Failed", "The duration cannot be negative", 0, null, null));
+                                    "Failed", "The duration cannot be negative", 0, null));
         }
         if (!"Active".equalsIgnoreCase(trainingProgramExisted.getStatus())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseTrainingProgram("Failed", "The status must be Active", 0, null, null));
+                    .body(new ResponseTrainingProgram("Failed", "The status must be Active", 0, null));
         }
         User trainer =
                 userDAO
@@ -279,7 +279,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(
                             new ResponseTrainingProgram(
-                                    "Failed", "The person is not a trainer or not found", 0, null, null));
+                                    "Failed", "The person is not a trainer or not found", 0, null));
         }
 
         String token =
@@ -293,7 +293,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
         if (requester == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseTrainingProgram("Failed", "Cannot find the user", 0, null, null));
+                    .body(new ResponseTrainingProgram("Failed", "Cannot find the user", 0, null));
         }
         trainingProgramExisted.setName(trainingProgramDTO.getTrainingProgramName());
         trainingProgramExisted.setDuration(trainingProgramDTO.getDuration());
@@ -304,78 +304,46 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
         TrainingProgram updatedProgram = trainingProgramDAO.save(trainingProgramExisted);
 
-        List<TrainingProgramSyllabus> trainingProgramSyllabusList =
-                updateTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
+        TrainingProgramSyllabus trainingProgramSyllabusList = updateTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
 
         return ResponseEntity.ok(
                 new ResponseTrainingProgram(
                         "Successful",
                         "Updated training program",
                         0,
-                        updatedProgram,
-                        trainingProgramSyllabusList));
+                        updatedProgram));
     }
 
-    // Trong hàm updateTrainingSyllabus
-    private List<TrainingProgramSyllabus> updateTrainingSyllabus(
-            TrainingProgram trainingProgram, String[] topicCodes) {
-        List<TrainingProgramSyllabus> trainingProgramSyllabusList = new ArrayList<>();
-        SyllabusTrainingProgramCompositeKey compositeKey = new SyllabusTrainingProgramCompositeKey();
-        compositeKey.setTrainingProgramCode(trainingProgram.getTrainingProgramCode());
 
-        for (String element : topicCodes) {
-            Syllabus syllabus = syllabusDAO.findById(element).orElse(null);
+    private TrainingProgramSyllabus updateTrainingSyllabus(TrainingProgram trainingProgram, String[] topicCodes) {
+        TrainingProgramSyllabus resultEntry = null;
+        for (String code : topicCodes) {
+            var syllabus = syllabusDAO.findById(code).orElse(null);
 
             if (syllabus != null) {
-                boolean exists =
-                        trainingProgram.getTrainingProgramSyllabus().stream()
-                                .anyMatch(
-                                        existingSyllabus ->
-                                                existingSyllabus
-                                                        .getTopicCode()
-                                                        .getTopicCode()
-                                                        .equals(syllabus.getTopicCode()));
-
-                if (!exists) {
-                    TrainingProgramSyllabus trainingProgramSyllabus =
-                            TrainingProgramSyllabus.builder()
-                                    .id(
-                                            SyllabusTrainingProgramCompositeKey.builder()
-                                                    .topicCode(syllabus.getTopicCode())
-                                                    .trainingProgramCode(trainingProgram.getTrainingProgramCode())
-                                                    .build())
-                                    .topicCode(syllabus)
-                                    .trainingProgramCode(trainingProgram)
-                                    .deleted(false)
-                                    .build();
-                    trainingProgramSyllabusList.add(trainingProgramSyllabus);
+                var existingEntry = trainingProgramSyllabusDAO.findByIdTopicCodeAndIdTrainingProgramCode(
+                        syllabus.getTopicCode(), trainingProgram.getTrainingProgramCode()
+                );
+                if (existingEntry != null) {
+                    existingEntry.setDeleted(false);
+                    resultEntry = trainingProgramSyllabusDAO.save(existingEntry);
+                } else {
+                    TrainingProgramSyllabus newEntry = TrainingProgramSyllabus.builder()
+                            .id(SyllabusTrainingProgramCompositeKey.builder()
+                                    .topicCode(syllabus.getTopicCode())
+                                    .trainingProgramCode(trainingProgram.getTrainingProgramCode())
+                                    .build())
+                            .topicCode(syllabus)
+                            .trainingProgramCode(trainingProgram)
+                            .deleted(false)
+                            .build();
+                    resultEntry = trainingProgramSyllabusDAO.save(newEntry);
                 }
             }
         }
-
-        return trainingProgramSyllabusList;
+        return resultEntry;
     }
 
-
-    public TrainingProgram duplicateTrainingProgramCode(TrainingProgram originalTraining) {
-//        TrainingProgram originalTraining = trainingProgramDAO.findTrainingProgramByNameAndAndTrainingProgramCode().orElse(null);
-        String originalName = originalTraining.getName();
-        int newId = createNewId(trainingProgramDAO);
-        String trainingProgramName = originalName ;
-        TrainingProgram newTrainingProgram = TrainingProgram.builder()
-                .name(trainingProgramName)
-                .duration(originalTraining.getDuration())
-                .userID(originalTraining.getUserID())
-                .startDate(originalTraining.getStartDate())
-                .createdBy(originalTraining.getCreatedBy())
-                .createdDate(originalTraining.getCreatedDate())
-                .modifiedDate(originalTraining.getModifiedDate())
-                .modifiedBy(originalTraining.getModifiedBy())
-                .status(originalTraining.getStatus())
-                .trainingProgramCode(newId)
-                .build();
-        return trainingProgramDAO.save(newTrainingProgram);
-    }
 
     public TrainingProgram duplicateTrainingProgramName(TrainingProgram originalTraining) {
 //        TrainingProgram originalTraining = trainingProgramDAO.findTrainingProgramByNameAndAndTrainingProgramCode().orElse(null);
