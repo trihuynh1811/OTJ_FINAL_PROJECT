@@ -288,6 +288,19 @@ public class SyllabusController {
         return ResponseEntity.ok(deleteSyllabus);
     }
 
+    @PutMapping("/undelete/{topicCode}")
+    @PreAuthorize("hasAuthority('syllabus:update')")
+    public ResponseEntity<DeleteSyllabusResponse> unDeleteSyllabus(
+            @PathVariable String topicCode) {
+        DeleteSyllabusResponse deleteSyllabus = syllabusService.unDeleteSyllabus(topicCode);
+        if (deleteSyllabus.getStatus() > 0) {
+            return ResponseEntity.status(400).body(deleteSyllabus);
+        } else if (deleteSyllabus.getStatus() < 0) {
+            return ResponseEntity.internalServerError().body(deleteSyllabus);
+        }
+        return ResponseEntity.ok(deleteSyllabus);
+    }
+
     @GetMapping("/search/{topicCode}")
     @PreAuthorize("hasAuthority('syllabus:read')")
     public ResponseEntity<?> getSyllabusById(@PathVariable String topicCode) {

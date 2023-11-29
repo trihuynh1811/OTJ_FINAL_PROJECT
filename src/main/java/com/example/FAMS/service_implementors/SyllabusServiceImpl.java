@@ -864,6 +864,32 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
+    public DeleteSyllabusResponse unDeleteSyllabus(String topicCode) {
+        Syllabus existedSyllabus = syllabusDAO.findById(topicCode).isPresent() ? syllabusDAO.findById(topicCode).get() : null;
+
+        try {
+            if (existedSyllabus != null) {
+                existedSyllabus.setDeleted(false);
+                syllabusDAO.save(existedSyllabus);
+                return DeleteSyllabusResponse.builder()
+                        .status(0)
+                        .message("Successfully un-delete syllabus with id: " + topicCode)
+                        .build();
+            }
+            return DeleteSyllabusResponse.builder()
+                    .status(1)
+                    .message("Can't find syllabus with id: " + topicCode)
+                    .build();
+        } catch (Exception err) {
+            err.printStackTrace();
+            return DeleteSyllabusResponse.builder()
+                    .status(-1)
+                    .message("Fail to un-delete syllabus with id: " + topicCode)
+                    .build();
+        }
+    }
+
+    @Override
     public List<Syllabus> processDataFromCSV(MultipartFile file, String choice, String seperator, String scan, Authentication authentication) throws IOException {
         if (!isCSVFile(file)) {
             throw new IllegalArgumentException("Uploaded file is not a CSV file.");

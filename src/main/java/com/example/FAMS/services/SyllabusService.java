@@ -41,7 +41,7 @@ public interface SyllabusService {
 
     DeleteSyllabusResponse deleteSyllabus(String topicCode);
 
-
+    DeleteSyllabusResponse unDeleteSyllabus(String topicCode);
 
     List<Syllabus> processDataFromCSV(MultipartFile file, String choice, String seperator, String scan, Authentication authentication) throws IOException;
 
