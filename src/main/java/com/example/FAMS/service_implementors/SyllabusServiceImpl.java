@@ -1239,7 +1239,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                 .trainingAudience(originalSyllabus.getTrainingAudience())
                 .courseObjective(originalSyllabus.getCourseObjective())
                 .technicalGroup(originalSyllabus.getTechnicalGroup())
-                .publishStatus(originalSyllabus.getPublishStatus())
+                .publishStatus("draft")
                 .priority(originalSyllabus.getPriority())
                 .version(originalSyllabus.getVersion())
                 .createdBy(originalSyllabus.getCreatedBy())
