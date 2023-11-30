@@ -240,7 +240,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
     @Override
     public ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(
-            int trainingProgramCode,String choice, TrainingProgramDTO2 trainingProgramDTO) {
+            int trainingProgramCode, TrainingProgramDTO2 trainingProgramDTO) {
         TrainingProgram trainingProgramExisted =
                 trainingProgramDAO.findById(trainingProgramCode).orElse(null);
 
@@ -303,12 +303,12 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         trainingProgramExisted.setModifiedDate(new Date());
 
         TrainingProgram updatedProgram = trainingProgramDAO.save(trainingProgramExisted);
-        if(choice.equalsIgnoreCase("Add")){
+//        if(choice.equalsIgnoreCase("Add")){
              updateTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
-        } else if (choice.equalsIgnoreCase("Delete")) {
-             deleteTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
-            
-        }
+//        } else if (choice.equalsIgnoreCase("Delete")) {
+//             deleteTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
+//
+//        }
 
 
         return ResponseEntity.ok(
@@ -318,6 +318,8 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
                         0,
                         updatedProgram));
     }
+
+
 
 
     private TrainingProgramSyllabus updateTrainingSyllabus(TrainingProgram trainingProgram, String[] topicCodes) {
