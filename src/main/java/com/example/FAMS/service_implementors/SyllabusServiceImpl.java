@@ -91,8 +91,7 @@ public class SyllabusServiceImpl implements SyllabusService {
 //        log.info("millisecond in url expiration: " + convertToMilliseconds(convertToUTCPlus7("20231116T144445Z")));
 //        log.info("millisecond in url expiration + 86400 * 1000: " + (convertToMilliseconds(convertToUTCPlus7("20231116T144445Z")) + 86400 * 1000));
 //        log.info((convertToMilliseconds(convertToUTCPlus7("20231116T144445Z")) + 86400 * 1000) > new Date().getTime());
-        List<Syllabus> syllabusList = type.equalsIgnoreCase("All") ?
-                syllabusDAO.findTop1000ByOrderByCreatedDateDesc() : syllabusDAO.findTop1000ByDeletedOrderByCreatedDateDesc(false);
+        List<Syllabus> syllabusList = syllabusDAO.findTop1000ByOrderByCreatedDateDesc();
         List<SyllabusResponse> syllabuses = new ArrayList<>();
         List<String> objectiveList = null;
         List<SyllabusObjective> syllabusObjectiveList = null;
@@ -415,10 +414,9 @@ public class SyllabusServiceImpl implements SyllabusService {
 //                            learningObjectiveList.clear();
 //                            learningObjectiveList = new ArrayList<>();
                         }
-
-
                         learningObjectiveMap.clear();
                     }
+                    syllabusObjectiveDAO.saveAll(syllabusObjectiveList);
 
                 }
 
@@ -1228,41 +1226,104 @@ public class SyllabusServiceImpl implements SyllabusService {
     public Syllabus duplicateSyllabus(String topicCode, Authentication authentication) {
         int numberOfSameTopicCode = syllabusDAO.countByTopicCodeLike(topicCode + "%");
         Syllabus originalSyllabus = syllabusDAO.findById(topicCode).get();
-
+        List<TrainingUnit> unitList = originalSyllabus.getTu().stream().toList();
+        List<SyllabusObjective> syllabusObjectiveList = originalSyllabus.getSyllabusObjectives().stream().toList();
+        List<TrainingContent> duplicatedTrainingContentList = new ArrayList<>();
+        List<TrainingUnit> duplicatedTrainingUnitList = new ArrayList<>();
+        List<SyllabusObjective> duplicatedSyllabusObjective = new ArrayList<>();
         topicCode = originalSyllabus.getTopicCode();
         String topicCodeClone = topicCode + "_" + numberOfSameTopicCode;
 
+        try {
 
-        Syllabus duplicatedSyllabus = Syllabus.builder()
-                .topicCode(topicCodeClone)
-                .topicName(originalSyllabus.getTopicName())
-                .trainingAudience(originalSyllabus.getTrainingAudience())
-                .courseObjective(originalSyllabus.getCourseObjective())
-                .technicalGroup(originalSyllabus.getTechnicalGroup())
-                .publishStatus("draft")
-                .priority(originalSyllabus.getPriority())
-                .version(originalSyllabus.getVersion())
-                .createdBy(originalSyllabus.getCreatedBy())
-                .createdDate(new Date())
-                .trainingPrinciples(originalSyllabus.getTrainingPrinciples())
-                .modifiedDate(new Date())
-                .modifiedBy(originalSyllabus.getModifiedBy())
-                .assignmentLab(originalSyllabus.getAssignmentLab())
-                .conceptLecture(originalSyllabus.getConceptLecture())
-                .guideReview(originalSyllabus.getGuideReview())
-                .testQuiz(originalSyllabus.getTestQuiz())
-                .exam(originalSyllabus.getExam())
-                .quiz(originalSyllabus.getQuiz())
-                .assignment(originalSyllabus.getAssignment())
-                .final_(originalSyllabus.getFinal_())
-                .finalTheory(originalSyllabus.getFinalTheory())
-                .finalPractice(originalSyllabus.getFinalPractice())
-                .gpa(originalSyllabus.getGpa())
-                .build();
+            Syllabus duplicatedSyllabus = Syllabus.builder()
+                    .topicCode(topicCodeClone)
+                    .topicName(originalSyllabus.getTopicName())
+                    .trainingAudience(originalSyllabus.getTrainingAudience())
+                    .courseObjective(originalSyllabus.getCourseObjective())
+                    .technicalGroup(originalSyllabus.getTechnicalGroup())
+                    .publishStatus("draft")
+                    .priority(originalSyllabus.getPriority())
+                    .version(originalSyllabus.getVersion())
+                    .createdBy(originalSyllabus.getCreatedBy())
+                    .createdDate(new Date())
+                    .trainingPrinciples(originalSyllabus.getTrainingPrinciples())
+                    .modifiedDate(new Date())
+                    .modifiedBy(originalSyllabus.getModifiedBy())
+                    .assignmentLab(originalSyllabus.getAssignmentLab())
+                    .conceptLecture(originalSyllabus.getConceptLecture())
+                    .guideReview(originalSyllabus.getGuideReview())
+                    .testQuiz(originalSyllabus.getTestQuiz())
+                    .exam(originalSyllabus.getExam())
+                    .quiz(originalSyllabus.getQuiz())
+                    .assignment(originalSyllabus.getAssignment())
+                    .final_(originalSyllabus.getFinal_())
+                    .finalTheory(originalSyllabus.getFinalTheory())
+                    .finalPractice(originalSyllabus.getFinalPractice())
+                    .gpa(originalSyllabus.getGpa())
+                    .duration(originalSyllabus.getDuration())
+                    .build();
 
-        syllabusDAO.save(duplicatedSyllabus);
+            syllabusDAO.save(duplicatedSyllabus);
 
-        return duplicatedSyllabus;
+            for (int i = 0; i < unitList.size(); i++) {
+                List<TrainingContent> trainingContentList = unitList.get(i).getTrainingContents().stream().toList();
+                TrainingUnit trainingUnit = TrainingUnit.builder()
+                        .unitName(unitList.get(i).getUnitName())
+                        .dayNumber(unitList.get(i).getDayNumber())
+                        .id(SyllabusTrainingUnitCompositeKey.builder()
+                                .tCode(duplicatedSyllabus.getTopicCode())
+                                .uCode(unitList.get(i).getId().getUCode())
+                                .build())
+                        .syllabus(duplicatedSyllabus)
+                        .build();
+                duplicatedTrainingUnitList.add(trainingUnit);
+                for (int j = 0; j < trainingContentList.size(); j++) {
+                    TrainingContent trainingContent = TrainingContent.builder()
+                            .id(SyllabusTrainingUnitTrainingContentCompositeKey.builder()
+                                    .contentCode(trainingContentList.get(j).getId().getContentCode())
+                                    .id(SyllabusTrainingUnitCompositeKey.builder()
+                                            .uCode(unitList.get(i).getId().getUCode())
+                                            .tCode(duplicatedSyllabus.getTopicCode())
+                                            .build())
+                                    .build())
+                            .unitCode(trainingUnit)
+                            .deliveryType(trainingContentList.get(j).getDeliveryType())
+                            .note(trainingContentList.get(j).getNote())
+                            .contentName(trainingContentList.get(j).getContentName())
+                            .trainingFormat(trainingContentList.get(j).isTrainingFormat())
+                            .duration(trainingContentList.get(j).getDuration())
+                            .outputCode(trainingContentList.get(j).getOutputCode())
+                            .build();
+
+                    duplicatedTrainingContentList.add(trainingContent);
+                }
+            }
+
+            for (int i = 0; i < syllabusObjectiveList.size(); i++) {
+                SyllabusObjective syllabusObjective = SyllabusObjective.builder()
+                        .id(SyllabusStandardOutputCompositeKey.builder()
+                                .topicCode(duplicatedSyllabus.getTopicCode())
+                                .outputCode(syllabusObjectiveList.get(i).getOutputCode().getOutputCode())
+                                .build())
+                        .topicCode(duplicatedSyllabus)
+                        .outputCode(syllabusObjectiveList.get(i).getOutputCode())
+                        .build();
+
+                duplicatedSyllabusObjective.add(syllabusObjective);
+            }
+
+            trainingUnitDAO.saveAll(duplicatedTrainingUnitList);
+            trainingContentDAO.saveAll(duplicatedTrainingContentList);
+            syllabusObjectiveDAO.saveAll(duplicatedSyllabusObjective);
+
+            return duplicatedSyllabus;
+
+        } catch (Exception err) {
+            err.printStackTrace();
+            return null;
+        }
+
     }
 
     public Syllabus saveSyllabus(Syllabus syllabus) {
