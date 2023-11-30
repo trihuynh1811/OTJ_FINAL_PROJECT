@@ -104,8 +104,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .status(true)
                 .createdBy(requester.getEmail())
                 .createdDate(new Date())
-                .modifiedBy(null)
-                .modifiedDate(null)
+                .modifiedBy(requester.getEmail())
+                .modifiedDate(new Date())
                 .build();
         var existedUser = userDAO.findByEmail(user.getEmail()).orElse(null);
         if (existedUser == null) {
