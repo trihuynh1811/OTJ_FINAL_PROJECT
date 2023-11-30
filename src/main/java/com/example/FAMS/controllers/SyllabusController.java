@@ -324,10 +324,12 @@ public class SyllabusController {
 
 
     @GetMapping("/duplicate/{topicCode}")
-    @PreAuthorize("hasAuthority('syllabus:update')")
+    @PreAuthorize("hasAuthority('syllabus:create')")
     public ResponseEntity<?> duplicateTopicCode(@PathVariable String topicCode, Authentication authentication) {
         Syllabus duplicatedSyllabus = syllabusService.duplicateSyllabus(topicCode, authentication);
-
+        if(duplicatedSyllabus == null){
+            return ResponseEntity.status(500).body("server error");
+        }
         return ResponseEntity.ok(duplicatedSyllabus);
     }
 
