@@ -240,7 +240,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
     @Override
     public ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(
-            int trainingProgramCode, TrainingProgramDTO2 trainingProgramDTO) {
+            int trainingProgramCode,String choice, TrainingProgramDTO2 trainingProgramDTO) {
         TrainingProgram trainingProgramExisted =
                 trainingProgramDAO.findById(trainingProgramCode).orElse(null);
 
@@ -303,8 +303,13 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         trainingProgramExisted.setModifiedDate(new Date());
 
         TrainingProgram updatedProgram = trainingProgramDAO.save(trainingProgramExisted);
+        if(choice.equalsIgnoreCase("Add")){
+             updateTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
+        } else if (choice.equalsIgnoreCase("Delete")) {
+             deleteTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
+            
+        }
 
-        TrainingProgramSyllabus trainingProgramSyllabusList = updateTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
 
         return ResponseEntity.ok(
                 new ResponseTrainingProgram(
@@ -342,6 +347,22 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
             }
         }
         return resultEntry;
+    }
+
+    private void deleteTrainingSyllabus(TrainingProgram trainingProgram, String[] topicCodes) {
+        for (String code : topicCodes) {
+            var syllabus = syllabusDAO.findById(code).orElse(null);
+            if (syllabus != null) {
+                var syllabusEntry = trainingProgramSyllabusDAO.findByIdTopicCodeAndIdTrainingProgramCode(
+                        syllabus.getTopicCode(), trainingProgram.getTrainingProgramCode()
+                );
+                if (syllabusEntry != null) {
+                    syllabusEntry.setDeleted(true);
+                    trainingProgramSyllabusDAO.delete(syllabusEntry);
+
+                }
+            }
+        }
     }
 
 

@@ -6,6 +6,7 @@ import com.example.FAMS.services.TrainingProgramService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -60,12 +61,13 @@ public class TrainingProgramController {
         return trainingProgram.getAll();
     }
 
-    @PutMapping("/update-program/{trainingProgramCode}")
+    @PutMapping("/training-program/{trainingProgramCode}/{choice}")
     @PreAuthorize("hasAnyAuthority('training:update')")
     public ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(
             @PathVariable int trainingProgramCode,
+            @PathVariable String choice,
             @RequestBody TrainingProgramDTO2 trainingProgramDTO) {
-        return trainingProgram.updateTrainingProgram(trainingProgramCode, trainingProgramDTO);
+        return trainingProgram.updateTrainingProgram(trainingProgramCode,choice, trainingProgramDTO);
     }
 
 
