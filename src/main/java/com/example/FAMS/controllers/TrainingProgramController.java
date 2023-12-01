@@ -61,13 +61,15 @@ public class TrainingProgramController {
         return trainingProgram.getAll();
     }
 
-    @PutMapping("/training-program/{trainingProgramCode}/{choice}")
+    @PutMapping("/training-program/{trainingProgramCode}")
     @PreAuthorize("hasAnyAuthority('training:update')")
     public ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(
             @PathVariable int trainingProgramCode,
-            @PathVariable String choice,
+//            @PathVariable String choice,
             @RequestBody TrainingProgramDTO2 trainingProgramDTO) {
-        return trainingProgram.updateTrainingProgram(trainingProgramCode,choice, trainingProgramDTO);
+        return trainingProgram.updateTrainingProgram(trainingProgramCode, trainingProgramDTO);
+//        return trainingProgram.updateTrainingProgram(trainingProgramCode,choice, trainingProgramDTO);
+
     }
 
 
