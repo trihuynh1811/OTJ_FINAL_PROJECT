@@ -38,6 +38,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.example.FAMS.utils.StringHandler.randomStringGenerator;
 
@@ -45,6 +47,11 @@ import static com.example.FAMS.utils.StringHandler.randomStringGenerator;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    String patterns
+            = "^(\\+\\d{1,3}( )?)?((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$"
+            + "|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?){2}\\d{3}$"
+            + "|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?)(\\d{2}[ ]?){2}\\d{2}$";
+    Pattern pattern = Pattern.compile(patterns);
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserDAO userDAO;
     private final UserPermissionDAO userPermissionDAO;
@@ -82,6 +89,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UpdateResponse updateUser(String userEmail, UpdateRequest updateRequest) {
+        Matcher matcher = pattern.matcher(updateRequest.getPhone());
+        if (!matcher.matches()) {
+            throw new RuntimeException(("Invalid phone number"));
+        }
         var existedUser = userDAO.findByEmail(userEmail).orElse(null);
         var permission = userPermissionDAO.findUserPermissionByRole(updateRequest.getRole())
                 .orElse(null);

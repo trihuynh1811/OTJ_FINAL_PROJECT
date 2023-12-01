@@ -62,11 +62,20 @@ public class UserController {
 
     @PutMapping("/update-user/{userEmail}")
     @PreAuthorize("hasAuthority('user:update')")
-    public ResponseEntity<UpdateResponse> updateUserRequest(
+    public ResponseEntity<UpdateResponse> updateUser(
             @PathVariable String userEmail,
             @RequestBody UpdateRequest updateRequest
     ) {
-        return ResponseEntity.ok(userService.updateUser(userEmail, updateRequest));
+        UpdateResponse response = new UpdateResponse();
+        try {
+            response = userService.updateUser(userEmail, updateRequest);
+        } catch (Exception e) {
+            response = UpdateResponse.builder()
+                    .status("ERROR: " + e.getMessage())
+                    .updatedUser(null)
+                    .build();
+        }
+        return ResponseEntity.ok(response);
     }
 
     //    @DeleteMapping("/delete/{email}")

@@ -30,10 +30,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,9 +41,15 @@ import static com.example.FAMS.utils.StringHandler.randomStringGenerator;
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-    private final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final String emailRegex = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
             + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
+    Pattern emailPattern = Pattern.compile(emailRegex);
+    String phoneRegex
+            = "^(\\+\\d{1,3}( )?)?((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$"
+            + "|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?){2}\\d{3}$"
+            + "|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?)(\\d{2}[ ]?){2}\\d{2}$";
+    Pattern phonePattern = Pattern.compile(phoneRegex);
+
     private final UserDAO userDAO;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
@@ -53,7 +57,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final UserPermissionDAO userPermissionDAO;
-    Pattern pattern = Pattern.compile(emailRegex);
+
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
@@ -78,8 +82,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public CreateResponse createUser(CreateRequest createRequest) throws RuntimeException {
-        Matcher matcher = pattern.matcher(createRequest.getEmail());
-        if (!matcher.matches()) {
+        Matcher matcherEmail = emailPattern.matcher(createRequest.getEmail());
+        Matcher matcherPhone = phonePattern.matcher(createRequest.getPhone());
+        if (!matcherPhone.matches()) {
+            throw new RuntimeException(("Invalid phone number"));
+        }
+        if (!matcherEmail.matches()) {
             throw new RuntimeException("Invalid email");
         }
         String token = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
