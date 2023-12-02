@@ -127,8 +127,8 @@ public class ClassController {
         return classService.getClassDetail(classCode);
     }
 
-    @GetMapping("/listClassPagenation")
-    public ResponseEntity<?> getAllPagenation(Pageable pageable) {
+    @GetMapping("/listClassPagination")
+    public ResponseEntity<?> getAllPagination(Pageable pageable) {
         return ResponseEntity.ok(classService.getAllPagenation(pageable));
 
     }
