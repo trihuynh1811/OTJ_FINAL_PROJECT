@@ -79,7 +79,7 @@ public class SyllabusController {
 
     @GetMapping("/page")
     @PreAuthorize("hasAuthority('syllabus:read')")
-    public ResponseEntity<GetSyllabusByPage> get(@RequestParam int amount, @RequestParam int pageNumber) {
+    public ResponseEntity<GetSyllabusByPage> get(@RequestParam("amount") int amount, @RequestParam("pageNumber") int pageNumber) {
         GetSyllabusByPage syllabusList = syllabusService.paging(amount, pageNumber);
         log.info(syllabusList);
         if (syllabusList.getStatus() > 0) {
