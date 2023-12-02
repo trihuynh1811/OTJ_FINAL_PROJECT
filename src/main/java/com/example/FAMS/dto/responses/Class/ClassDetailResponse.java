@@ -34,7 +34,7 @@ public class ClassDetailResponse {
     private String attendeeAccepted;
     private String attendeeActual;
     private String createdDate;
-    private String modifiedBy = "";
+    private UserDTO modifiedBy = null;
     private String modifiedDate = null;
     private boolean deactivated = false;
 

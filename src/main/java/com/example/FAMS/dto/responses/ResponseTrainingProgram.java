@@ -17,7 +17,7 @@ public class ResponseTrainingProgram {
     private String message;
     private int numberOfPage;
     private Object payload;
-    private List<TrainingProgramSyllabus> trainingProgramSyllabusList;
+//    private TrainingProgramSyllabus trainingProgramSyllabusList;
 
 
 

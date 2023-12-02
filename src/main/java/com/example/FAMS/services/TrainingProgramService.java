@@ -1,9 +1,6 @@
 package com.example.FAMS.services;
 
-import com.example.FAMS.dto.responses.ResponseObjectVersion2;
-import com.example.FAMS.dto.responses.ResponseTrainingProgram;
-import com.example.FAMS.dto.responses.TrainingProgramDTO;
-import com.example.FAMS.dto.responses.ResponseObject;
+import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.models.TrainingProgram;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -16,15 +13,12 @@ public interface TrainingProgramService {
 
     ResponseEntity<ResponseObject> getAll();
 
-    ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(int trainingProgramCode, TrainingProgramDTO trainingProgramDTO);
+//    ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(int trainingProgramCode,String choice, TrainingProgramDTO2 trainingProgramDTO);
 
-    TrainingProgram duplicateTrainingProgram(int trainingProgramCode);
-
-    TrainingProgram duplicateTrainingProgramName(String name);
-
+    ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(int trainingProgramCode, TrainingProgramDTO2 trainingProgramDTO);
     ResponseEntity<ResponseObject> changeTrainingProgramStatus(int trainingProgramCode, String value);
 
-    ResponseEntity<ResponseObject> processDataFromCSV(MultipartFile file, String choice,String separator, Authentication authentication) throws Exception;
+    ResponseEntity<ResponseObject> processDataFromCSV(MultipartFile file, String choice,String separator,String scan, Authentication authentication) throws Exception;
     TrainingProgram searchTrainingProgram(String keyword);
 
     ResponseEntity<ResponseObjectVersion2> getTrainingProgramByCode(int code);

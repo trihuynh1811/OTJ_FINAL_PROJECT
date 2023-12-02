@@ -92,7 +92,6 @@ public class UserServiceImpl implements UserService {
             existedUser.setPhone(updateRequest.getPhone());
             existedUser.setDob(updateRequest.getDob());
             existedUser.setGender(updateRequest.getGender());
-            existedUser.setStatus(updateRequest.isStatus());
             existedUser.setModifiedBy(updateRequest.getModifiedBy());
             existedUser.setModifiedDate(new Date());
 

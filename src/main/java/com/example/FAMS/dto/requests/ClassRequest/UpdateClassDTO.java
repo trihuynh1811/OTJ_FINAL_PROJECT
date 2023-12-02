@@ -27,6 +27,7 @@ public class UpdateClassDTO {
     String attendeePlanned;
     String attendeeAccepted;
     String attendeeActual;
+    String moderEmail;
     String trainingProgram;
     List<String> attendeeList;
     List<String> listDay;

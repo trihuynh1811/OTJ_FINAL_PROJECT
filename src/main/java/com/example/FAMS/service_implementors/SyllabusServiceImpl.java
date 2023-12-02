@@ -4,7 +4,6 @@ import com.amazonaws.HttpMethod;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.responses.Class.UserDTO;
 import com.example.FAMS.dto.responses.Syllabus.MaterialDTO;
-import com.example.FAMS.dto.requests.SyllbusRequest.StandardOutputDTO;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.*;
@@ -288,6 +287,17 @@ public class SyllabusServiceImpl implements SyllabusService {
                     .trainingPrinciples(request.getTrainingPrinciple())
                     .modifiedDate(new Date())
                     .modifiedBy(creator.getEmail())
+                    .assignmentLab(request.getAssignmentLab())
+                    .conceptLecture(request.getConceptLecture())
+                    .guideReview(request.getGuideReview())
+                    .testQuiz(request.getTestQuiz())
+                    .exam(request.getExam())
+                    .quiz(request.getQuiz())
+                    .assignment(request.getAssignment())
+                    .final_(request.getFin())
+                    .finalTheory(request.getFinalTheory())
+                    .finalPractice(request.getFinalPractice())
+                    .gpa(request.getGpa())
                     .build();
 
             syllabusDAO.save(syllabus);
@@ -464,9 +474,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             log.info(syllabusObjectiveMap);
             syllabusObjectiveDAO.saveAll(syllabusObjectiveList);
 
-            int numberOfDay = trainingUnitDAO.countDayNumberBySyllabus_TopicCode(syllabus.getTopicCode());
-
-            syllabus.setNumberOfDay(numberOfDay);
+            syllabus.setDuration(request.getSyllabus().size());
             syllabusDAO.save(syllabus);
 
 //            for (int i = 0; i < request.getTrainingMaterials().size(); i++) {
@@ -574,6 +582,17 @@ public class SyllabusServiceImpl implements SyllabusService {
             syllabus.setTrainingPrinciples(request.getTrainingPrinciple());
             syllabus.setModifiedDate(new Date());
             syllabus.setModifiedBy(creator.getEmail());
+            syllabus.setAssignmentLab(request.getAssignmentLab());
+            syllabus.setConceptLecture(request.getConceptLecture());
+            syllabus.setGuideReview(request.getGuideReview());
+            syllabus.setTestQuiz(request.getTestQuiz());
+            syllabus.setExam(request.getExam());
+            syllabus.setQuiz(request.getQuiz());
+            syllabus.setAssignment(request.getAssignment());
+            syllabus.setFinal_(request.getFin());
+            syllabus.setFinalTheory(request.getFinalTheory());
+            syllabus.setFinalPractice(request.getFinalPractice());
+            syllabus.setGpa(request.getGpa());
 
             syllabusDAO.save(syllabus);
 
@@ -749,9 +768,7 @@ public class SyllabusServiceImpl implements SyllabusService {
             log.info(syllabusObjectiveMap);
             syllabusObjectiveDAO.saveAll(syllabusObjectiveList);
 
-            int numberOfDay = trainingUnitDAO.countDayNumberBySyllabus_TopicCode(syllabus.getTopicCode());
-
-            syllabus.setNumberOfDay(numberOfDay);
+            syllabus.setDuration(request.getSyllabus().size());
             syllabusDAO.save(syllabus);
 
 //            for (int i = 0; i < request.getTrainingMaterials().size(); i++) {
@@ -847,28 +864,45 @@ public class SyllabusServiceImpl implements SyllabusService {
     }
 
     @Override
-    public List<Syllabus> processDataFromCSV(MultipartFile file, String choice, Authentication authentication) throws IOException {
-
+    public List<Syllabus> processDataFromCSV(MultipartFile file, String choice, String seperator, String scan, Authentication authentication) throws IOException {
+        if (!isCSVFile(file)) {
+            throw new IllegalArgumentException("Uploaded file is not a CSV file.");
+        }
         List<Syllabus> syllabusList = new ArrayList<>();
+        Optional<Syllabus> optionalSyllabus = Optional.empty();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
+
             boolean firstLine = true;
             // Mảng các đối tượng SimpleDateFormat với các định dạng khác nhau
             SimpleDateFormat[] dateFormats = {
                     new SimpleDateFormat("dd/MM/yyyy"),
                     new SimpleDateFormat("dd-MM-yyyy")
             };
-
             while ((line = reader.readLine()) != null) {
                 if (firstLine) {
                     firstLine = false; // Đây là dòng đầu tiên, bỏ qua nó
+                    if (line == null || !isCSVHeaderValid(line, seperator)) {
+                        throw new IllegalArgumentException("Header not match!.");
+                    }
                     continue;
                 }
-                String[] data = line.split(",");
-                Optional<Syllabus> optionalSyllabus = syllabusDAO.findById(data[0]);
-                Syllabus syllabusexits = optionalSyllabus.orElse(null);
-                if (choice.equals("Replace")) {
+                String[] data = line.split("[" + seperator + "]");
+                for (int i = 0; i < 12; i++) {
+                    if (data[i].isEmpty()) {
+                        throw new IllegalArgumentException("Data is Empty.");
+                    }
+                }
+                if (scan.equals("Code")) {
+                    optionalSyllabus = syllabusDAO.findById(data[0]);
 
+                } else if (scan.equals("Name")) {
+                    optionalSyllabus = syllabusDAO.findByTopicName(data[6]);
+                }
+
+                Syllabus syllabusexits = optionalSyllabus.orElse(null);
+
+                if (choice.equals("Replace")) {
                     if (syllabusexits != null) {
                         syllabusexits.setCreatedBy(getCreator(authentication));
                         // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
@@ -888,60 +922,177 @@ public class SyllabusServiceImpl implements SyllabusService {
 //                        syllabusexits.setUserID(getCreator(authentication));
                         syllabusDAO.save(syllabusexits);
                     } else {
-                        Syllabus c = new Syllabus();
+                        if (scan.equals("Name")) {
+                            Optional<Syllabus> SyllabusCode = syllabusDAO.findById(data[0]);
+                            if (SyllabusCode.isEmpty()) {
+                                Syllabus c = new Syllabus();
 
-                        c.setTopicCode(data[0]);
-                        c.setCreatedBy(getCreator(authentication));
-                        // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
-                        c.setCreatedDate(parseDate(data[1], dateFormats));
-                        c.setModifiedBy(getCreator(authentication).getName());
-                        c.setModifiedDate(parseDate(data[2], dateFormats));
-                        c.setPriority(data[3]);
-                        c.setPublishStatus(data[4]);
-                        c.setTechnicalGroup(data[5]);
-                        c.setTopicName(data[6]);
-                        c.setTopicOutline(data[7]);
-                        c.setTrainingAudience(Integer.parseInt(data[8]));
+                                c.setTopicCode(data[0]);
+                                c.setCreatedBy(getCreator(authentication));
+                                // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
+                                c.setCreatedDate(parseDate(data[1], dateFormats));
+                                c.setModifiedBy(getCreator(authentication).getName());
+                                c.setModifiedDate(parseDate(data[2], dateFormats));
+                                c.setPriority(data[3]);
+                                c.setPublishStatus(data[4]);
+                                c.setTechnicalGroup(data[5]);
+                                c.setTopicName(data[6]);
+                                c.setTopicOutline(data[7]);
+                                c.setTrainingAudience(Integer.parseInt(data[8]));
 //                        c.setTrainingMaterials(data[9]);
-                        c.setTrainingPrinciples(data[9]);
-                        c.setVersion(data[10]);
-                        c.setCourseObjective(data[11]);
+                                c.setTrainingPrinciples(data[9]);
+                                c.setVersion(data[10]);
+                                c.setCourseObjective(data[11]);
 //                        c.setUserID(getCreator(authentication));
-                        syllabusList.add(c);
-                        syllabusDAO.saveAll(syllabusList);
+                                syllabusList.add(c);
+                                syllabusDAO.saveAll(syllabusList);
+                            }
+                        } else {
+                            Syllabus c = new Syllabus();
+
+                            c.setTopicCode(data[0]);
+                            c.setCreatedBy(getCreator(authentication));
+                            // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
+                            c.setCreatedDate(parseDate(data[1], dateFormats));
+                            c.setModifiedBy(getCreator(authentication).getName());
+                            c.setModifiedDate(parseDate(data[2], dateFormats));
+                            c.setPriority(data[3]);
+                            c.setPublishStatus(data[4]);
+                            c.setTechnicalGroup(data[5]);
+                            c.setTopicName(data[6]);
+                            c.setTopicOutline(data[7]);
+                            c.setTrainingAudience(Integer.parseInt(data[8]));
+//                        c.setTrainingMaterials(data[9]);
+                            c.setTrainingPrinciples(data[9]);
+                            c.setVersion(data[10]);
+                            c.setCourseObjective(data[11]);
+//                        c.setUserID(getCreator(authentication));
+                            syllabusList.add(c);
+                            syllabusDAO.saveAll(syllabusList);
+                        }
                     }
                 } else if (choice.equals("Skip")) {
                     if (syllabusexits != null) {
 
                     } else {
-                        Syllabus c = new Syllabus();
+                        if (scan.equals("Name")) {
+                            Optional<Syllabus> SyllabusCode = syllabusDAO.findById(data[0]);
+                            if (SyllabusCode.isEmpty()) {
+                                Syllabus c = new Syllabus();
 
-                        c.setTopicCode(data[0]);
-                        c.setCreatedBy(getCreator(authentication));
-                        // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
-                        c.setCreatedDate(parseDate(data[1], dateFormats));
-                        c.setModifiedBy(getCreator(authentication).getName());
-                        c.setModifiedDate(parseDate(data[2], dateFormats));
-                        c.setPriority(data[3]);
-                        c.setPublishStatus(data[4]);
-                        c.setTechnicalGroup(data[5]);
-                        c.setTopicName(data[6]);
-                        c.setTopicOutline(data[7]);
-                        c.setTrainingAudience(Integer.parseInt(data[8]));
+                                c.setTopicCode(data[0]);
+                                c.setCreatedBy(getCreator(authentication));
+                                // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
+                                c.setCreatedDate(parseDate(data[1], dateFormats));
+                                c.setModifiedBy(getCreator(authentication).getName());
+                                c.setModifiedDate(parseDate(data[2], dateFormats));
+                                c.setPriority(data[3]);
+                                c.setPublishStatus(data[4]);
+                                c.setTechnicalGroup(data[5]);
+                                c.setTopicName(data[6]);
+                                c.setTopicOutline(data[7]);
+                                c.setTrainingAudience(Integer.parseInt(data[8]));
 //                        c.setTrainingMaterials(data[9]);
-                        c.setTrainingPrinciples(data[9]);
-                        c.setVersion(data[10]);
-                        c.setCourseObjective(data[11]);
+                                c.setTrainingPrinciples(data[9]);
+                                c.setVersion(data[10]);
+                                c.setCourseObjective(data[11]);
 //                        c.setUserID(getCreator(authentication));
-                        syllabusList.add(c);
-                        syllabusDAO.saveAll(syllabusList);
+                                syllabusList.add(c);
+                                syllabusDAO.saveAll(syllabusList);
+                            }
+                        } else {
+                            Syllabus c = new Syllabus();
+
+                            c.setTopicCode(data[0]);
+                            c.setCreatedBy(getCreator(authentication));
+                            // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
+                            c.setCreatedDate(parseDate(data[1], dateFormats));
+                            c.setModifiedBy(getCreator(authentication).getName());
+                            c.setModifiedDate(parseDate(data[2], dateFormats));
+                            c.setPriority(data[3]);
+                            c.setPublishStatus(data[4]);
+                            c.setTechnicalGroup(data[5]);
+                            c.setTopicName(data[6]);
+                            c.setTopicOutline(data[7]);
+                            c.setTrainingAudience(Integer.parseInt(data[8]));
+//                        c.setTrainingMaterials(data[9]);
+                            c.setTrainingPrinciples(data[9]);
+                            c.setVersion(data[10]);
+                            c.setCourseObjective(data[11]);
+//                        c.setUserID(getCreator(authentication));
+                            syllabusList.add(c);
+                            syllabusDAO.saveAll(syllabusList);
+                        }
+                    }
+                } else if (choice.equals("Allow")) {
+                    if (syllabusexits != null) {
+                        if (scan.equals("Code")) {
+                            duplicateSyllabus(data[0], authentication);
+                        } else if (scan.equals("Name")) {
+                            Optional<Syllabus> SyllabusCode = syllabusDAO.findById(data[0]);
+                            if (SyllabusCode.isEmpty()) {
+                                duplicateSyllabusByName(data[0], data[6], authentication);
+                            } else {
+                                duplicateSyllabusByNameAndCode(data[0], data[6], authentication);
+                            }
+                        }
+                    } else {
+                        Optional<Syllabus> SyllabusCode = syllabusDAO.findById(data[0]);
+                        if (SyllabusCode.isEmpty()) {
+                            Syllabus c = new Syllabus();
+
+                            c.setTopicCode(data[0]);
+                            c.setCreatedBy(getCreator(authentication));
+                            // Chuyển đổi từ chuỗi ngày thành Date và chỉ lấy phần ngày
+                            c.setCreatedDate(parseDate(data[1], dateFormats));
+                            c.setModifiedBy(getCreator(authentication).getName());
+                            c.setModifiedDate(parseDate(data[2], dateFormats));
+                            c.setPriority(data[3]);
+                            c.setPublishStatus(data[4]);
+                            c.setTechnicalGroup(data[5]);
+                            c.setTopicName(data[6]);
+                            c.setTopicOutline(data[7]);
+                            c.setTrainingAudience(Integer.parseInt(data[8]));
+//                        c.setTrainingMaterials(data[9]);
+                            c.setTrainingPrinciples(data[9]);
+                            c.setVersion(data[10]);
+                            c.setCourseObjective(data[11]);
+//                        c.setUserID(getCreator(authentication));
+                            syllabusList.add(c);
+                            syllabusDAO.saveAll(syllabusList);
+                        }
                     }
                 }
             }
-        } catch (IOException | ParseException e) {
+        } catch (IOException |
+                 ParseException e) {
             e.printStackTrace();
         }
         return syllabusList;
+    }
+
+    private boolean isCSVFile(MultipartFile file) {
+        String filename = file.getOriginalFilename();
+        return filename != null && filename.endsWith(".csv");
+    }
+
+    private boolean isCSVHeaderValid(String headerLine, String seperator) {
+        String[] HEADER = {"Topic code", "Created date", "Modified Date", "Priority", "Publish Status", "Technical Group", "Topic_name", "Topic Outline", "Training Audience", "Training Principles", "Version", "Course Objective"};
+        String[] headers = headerLine.split("[" + seperator + "]");
+//        String[] expectedHeaders = HEADER.split("[" + seperator + ",.;]");
+        if (headers.length == 1) {
+            throw new IllegalArgumentException("Seperator not match!");
+        }
+        if (headers.length != HEADER.length) {
+            return false;
+        }
+        for (int i = 0; i < headers.length; i++) {
+            if (!headers[i].equalsIgnoreCase(HEADER[i].trim())) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private java.sql.Date parseDate(String dateString, SimpleDateFormat[] dateFormats) throws ParseException {
@@ -960,7 +1111,7 @@ public class SyllabusServiceImpl implements SyllabusService {
     public void downloadCSV() throws IOException {
         String computerAccountName = System.getProperty("user.name");
 
-        File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/Template.csv");
+        File csvFile = new File("C:/Users/" + computerAccountName + "/Downloads/TemplateSyllabus.csv");
 
         // Sử dụng FileWriter để ghi vào tệp CSV
         FileWriter fileWriter = new FileWriter(csvFile, false); // Use false to overwrite the file
@@ -969,10 +1120,80 @@ public class SyllabusServiceImpl implements SyllabusService {
         BufferedWriter out = new BufferedWriter(fileWriter);
 
         // Thêm nội dung vào tệp
-        out.write("topic_code, created_date, Modified Date, priority, publishStatus, technicalGroup, topic_name, topicOutline, TrainingAudience, TrainingPrinciples, Version, CourseObjective");
+        out.write("Topic code,Created date,Modified Date,Priority,Publish Status,Technical Group,Topic_name,Topic Outline,Training Audience,Training Principles,Version,Course Objective");
         out.newLine(); // Xuống dòng
         // Đóng BufferedWriter
         out.close();
+    }
+
+    @Override
+    public Syllabus duplicateSyllabusByNameAndCode(String topicCode, String topicName, Authentication authentication) {
+        int duplicateName = syllabusDAO.countByTopicNameLike(topicName + "%");
+        int duplicateCode = syllabusDAO.countByTopicCodeLike(topicCode + "%");
+        String topicCodeClone = "";
+        Syllabus originalSyllabusName = syllabusDAO.findByTopicName(topicName).get();
+        Syllabus originalSyllabusCode = syllabusDAO.findById(topicCode).get();
+        if (originalSyllabusCode != null) {
+            topicCode = originalSyllabusCode.getTopicCode();
+            topicCodeClone = topicCode + "_" + duplicateCode;
+        } else {
+            topicCodeClone = originalSyllabusCode.getTopicCode();
+        }
+        topicName = originalSyllabusName.getTopicName();
+        String topicNameClone = topicName + "_" + duplicateName;
+        Syllabus duplicatedSyllabusByName = Syllabus.builder()
+                .topicName(topicNameClone)
+                .trainingPrinciples(originalSyllabusName.getTrainingPrinciples())
+                .version(originalSyllabusName.getVersion())
+                .technicalGroup(originalSyllabusName.getTechnicalGroup())
+                .trainingAudience(originalSyllabusName.getTrainingAudience())
+                .topicOutline(originalSyllabusName.getTopicOutline())
+//                .trainingMaterials(originalSyllabusName.getTrainingMaterials())
+                .priority(originalSyllabusName.getPriority())
+                .publishStatus(originalSyllabusName.getPublishStatus())
+                .createdBy(originalSyllabusName.getCreatedBy())
+                .createdDate(new Date())
+                .modifiedBy(originalSyllabusName.getModifiedBy())
+                .modifiedDate(new Date())
+                .courseObjective(originalSyllabusName.getCourseObjective())
+                .topicCode(topicCodeClone)
+                .build();
+
+        syllabusDAO.save(duplicatedSyllabusByName);
+
+        return duplicatedSyllabusByName;
+    }
+
+    @Override
+    public Syllabus duplicateSyllabusByName(String topicCode, String topicName, Authentication authentication) {
+        int countName = syllabusDAO.countByTopicNameLike(topicName + "%");
+        Syllabus originalSyllabus = syllabusDAO.findByTopicName(topicName).get();
+
+        topicName = originalSyllabus.getTopicName();
+        String topicNameClone = topicName + "_" + countName;
+
+
+        Syllabus duplicatedSyllabus = Syllabus.builder()
+                .topicName(topicNameClone)
+                .trainingPrinciples(originalSyllabus.getTrainingPrinciples())
+                .version(originalSyllabus.getVersion())
+                .technicalGroup(originalSyllabus.getTechnicalGroup())
+                .trainingAudience(originalSyllabus.getTrainingAudience())
+                .topicOutline(originalSyllabus.getTopicOutline())
+//                .trainingMaterials(originalSyllabus.getTrainingMaterials())
+                .priority(originalSyllabus.getPriority())
+                .publishStatus(originalSyllabus.getPublishStatus())
+                .createdBy(originalSyllabus.getCreatedBy())
+                .createdDate(new Date())
+                .modifiedBy(originalSyllabus.getModifiedBy())
+                .modifiedDate(new Date())
+                .courseObjective(originalSyllabus.getCourseObjective())
+                .topicCode(topicCode)
+                .build();
+
+        syllabusDAO.save(duplicatedSyllabus);
+
+        return duplicatedSyllabus;
     }
 
     @Override
@@ -1110,7 +1331,7 @@ public class SyllabusServiceImpl implements SyllabusService {
 
         for (Integer dayNumber : dayList) {
             for (int i = 0; i < trainingUnitList.size(); i++) {
-                if(trainingUnitList.get(i).getDayNumber() == dayNumber){
+                if (trainingUnitList.get(i).getDayNumber() == dayNumber) {
                     trainingContentList = trainingUnitList.get(i).getTrainingContents().stream().toList();
                     for (int j = 0; j < trainingContentList.size(); j++) {
                         trainingMaterialList = trainingContentList.get(j).getTrainingMaterials().stream().toList();
@@ -1161,8 +1382,19 @@ public class SyllabusServiceImpl implements SyllabusService {
             unitDTOList = new ArrayList<>();
         }
         List<String> outputCodeList = new ArrayList<>();
-        for(int i = 0; i < syllabusObjectiveList.size(); i++){
+        for (int i = 0; i < syllabusObjectiveList.size(); i++) {
             outputCodeList.add(syllabusObjectiveList.get(i).getOutputCode().getOutputCode());
+        }
+
+        UserDTO modifier = null;
+
+        if (syllabus.getModifiedBy() != null) {
+            User moder = userDAO.findByEmail(syllabus.getModifiedBy()).get();
+            modifier = UserDTO.builder()
+                    .userId(moder.getUserId())
+                    .userEmail(moder.getEmail())
+                    .userName(moder.getName())
+                    .build();
         }
 
         UserDTO user = UserDTO.builder()
@@ -1171,19 +1403,37 @@ public class SyllabusServiceImpl implements SyllabusService {
                 .userEmail(creator.getEmail())
                 .build();
 
-        SyllabusResponse res = SyllabusResponse.builder()
+
+        return SyllabusResponse.builder()
                 .syllabusStatus(syllabus.getPublishStatus())
-                .duration(Integer.toString(syllabus.getNumberOfDay()))
+                .duration(Integer.toString(syllabus.getDuration()))
                 .syllabusName(syllabus.getTopicName())
                 .syllabusCode(syllabus.getTopicCode())
                 .createdBy(user)
                 .createdOn(convertToMMDDYYYY(syllabus.getCreatedDate().toString().split(" ")[0]))
+                .level(syllabus.getPriority())
+                .attendeeNumber(Integer.toString(syllabus.getTrainingAudience()))
+                .technicalRequirement(syllabus.getTechnicalGroup())
+                .courseObjective(syllabus.getCourseObjective())
+                .trainingPrinciple(syllabus.getTrainingPrinciples())
+                .version(syllabus.getVersion())
+                .modifiedBy(modifier)
+                .modifiedOn(convertToMMDDYYYY(syllabus.getModifiedDate().toString().split(" ")[0]))
                 .syllabusObjectiveList(outputCodeList)
                 .dayList(dayDTOList)
+                .assignmentLab(syllabus.getAssignmentLab())
+                .conceptLecture(syllabus.getConceptLecture())
+                .guideReview(syllabus.getGuideReview())
+                .testQuiz(syllabus.getTestQuiz())
+                .exam(syllabus.getExam())
+                .quiz(syllabus.getQuiz())
+                .assignment(syllabus.getAssignment())
+                .final_(syllabus.getFinal_())
+                .finalTheory(syllabus.getFinalTheory())
+                .finalPractice(syllabus.getFinalPractice())
+                .gpa(syllabus.getGpa())
                 .deleted(syllabus.isDeleted())
                 .build();
-
-        return res;
 
     }
 
