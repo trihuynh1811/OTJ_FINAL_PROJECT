@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.*;
 import java.net.URL;
@@ -133,7 +134,7 @@ public class SyllabusServiceImpl implements SyllabusService {
     @Override
     public GetSyllabusByPage paging(int amount, int pageNumber) {
         try {
-            List<Syllabus> syllabusList = syllabusDAO.findTop1000ByDeletedOrderByCreatedDateDesc(false);
+            List<Syllabus> syllabusList = syllabusDAO.findTop1000ByOrderByCreatedDateDesc();
             System.out.println(syllabusList);
             List<SyllabusResponse> syllabuses = new ArrayList<>();
             List<String> objectiveList = null;
@@ -191,12 +192,10 @@ public class SyllabusServiceImpl implements SyllabusService {
             log.info("page to: " + pageTo);
             List<Syllabus> syllabusSubList = syllabusList.subList(pageFrom, pageTo);
 
+            log.info("syllabus sub list size: " + syllabusSubList.size());
+            log.info("syllabus sub list: " + syllabusSubList);
+
             for (int i = 0; i < syllabusSubList.size(); i++) {
-                objectiveList = new ArrayList<>();
-                syllabusObjectiveList = syllabusSubList.get(i).getSyllabusObjectives().stream().toList();
-                for (int j = 0; j < syllabusObjectiveList.size(); j++) {
-                    objectiveList.add(syllabusObjectiveList.get(j).getOutputCode().getOutputCode());
-                }
 //                GetAllSyllabusResponse res = GetAllSyllabusResponse.builder()
 //                        .syllabusName(syllabusSubList.get(i).getTopicName())
 //                        .syllabusCode(syllabusSubList.get(i).getTopicCode())
@@ -206,7 +205,9 @@ public class SyllabusServiceImpl implements SyllabusService {
 //                        .status(syllabusSubList.get(i).getPublishStatus())
 //                        .syllabusObjectiveList(objectiveList)
 //                        .build();
-                SyllabusResponse res = getDetailOfSyllabus(syllabusList.get(i).getTopicCode());
+
+                log.info(syllabusSubList.get(i).getTopicCode());
+                SyllabusResponse res = getDetailOfSyllabus(syllabusSubList.get(i).getTopicCode());
 
                 syllabuses.add(res);
             }
@@ -272,32 +273,51 @@ public class SyllabusServiceImpl implements SyllabusService {
 
         User creator = userDAO.findByEmail(request.getCreatorEmail()).get();
         try {
-            Syllabus syllabus = Syllabus.builder()
-                    .topicCode(request.getTopicCode())
-                    .topicName(request.getTopicName())
-                    .trainingAudience(Integer.parseInt(request.getTrainingAudience()))
-                    .courseObjective(request.getCourseObjective())
-                    .technicalGroup(request.getTechnicalRequirement())
-                    .publishStatus(request.getPublishStatus())
-                    .priority(request.getPriority())
-                    .version(request.getVersion())
-                    .createdBy(creator)
-                    .createdDate(new Date())
-                    .trainingPrinciples(request.getTrainingPrinciple())
-                    .modifiedDate(new Date())
-                    .modifiedBy(creator.getEmail())
-                    .assignmentLab(request.getAssignmentLab())
-                    .conceptLecture(request.getConceptLecture())
-                    .guideReview(request.getGuideReview())
-                    .testQuiz(request.getTestQuiz())
-                    .exam(request.getExam())
-                    .quiz(request.getQuiz())
-                    .assignment(request.getAssignment())
-                    .final_(request.getFin())
-                    .finalTheory(request.getFinalTheory())
-                    .finalPractice(request.getFinalPractice())
-                    .gpa(request.getGpa())
-                    .build();
+            if (Integer.parseInt(request.getTrainingAudience()) < 0 || request.getAssignmentLab() < 0 || request.getConceptLecture() < 0 ||
+                    request.getGuideReview() < 0 || request.getTestQuiz() < 0 || request.getExam() < 0 ||
+                    request.getQuiz() < 0 || request.getAssignment() < 0 || request.getFin() < 0 ||
+                    request.getFinalTheory() < 0 || request.getFinalPractice() < 0 || request.getGpa() < 0
+            ){
+                return CreateSyllabusResponse.builder()
+                        .status(1)
+                        .message("Some of the value can't be negative.")
+                        .url(null)
+                        .build();
+            }
+
+            if(!isNumberOrFloatingPoint(request.getVersion())){
+                return CreateSyllabusResponse.builder()
+                        .status(1)
+                        .message("Version must be number and can't be negative.")
+                        .url(null)
+                        .build();
+            }
+                Syllabus syllabus = Syllabus.builder()
+                        .topicCode(request.getTopicCode())
+                        .topicName(request.getTopicName())
+                        .trainingAudience(Integer.parseInt(request.getTrainingAudience()))
+                        .courseObjective(request.getCourseObjective())
+                        .technicalGroup(request.getTechnicalRequirement())
+                        .publishStatus(request.getPublishStatus())
+                        .priority(request.getPriority())
+                        .version(request.getVersion())
+                        .createdBy(creator)
+                        .createdDate(new Date())
+                        .trainingPrinciples(request.getTrainingPrinciple())
+                        .modifiedDate(new Date())
+                        .modifiedBy(creator.getEmail())
+                        .assignmentLab(request.getAssignmentLab() + " %")
+                        .conceptLecture(request.getConceptLecture() + " %")
+                        .guideReview(request.getGuideReview() + " %")
+                        .testQuiz(request.getTestQuiz() + " %")
+                        .exam(request.getExam() + " %")
+                        .quiz(request.getQuiz() + " %")
+                        .assignment(request.getAssignment() + " %")
+                        .final_(request.getFin() + " %")
+                        .finalTheory(request.getFinalTheory() + " %")
+                        .finalPractice(request.getFinalPractice() + " %")
+                        .gpa(request.getGpa() + " %")
+                        .build();
 
             syllabusDAO.save(syllabus);
 
@@ -570,6 +590,26 @@ public class SyllabusServiceImpl implements SyllabusService {
             syllabusObjectiveList.clear();
             trainingMaterialList.clear();
 
+            if (Integer.parseInt(request.getTrainingAudience()) < 0 || request.getAssignmentLab() < 0 || request.getConceptLecture() < 0 ||
+                    request.getGuideReview() < 0 || request.getTestQuiz() < 0 || request.getExam() < 0 ||
+                    request.getQuiz() < 0 || request.getAssignment() < 0 || request.getFin() < 0 ||
+                    request.getFinalTheory() < 0 || request.getFinalPractice() < 0 || request.getGpa() < 0
+            ){
+                return UpdateSyllabusResponse.builder()
+                        .status(1)
+                        .message("Some of the value can't be negative.")
+                        .url(null)
+                        .build();
+            }
+
+            if(!isNumberOrFloatingPoint(request.getVersion())){
+                return UpdateSyllabusResponse.builder()
+                        .status(1)
+                        .message("Version must be number and can't be negative.")
+                        .url(null)
+                        .build();
+            }
+
             syllabus.setTopicName(request.getTopicName());
             syllabus.setTrainingAudience(Integer.parseInt(request.getTrainingAudience()));
             syllabus.setCourseObjective(request.getCourseObjective());
@@ -580,17 +620,17 @@ public class SyllabusServiceImpl implements SyllabusService {
             syllabus.setTrainingPrinciples(request.getTrainingPrinciple());
             syllabus.setModifiedDate(new Date());
             syllabus.setModifiedBy(creator.getEmail());
-            syllabus.setAssignmentLab(request.getAssignmentLab());
-            syllabus.setConceptLecture(request.getConceptLecture());
-            syllabus.setGuideReview(request.getGuideReview());
-            syllabus.setTestQuiz(request.getTestQuiz());
-            syllabus.setExam(request.getExam());
-            syllabus.setQuiz(request.getQuiz());
-            syllabus.setAssignment(request.getAssignment());
-            syllabus.setFinal_(request.getFin());
-            syllabus.setFinalTheory(request.getFinalTheory());
-            syllabus.setFinalPractice(request.getFinalPractice());
-            syllabus.setGpa(request.getGpa());
+            syllabus.setAssignmentLab(request.getAssignmentLab() + " %");
+            syllabus.setConceptLecture(request.getConceptLecture() + " %");
+            syllabus.setGuideReview(request.getGuideReview() + " %");
+            syllabus.setTestQuiz(request.getTestQuiz() + " %");
+            syllabus.setExam(request.getExam() + " %");
+            syllabus.setQuiz(request.getQuiz() + " %");
+            syllabus.setAssignment(request.getAssignment() + " %");
+            syllabus.setFinal_(request.getFin() + " %");
+            syllabus.setFinalTheory(request.getFinalTheory() + " %");
+            syllabus.setFinalPractice(request.getFinalPractice() + " %");
+            syllabus.setGpa(request.getGpa() + " %");
 
             syllabusDAO.save(syllabus);
 
@@ -1542,6 +1582,27 @@ public class SyllabusServiceImpl implements SyllabusService {
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         String formattedDate = date.format(outputFormatter);
         return formattedDate;
+    }
+
+    public String processString(String input) {
+        if (isFloatingPoint(input)) {
+            // If the string is a number with a dot
+            String[] parts = input.split("\\.");
+            return parts[0]; // Get the first part of the split string array
+        } else {
+            // If the string is a number without a dot
+            return input;
+        }
+    }
+
+    private boolean isNumberOrFloatingPoint(String str) {
+        // Use a regular expression to check if the string is a number or a floating-point number
+        return Pattern.matches("\\d+(\\.\\d+)?", str);
+    }
+
+    private boolean isFloatingPoint(String str) {
+        // Use a regular expression to check if the string is a number or a floating-point number
+        return Pattern.matches("\\d+\\.\\d+?", str);
     }
 
 

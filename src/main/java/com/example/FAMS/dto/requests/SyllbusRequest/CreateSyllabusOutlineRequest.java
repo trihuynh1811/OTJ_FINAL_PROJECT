@@ -23,17 +23,17 @@ public class CreateSyllabusOutlineRequest {
     String trainingPrinciple;
     String creatorEmail;
     String trainingAudience;
-    String assignmentLab = "0%";
-    String conceptLecture = "0%";
-    String guideReview = "0%";
-    String testQuiz = "0%";
-    String exam = "0%";
-    String quiz = "0%";
-    String assignment = "0%";
-    String fin = "0%";
-    String finalTheory = "0%";
-    String finalPractice = "0%";
-    String gpa = "0%";
+    int assignmentLab = 0;
+    int conceptLecture = 0;
+    int guideReview = 0;
+    int testQuiz = 0;
+    int exam = 0;
+    int quiz = 0;
+    int assignment = 0;
+    int fin = 0;
+    int finalTheory = 0;
+    int finalPractice = 0;
+    int gpa = 0;
     List<DayDTO> syllabus;
 //    List<TrainingMaterialDTO> trainingMaterials;
 

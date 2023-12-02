@@ -34,6 +34,7 @@ import java.util.*;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -250,6 +251,14 @@ public class ClassServiceImpl implements ClassService {
             if (!sdf.parse(request.getEndDate()).after(sdf.parse(request.getStartDate()))) {
                 return CreateClassResponse.builder()
                         .message("end date for this class should be after start date")
+                        .createdClass(null)
+                        .status(2)
+                        .build();
+            }
+
+            if(!isNumber(request.getAttendeePlanned()) || !isNumber(request.getAttendeeAccepted()) || !isNumber(request.getAttendeeActual())){
+                return CreateClassResponse.builder()
+                        .message("attendee planned, accepted, actual can't be a words or negative or floating point number")
                         .createdClass(null)
                         .status(2)
                         .build();
@@ -661,6 +670,14 @@ public class ClassServiceImpl implements ClassService {
                 if (!sdf.parse(request.getEndDate()).after(sdf.parse(request.getStartDate()))) {
                     return UpdateClassResponse.builder()
                             .message("end date for this class should be after start date")
+                            .updatedClass(null)
+                            .status(2)
+                            .build();
+                }
+
+                if(!isNumber(request.getAttendeePlanned()) || !isNumber(request.getAttendeeAccepted()) || !isNumber(request.getAttendeeActual())){
+                    return UpdateClassResponse.builder()
+                            .message("attendee planned, accepted, actual can't be a words or negative or floating point number")
                             .updatedClass(null)
                             .status(2)
                             .build();
@@ -1355,5 +1372,9 @@ public class ClassServiceImpl implements ClassService {
 
     }
 
+    private boolean isNumber(String str) {
+        // Use a regular expression to check if the string is a number or a floating-point number
+        return Pattern.matches("\\d+", str);
+    }
 
 }
