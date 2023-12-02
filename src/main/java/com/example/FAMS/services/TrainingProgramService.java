@@ -15,7 +15,7 @@ public interface TrainingProgramService {
 
 //    ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(int trainingProgramCode,String choice, TrainingProgramDTO2 trainingProgramDTO);
 
-    ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(int trainingProgramCode, TrainingProgramDTO2 trainingProgramDTO);
+    ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(int trainingProgramCode,String choice, TrainingProgramDTO2 trainingProgramDTO);
     ResponseEntity<ResponseObject> changeTrainingProgramStatus(int trainingProgramCode, String value);
 
     ResponseEntity<ResponseObject> processDataFromCSV(MultipartFile file, String choice,String separator,String scan, Authentication authentication) throws Exception;

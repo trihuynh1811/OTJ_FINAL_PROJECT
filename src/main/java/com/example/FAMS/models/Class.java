@@ -46,13 +46,6 @@ public class Class {
     @Column(name = "status", nullable = false)
     private String status;
 
-//    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
-//    @JoinColumn(name = "fsu_id", referencedColumnName = "fsu_id")
-//    @EqualsAndHashCode.Exclude
-//    @ToString.Exclude
-//    @JsonBackReference
-//    private Fsu fsu;
-
     private String fsu;
 
     @Column(name = "start_date", nullable = false)
