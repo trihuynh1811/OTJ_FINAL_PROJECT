@@ -65,10 +65,10 @@ public class TrainingProgramController {
     @PreAuthorize("hasAnyAuthority('training:update')")
     public ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(
             @PathVariable int trainingProgramCode,
-//            @PathVariable String choice,
+            @RequestParam String choice,
             @RequestBody TrainingProgramDTO2 trainingProgramDTO) {
-        return trainingProgram.updateTrainingProgram(trainingProgramCode, trainingProgramDTO);
-//        return trainingProgram.updateTrainingProgram(trainingProgramCode,choice, trainingProgramDTO);
+//        return trainingProgram.updateTrainingProgram(trainingProgramCode, trainingProgramDTO);
+        return trainingProgram.updateTrainingProgram(trainingProgramCode,choice, trainingProgramDTO);
 
     }
 
