@@ -1,6 +1,7 @@
 package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.controllers.UserController;
+import com.example.FAMS.dto.UserDTO;
 import com.example.FAMS.dto.requests.UpdatePasswordRequest;
 import com.example.FAMS.dto.requests.UpdateRequest;
 import com.example.FAMS.dto.responses.ListUserResponse;
@@ -192,8 +193,14 @@ public class UserServiceImpl implements UserService {
 
     private boolean checkExistedAndValid(int id, String type){
         User u = userDAO.findById(id).orElse(null);
+        String token = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
+                .getRequest().getHeader("Authorization").substring(7);
+        String userEmail = jwtService.extractUserEmail(token);
+        User currentUser = userDAO.findByEmail(userEmail).orElse(null);
+
         boolean status = type.equalsIgnoreCase("active");
-        return u != null && u.isStatus() != status;
+        return currentUser != null && id != currentUser.getUserId()
+                && u != null && u.isStatus() != status;
     }
 
     private ResponseObject activateUser(int id){
