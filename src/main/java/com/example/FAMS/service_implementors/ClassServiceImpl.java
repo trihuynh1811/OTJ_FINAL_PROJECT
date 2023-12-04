@@ -2,15 +2,12 @@ package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
 import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
-import com.example.FAMS.dto.requests.ClassRequest.UpdateClassDTO;
 import com.example.FAMS.dto.requests.ClassRequest.UpdateClass3Request;
-import com.example.FAMS.dto.responses.CalendarDayResponse;
-import com.example.FAMS.dto.responses.CalendarWeekResponse;
-import com.example.FAMS.dto.responses.Class.*;
-import com.example.FAMS.dto.responses.UpdateCalendarResponse;
-import com.example.FAMS.models.*;
+import com.example.FAMS.dto.requests.ClassRequest.UpdateClassDTO;
 import com.example.FAMS.dto.responses.*;
+import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.models.Class;
+import com.example.FAMS.models.*;
 import com.example.FAMS.models.composite_key.ClassUserCompositeKey;
 import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import com.example.FAMS.repositories.*;
@@ -25,15 +22,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.time.DateTimeException;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.*;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -256,7 +251,7 @@ public class ClassServiceImpl implements ClassService {
                         .build();
             }
 
-            if(!isNumber(request.getAttendeePlanned()) || !isNumber(request.getAttendeeAccepted()) || !isNumber(request.getAttendeeActual())){
+            if (!isNumber(request.getAttendeePlanned()) || !isNumber(request.getAttendeeAccepted()) || !isNumber(request.getAttendeeActual())) {
                 return CreateClassResponse.builder()
                         .message("attendee planned, accepted, actual can't be a words or negative or floating point number")
                         .createdClass(null)
@@ -675,7 +670,7 @@ public class ClassServiceImpl implements ClassService {
                             .build();
                 }
 
-                if(!isNumber(request.getAttendeePlanned()) || !isNumber(request.getAttendeeAccepted()) || !isNumber(request.getAttendeeActual())){
+                if (!isNumber(request.getAttendeePlanned()) || !isNumber(request.getAttendeeAccepted()) || !isNumber(request.getAttendeeActual())) {
                     return UpdateClassResponse.builder()
                             .message("attendee planned, accepted, actual can't be a words or negative or floating point number")
                             .updatedClass(null)
@@ -950,7 +945,7 @@ public class ClassServiceImpl implements ClassService {
                     .status("Invalid time range: timeFrom must be before timeTo")
                     .updateClassLearningDay(null)
                     .build();
-        }  else {
+        } else {
             int startHour = timeFrom.getHours();
             int endHour = timeTo.getHours();
 
@@ -966,7 +961,7 @@ public class ClassServiceImpl implements ClassService {
         }
 
         // ClassLearningDay classLearningDay = classLearningDayDAO.findByClassIdAndEnrollDate(classDAO.findById(request.getId()).orElse(null), eDate);
-        ClassLearningDay classLearningDay = classLearningDayDAO.findByIdAndAndEnrollDate(id,eDate);
+        ClassLearningDay classLearningDay = classLearningDayDAO.findByIdAndAndEnrollDate(id, eDate);
 
         if (classLearningDay != null) {
             if ("Only".equals(value)) {
@@ -974,7 +969,7 @@ public class ClassServiceImpl implements ClassService {
                 classLearningDay.setTimeTo(timeTo);
                 classLearningDay = classLearningDayDAO.save(classLearningDay);
             } else if ("All".equals(value)) {
-               // List<ClassLearningDay> classLearningDays = classLearningDayDAO.findByClassId_ClassId(id);
+                // List<ClassLearningDay> classLearningDays = classLearningDayDAO.findByClassId_ClassId(id);
                 List<ClassLearningDay> classLearningDays = classLearningDayDAO.findByClassId_ClassId(classid);
                 for (ClassLearningDay day : classLearningDays) {
                     day.setTimeFrom(timeFrom);
@@ -983,7 +978,7 @@ public class ClassServiceImpl implements ClassService {
                 classLearningDayDAO.saveAll(classLearningDays);
             }
 
-            if (classLearningDay != null ) {
+            if (classLearningDay != null) {
                 return UpdateCalendarResponse.builder()
                         .status("Update Calendar successful")
                         .updateClassLearningDay(classLearningDay)

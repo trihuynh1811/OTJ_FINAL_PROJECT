@@ -62,7 +62,7 @@ public class TrainingMaterialServiceImpl implements TrainingMaterialService {
 
     @Override
     public ResponseEntity<ResponseObject> deleteTrainingMaterial(String fileName) {
-        if(isFileExisted(fileName)){
+        if (isFileExisted(fileName)) {
             deleteFileInDatabase(fileName);
             s3Client.deleteObject(bucketName, fileName);
             return ResponseEntity
@@ -80,19 +80,19 @@ public class TrainingMaterialServiceImpl implements TrainingMaterialService {
                         .build());
     }
 
-    private boolean isFileExisted(String fileName){
+    private boolean isFileExisted(String fileName) {
         List<TrainingMaterial> list = trainingMaterialDAO.findAll();
-        for (TrainingMaterial t: list) {
-            if(t.getMaterial().equalsIgnoreCase(fileName))
+        for (TrainingMaterial t : list) {
+            if (t.getMaterial().equalsIgnoreCase(fileName))
                 return true;
         }
         return false;
     }
 
-    private void deleteFileInDatabase(String fileName){
+    private void deleteFileInDatabase(String fileName) {
         List<TrainingMaterial> list = trainingMaterialDAO.findAll();
-        for (TrainingMaterial t: list) {
-            if(t.getMaterial().equalsIgnoreCase(fileName))
+        for (TrainingMaterial t : list) {
+            if (t.getMaterial().equalsIgnoreCase(fileName))
                 list.remove(t);
             break;
         }

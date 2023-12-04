@@ -5,7 +5,6 @@ import com.example.FAMS.models.composite_key.ClassUserCompositeKey;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.transaction.annotation.Transactional;
 
 @Entity
 @Data

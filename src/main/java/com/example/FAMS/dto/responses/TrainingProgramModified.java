@@ -7,19 +7,19 @@ import java.util.Date;
 import java.util.Set;
 
 public interface TrainingProgramModified {
-    public int getTrainingProgramCode();
+    int getTrainingProgramCode();
 
-    public String getName();
+    String getName();
 
-    public int getDuration();
+    int getDuration();
 
-    public String getStatus();
+    String getStatus();
 
-    public String getCreatedBy();
+    String getCreatedBy();
 
-    public Date getCreatedDate();
+    Date getCreatedDate();
 
-    public Set<TrainingProgramSyllabus> getTrainingProgramSyllabus();
+    Set<TrainingProgramSyllabus> getTrainingProgramSyllabus();
 
-    public User getUserID();
+    User getUserID();
 }

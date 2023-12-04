@@ -1,26 +1,26 @@
 package com.example.FAMS.dto.responses;
 
 public interface TrainingProgramDetails {
-    public String getTrainingProgramName();
+    String getTrainingProgramName();
 
-    public String getModified_by();
+    String getModified_by();
 
-    public String getModified_date();
+    String getModified_date();
 
-    public String getTopic_name();
+    String getTopic_name();
 
-    public String getPublish_status();
+    String getPublish_status();
 
-    public String getCourse_objective();
+    String getCourse_objective();
 
-    public String getUnit_name();
+    String getUnit_name();
 
-    public Integer getDay_number();
+    Integer getDay_number();
 
-    public String getContent_name();
+    String getContent_name();
 
-    public String getObjective();
+    String getObjective();
 
-    public Integer getDuration();
+    Integer getDuration();
 
 }

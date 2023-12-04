@@ -1,7 +1,6 @@
 package com.example.FAMS.dto.responses;
 
 import com.example.FAMS.dto.responses.Syllabus.PresignedUrlResponse;
-import com.example.FAMS.models.Syllabus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

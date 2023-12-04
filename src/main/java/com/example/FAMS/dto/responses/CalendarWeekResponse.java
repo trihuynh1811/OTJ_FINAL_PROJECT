@@ -4,17 +4,17 @@ import java.sql.Time;
 import java.util.Date;
 
 public interface CalendarWeekResponse {
-    public Time getTimeFrom();
+    Time getTimeFrom();
 
-    public Time getTimeTo();
+    Time getTimeTo();
 
-    public String getClassCode();
+    String getClassCode();
 
-    public String getStatus();
+    String getStatus();
 
-    public Date getEnrollDate();
+    Date getEnrollDate();
 
-    public Date getStartDate();
+    Date getStartDate();
 
-    public Date getEndDate();
+    Date getEndDate();
 }

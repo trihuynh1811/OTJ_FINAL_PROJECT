@@ -3,9 +3,9 @@ package com.example.FAMS.service_implementors;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.example.FAMS.services.FileService;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +40,7 @@ public class FileServiceImpl implements FileService {
 
     @Async
     public String save(String extension) {
-        String fileName = UUID.randomUUID().toString() + extension;
+        String fileName = UUID.randomUUID() + extension;
         return generateUrl(fileName, HttpMethod.PUT);
     }
 }

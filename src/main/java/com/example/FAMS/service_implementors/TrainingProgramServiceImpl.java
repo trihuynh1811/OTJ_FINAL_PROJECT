@@ -3,7 +3,9 @@ package com.example.FAMS.service_implementors;
 import com.example.FAMS.dto.responses.*;
 import com.example.FAMS.enums.Role;
 import com.example.FAMS.models.Class;
-import com.example.FAMS.models.*;
+import com.example.FAMS.models.TrainingProgram;
+import com.example.FAMS.models.TrainingProgramSyllabus;
+import com.example.FAMS.models.User;
 import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import com.example.FAMS.repositories.SyllabusDAO;
 import com.example.FAMS.repositories.TrainingProgramDAO;
@@ -11,7 +13,6 @@ import com.example.FAMS.repositories.TrainingProgramSyllabusDAO;
 import com.example.FAMS.repositories.UserDAO;
 import com.example.FAMS.services.JWTService;
 import com.example.FAMS.services.TrainingProgramService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
@@ -29,7 +30,6 @@ import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -240,7 +240,7 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
 
     @Override
     public ResponseEntity<ResponseTrainingProgram> updateTrainingProgram(
-            int trainingProgramCode,String choice, TrainingProgramDTO2 trainingProgramDTO) {
+            int trainingProgramCode, String choice, TrainingProgramDTO2 trainingProgramDTO) {
         TrainingProgram trainingProgramExisted =
                 trainingProgramDAO.findById(trainingProgramCode).orElse(null);
 
@@ -304,10 +304,10 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
         trainingProgramExisted.setModifiedDate(new Date());
 
         TrainingProgram updatedProgram = trainingProgramDAO.save(trainingProgramExisted);
-        if(choice.equalsIgnoreCase("Save")){
-             updateTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
+        if (choice.equalsIgnoreCase("Save")) {
+            updateTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
         } else if (choice.equalsIgnoreCase("Cancel")) {
-             deleteTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
+            deleteTrainingSyllabus(trainingProgramExisted, trainingProgramDTO.getTopicCode());
 
         }
 
@@ -319,8 +319,6 @@ public class TrainingProgramServiceImpl implements TrainingProgramService {
                         0,
                         updatedProgram));
     }
-
-
 
 
     private TrainingProgramSyllabus updateTrainingSyllabus(TrainingProgram trainingProgram, String[] topicCodes) {

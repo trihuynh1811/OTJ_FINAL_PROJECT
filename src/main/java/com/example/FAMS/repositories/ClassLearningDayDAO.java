@@ -7,11 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Date;
 import java.util.List;
 
-public interface ClassLearningDayDAO  extends JpaRepository<ClassLearningDay,Integer> {
+public interface ClassLearningDayDAO extends JpaRepository<ClassLearningDay, Integer> {
 
     ClassLearningDay findByClassIdAndEnrollDate(Class lop, Date enrollDate);
 
-    ClassLearningDay findByIdAndAndEnrollDate(int id , Date enrollDate);
+    ClassLearningDay findByIdAndAndEnrollDate(int id, Date enrollDate);
 
     List<ClassLearningDay> findByClassId_ClassId(String id);
 

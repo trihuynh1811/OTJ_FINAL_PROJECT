@@ -1,6 +1,5 @@
 package com.example.FAMS.models;
 
-import com.example.FAMS.models.composite_key.UserClassSyllabusCompositeKey;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;

@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateCalendarResponse {
     private String status;
-    private ClassLearningDay updateClassLearningDay ;
+    private ClassLearningDay updateClassLearningDay;
 }

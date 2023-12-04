@@ -1,9 +1,7 @@
 package com.example.FAMS.repositories;
 
-import com.example.FAMS.dto.responses.SearchFilterResponse;
 import com.example.FAMS.models.Syllabus;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,6 +9,7 @@ import java.util.Optional;
 public interface SyllabusDAO extends JpaRepository<Syllabus, String> {
 
     List<Syllabus> findTop1000ByOrderByCreatedDateDesc();
+
     List<Syllabus> findTop1000ByDeletedOrderByCreatedDateDesc(boolean deleted);
 //    List<Syllabus> findTop1000ByDeletedFalseOrderByCreatedDateDesc();
 
@@ -21,6 +20,7 @@ public interface SyllabusDAO extends JpaRepository<Syllabus, String> {
 //    Syllabus getLastSyllabusByTopicCode(String topicCode);
 
     int countByTopicNameLike(String topicName);
+
     List<Syllabus> findAllByPublishStatus(String status);
 
     Optional<Syllabus> findByTopicName(String topicName);

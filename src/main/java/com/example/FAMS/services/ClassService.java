@@ -1,12 +1,11 @@
 package com.example.FAMS.services;
 
-import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
-import com.example.FAMS.dto.requests.ClassRequest.UpdateClassDTO;
+import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import com.example.FAMS.dto.requests.ClassRequest.UpdateClass3Request;
+import com.example.FAMS.dto.requests.ClassRequest.UpdateClassDTO;
 import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.dto.responses.ResponseObject;
-import com.example.FAMS.dto.responses.Syllabus.GetSyllabusByPage;
 import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.models.Class;
 import org.springframework.data.domain.Page;
@@ -22,7 +21,7 @@ public interface ClassService {
 
     List<ClassDetailResponse> getClasses();
 
-    public GetClassesByPage paging(int amount, int pageNumber);
+    GetClassesByPage paging(int amount, int pageNumber);
 
     ResponseEntity<ClassDetailResponse> getClassDetail(String classCode) throws InterruptedException;
 
@@ -48,6 +47,6 @@ public interface ClassService {
 
     UpdateClass3Response updateClass3(UpdateClass3Request updateClass3Request);
 
-    ResponseEntity<ResponseObject>deleteAllTrainingProgramSyllabus();
+    ResponseEntity<ResponseObject> deleteAllTrainingProgramSyllabus();
 
 }

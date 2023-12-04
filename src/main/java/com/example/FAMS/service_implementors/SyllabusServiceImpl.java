@@ -3,20 +3,17 @@ package com.example.FAMS.service_implementors;
 import com.amazonaws.HttpMethod;
 import com.example.FAMS.dto.requests.SyllbusRequest.CreateSyllabusOutlineRequest;
 import com.example.FAMS.dto.responses.Class.UserDTO;
-import com.example.FAMS.dto.responses.Syllabus.MaterialDTO;
 import com.example.FAMS.dto.responses.ResponseObject;
-import com.example.FAMS.dto.responses.Syllabus.DeleteSyllabusResponse;
 import com.example.FAMS.dto.responses.Syllabus.*;
+import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
 import com.example.FAMS.models.*;
 import com.example.FAMS.models.composite_key.SyllabusStandardOutputCompositeKey;
 import com.example.FAMS.models.composite_key.SyllabusTrainingUnitCompositeKey;
 import com.example.FAMS.models.composite_key.SyllabusTrainingUnitTrainingContentCompositeKey;
 import com.example.FAMS.repositories.*;
-import com.example.FAMS.dto.responses.UpdateSyllabusResponse;
-import com.example.FAMS.models.Syllabus;
-import com.example.FAMS.repositories.SyllabusDAO;
 import com.example.FAMS.services.FileService;
 import com.example.FAMS.services.SyllabusService;
+import com.google.common.base.Strings;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,22 +22,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import com.google.common.base.Strings;
 
 import javax.annotation.Nullable;
 import java.io.*;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.*;
-import java.net.URL;
 
 @Service
 @Log4j2
@@ -277,7 +269,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                     request.getGuideReview() < 0 || request.getTestQuiz() < 0 || request.getExam() < 0 ||
                     request.getQuiz() < 0 || request.getAssignment() < 0 || request.getFin() < 0 ||
                     request.getFinalTheory() < 0 || request.getFinalPractice() < 0 || request.getGpa() < 0
-            ){
+            ) {
                 return CreateSyllabusResponse.builder()
                         .status(1)
                         .message("Some of the value can't be negative.")
@@ -285,39 +277,39 @@ public class SyllabusServiceImpl implements SyllabusService {
                         .build();
             }
 
-            if(!isNumberOrFloatingPoint(request.getVersion())){
+            if (!isNumberOrFloatingPoint(request.getVersion())) {
                 return CreateSyllabusResponse.builder()
                         .status(1)
                         .message("Version must be number and can't be negative.")
                         .url(null)
                         .build();
             }
-                Syllabus syllabus = Syllabus.builder()
-                        .topicCode(request.getTopicCode())
-                        .topicName(request.getTopicName())
-                        .trainingAudience(Integer.parseInt(request.getTrainingAudience()))
-                        .courseObjective(request.getCourseObjective())
-                        .technicalGroup(request.getTechnicalRequirement())
-                        .publishStatus(request.getPublishStatus())
-                        .priority(request.getPriority())
-                        .version(request.getVersion())
-                        .createdBy(creator)
-                        .createdDate(new Date())
-                        .trainingPrinciples(request.getTrainingPrinciple())
-                        .modifiedDate(new Date())
-                        .modifiedBy(creator.getEmail())
-                        .assignmentLab(request.getAssignmentLab() + " %")
-                        .conceptLecture(request.getConceptLecture() + " %")
-                        .guideReview(request.getGuideReview() + " %")
-                        .testQuiz(request.getTestQuiz() + " %")
-                        .exam(request.getExam() + " %")
-                        .quiz(request.getQuiz() + " %")
-                        .assignment(request.getAssignment() + " %")
-                        .final_(request.getFin() + " %")
-                        .finalTheory(request.getFinalTheory() + " %")
-                        .finalPractice(request.getFinalPractice() + " %")
-                        .gpa(request.getGpa() + " %")
-                        .build();
+            Syllabus syllabus = Syllabus.builder()
+                    .topicCode(request.getTopicCode())
+                    .topicName(request.getTopicName())
+                    .trainingAudience(Integer.parseInt(request.getTrainingAudience()))
+                    .courseObjective(request.getCourseObjective())
+                    .technicalGroup(request.getTechnicalRequirement())
+                    .publishStatus(request.getPublishStatus())
+                    .priority(request.getPriority())
+                    .version(request.getVersion())
+                    .createdBy(creator)
+                    .createdDate(new Date())
+                    .trainingPrinciples(request.getTrainingPrinciple())
+                    .modifiedDate(new Date())
+                    .modifiedBy(creator.getEmail())
+                    .assignmentLab(request.getAssignmentLab() + " %")
+                    .conceptLecture(request.getConceptLecture() + " %")
+                    .guideReview(request.getGuideReview() + " %")
+                    .testQuiz(request.getTestQuiz() + " %")
+                    .exam(request.getExam() + " %")
+                    .quiz(request.getQuiz() + " %")
+                    .assignment(request.getAssignment() + " %")
+                    .final_(request.getFin() + " %")
+                    .finalTheory(request.getFinalTheory() + " %")
+                    .finalPractice(request.getFinalPractice() + " %")
+                    .gpa(request.getGpa() + " %")
+                    .build();
 
             syllabusDAO.save(syllabus);
 
@@ -365,9 +357,9 @@ public class SyllabusServiceImpl implements SyllabusService {
                         for (int x = 0; x < request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getTrainingMaterials().size(); x++) {
 
                             putPresignedUrl = fileService.generateUrl(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getTrainingMaterials().get(x) + "_"
-                                    + syllabus.getTopicCode() + Integer.toString(request.getSyllabus().get(i).getUnits().get(j).getUnitCode()) + trainingContent.getId().getContentCode(), HttpMethod.PUT);
+                                    + syllabus.getTopicCode() + request.getSyllabus().get(i).getUnits().get(j).getUnitCode() + trainingContent.getId().getContentCode(), HttpMethod.PUT);
                             getPresignedUrl = fileService.generateUrl(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getTrainingMaterials().get(x) + "_"
-                                    + syllabus.getTopicCode() + Integer.toString(request.getSyllabus().get(i).getUnits().get(j).getUnitCode()) + trainingContent.getId().getContentCode(), HttpMethod.GET);
+                                    + syllabus.getTopicCode() + request.getSyllabus().get(i).getUnits().get(j).getUnitCode() + trainingContent.getId().getContentCode(), HttpMethod.GET);
 
                             TrainingMaterial trainingMaterial = TrainingMaterial.builder()
                                     .material(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getTrainingMaterials().get(x))
@@ -383,7 +375,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                         PresignedUrlResponse res = PresignedUrlResponse.builder()
                                 .getPresignedUrl(getPresginedUrlList)
                                 .putPresignedUrl(putPresignedUrlList)
-                                .id("c" + Integer.toString(request.getSyllabus().get(i).getUnits().get(j).getUnitCode()) + trainingContent.getId().getContentCode())
+                                .id("c" + request.getSyllabus().get(i).getUnits().get(j).getUnitCode() + trainingContent.getId().getContentCode())
                                 .build();
 
                         log.info(res);
@@ -594,7 +586,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                     request.getGuideReview() < 0 || request.getTestQuiz() < 0 || request.getExam() < 0 ||
                     request.getQuiz() < 0 || request.getAssignment() < 0 || request.getFin() < 0 ||
                     request.getFinalTheory() < 0 || request.getFinalPractice() < 0 || request.getGpa() < 0
-            ){
+            ) {
                 return UpdateSyllabusResponse.builder()
                         .status(1)
                         .message("Some of the value can't be negative.")
@@ -602,7 +594,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                         .build();
             }
 
-            if(!isNumberOrFloatingPoint(request.getVersion())){
+            if (!isNumberOrFloatingPoint(request.getVersion())) {
                 return UpdateSyllabusResponse.builder()
                         .status(1)
                         .message("Version must be number and can't be negative.")
@@ -679,9 +671,9 @@ public class SyllabusServiceImpl implements SyllabusService {
                         for (int x = 0; x < request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getTrainingMaterials().size(); x++) {
 
                             putPresignedUrl = fileService.generateUrl(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getTrainingMaterials().get(x) + "_"
-                                    + syllabus.getTopicCode() + Integer.toString(request.getSyllabus().get(i).getUnits().get(j).getUnitCode()) + trainingContent.getId().getContentCode(), HttpMethod.PUT);
+                                    + syllabus.getTopicCode() + request.getSyllabus().get(i).getUnits().get(j).getUnitCode() + trainingContent.getId().getContentCode(), HttpMethod.PUT);
                             getPresignedUrl = fileService.generateUrl(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getTrainingMaterials().get(x) + "_"
-                                    + syllabus.getTopicCode() + Integer.toString(request.getSyllabus().get(i).getUnits().get(j).getUnitCode()) + trainingContent.getId().getContentCode(), HttpMethod.GET);
+                                    + syllabus.getTopicCode() + request.getSyllabus().get(i).getUnits().get(j).getUnitCode() + trainingContent.getId().getContentCode(), HttpMethod.GET);
 
                             TrainingMaterial trainingMaterial = TrainingMaterial.builder()
                                     .material(request.getSyllabus().get(i).getUnits().get(j).getContents().get(z).getTrainingMaterials().get(x))
@@ -697,7 +689,7 @@ public class SyllabusServiceImpl implements SyllabusService {
                         PresignedUrlResponse res = PresignedUrlResponse.builder()
                                 .getPresignedUrl(getPresginedUrlList)
                                 .putPresignedUrl(putPresignedUrlList)
-                                .id("c" + Integer.toString(request.getSyllabus().get(i).getUnits().get(j).getUnitCode()) + trainingContent.getId().getContentCode())
+                                .id("c" + request.getSyllabus().get(i).getUnits().get(j).getUnitCode() + trainingContent.getId().getContentCode())
                                 .build();
 
                         log.info(res);

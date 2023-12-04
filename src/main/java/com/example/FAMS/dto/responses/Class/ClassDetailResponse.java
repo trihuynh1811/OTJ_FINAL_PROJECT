@@ -14,6 +14,10 @@ import java.util.List;
 @NoArgsConstructor
 public class ClassDetailResponse {
 
+    //    TrainingProgramDTO trainingProgram;
+    String trainingProgram;
+    List<SyllabusDTO> syllabusList = new ArrayList<>();
+    List<String> listDay = new ArrayList<>();
     private String message = "";
     private String oldClassCode;
     private String classCode;
@@ -37,17 +41,11 @@ public class ClassDetailResponse {
     private UserDTO modifiedBy = null;
     private String modifiedDate = null;
     private boolean deactivated = false;
-
     private List<TrainerDTO> trainer = new ArrayList<>();
     private List<UserDTO> admin = new ArrayList<>();
     private List<UserDTO> attendeeList = new ArrayList<>();
 
-//    TrainingProgramDTO trainingProgram;
-    String trainingProgram;
-    List<SyllabusDTO> syllabusList = new ArrayList<>();
-    List<String> listDay = new ArrayList<>();
-
-    public ClassDetailResponse(String message){
+    public ClassDetailResponse(String message) {
         this.message = message;
 
     }

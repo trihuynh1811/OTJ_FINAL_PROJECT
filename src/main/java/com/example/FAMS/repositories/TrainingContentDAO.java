@@ -1,7 +1,6 @@
 package com.example.FAMS.repositories;
 
 import com.example.FAMS.models.TrainingContent;
-import com.example.FAMS.models.composite_key.SyllabusTrainingUnitCompositeKey;
 import com.example.FAMS.models.composite_key.SyllabusTrainingUnitTrainingContentCompositeKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 

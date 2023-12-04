@@ -2,11 +2,10 @@ package com.example.FAMS.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.sql.Time;
 import java.util.Date;
-
-import lombok.*;
 
 @Entity
 @Data

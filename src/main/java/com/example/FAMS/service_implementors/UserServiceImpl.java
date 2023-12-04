@@ -1,7 +1,6 @@
 package com.example.FAMS.service_implementors;
 
 import com.example.FAMS.controllers.UserController;
-import com.example.FAMS.dto.UserDTO;
 import com.example.FAMS.dto.requests.UpdatePasswordRequest;
 import com.example.FAMS.dto.requests.UpdateRequest;
 import com.example.FAMS.dto.responses.ListUserResponse;
@@ -16,11 +15,6 @@ import com.example.FAMS.repositories.UserPermissionDAO;
 import com.example.FAMS.services.EmailService;
 import com.example.FAMS.services.JWTService;
 import com.example.FAMS.services.UserService;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -181,8 +174,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> changeStatus(int id, String type) {
-        if(checkExistedAndValid(id, type)){
-            switch (type){
+        if (checkExistedAndValid(id, type)) {
+            switch (type) {
                 case "active":
                     return ResponseEntity
                             .ok()
@@ -200,7 +193,7 @@ public class UserServiceImpl implements UserService {
                 .body(new ResponseObject("Fail", msg, null));
     }
 
-    private boolean checkExistedAndValid(int id, String type){
+    private boolean checkExistedAndValid(int id, String type) {
         User u = userDAO.findById(id).orElse(null);
         String token = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
                 .getRequest().getHeader("Authorization").substring(7);
@@ -212,13 +205,13 @@ public class UserServiceImpl implements UserService {
                 && u != null && u.isStatus() != status;
     }
 
-    private ResponseObject activateUser(int id){
+    private ResponseObject activateUser(int id) {
         userDAO.changeStatus(id, true);
         String msg = "Active user with id " + id + " successfully";
         return new ResponseObject("Success", msg, userDAO.findById(id).orElse(null));
     }
 
-    private ResponseObject inactivateUser(int id){
+    private ResponseObject inactivateUser(int id) {
         userDAO.changeStatus(id, false);
         String msg = "Inactive user with id " + id + " successfully";
         return new ResponseObject("Success", msg, userDAO.findById(id).orElse(null));
