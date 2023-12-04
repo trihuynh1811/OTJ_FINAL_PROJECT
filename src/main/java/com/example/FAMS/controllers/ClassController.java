@@ -1,18 +1,14 @@
 package com.example.FAMS.controllers;
 
-import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import com.example.FAMS.dto.requests.Calendar.UpdateCalendarRequest;
+import com.example.FAMS.dto.requests.ClassRequest.CreateClassDTO;
 import com.example.FAMS.dto.requests.ClassRequest.UpdateClass3Request;
 import com.example.FAMS.dto.requests.ClassRequest.UpdateClassDTO;
-import com.example.FAMS.dto.requests.ClassRequest.UpdateClassRequest;
 import com.example.FAMS.dto.responses.Class.*;
 import com.example.FAMS.dto.responses.ResponseObject;
 import com.example.FAMS.dto.responses.UpdateCalendarResponse;
 import com.example.FAMS.models.Class;
-import com.example.FAMS.models.UserClassSyllabus;
-import com.example.FAMS.models.composite_key.SyllabusTrainingProgramCompositeKey;
 import com.example.FAMS.repositories.UserClassSyllabusDAO;
-import com.example.FAMS.service_implementors.ClassServiceImpl;
 import com.example.FAMS.services.ClassService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,10 +53,9 @@ public class ClassController {
     public ResponseEntity<GetClassesByPage> getClasses(@RequestParam int amount, @RequestParam int pageNumber) {
         GetClassesByPage classList = classService.paging(amount, pageNumber);
 
-        if(classList.getStatus() > 0){
+        if (classList.getStatus() > 0) {
             return ResponseEntity.status(400).body(classList);
-        }
-        else if(classList.getStatus() < 0){
+        } else if (classList.getStatus() < 0) {
             return ResponseEntity.status(500).body(classList);
         }
         return ResponseEntity.status(HttpStatus.OK).body(classList);
@@ -81,8 +76,7 @@ public class ClassController {
         CreateClassResponse result = classService.createClass(createClassDTO, authentication);
         if (result.getStatus() == 0) {
             return ResponseEntity.status(200).body(result);
-        }
-        else if(result.getStatus() > 0){
+        } else if (result.getStatus() > 0) {
             return ResponseEntity.status(418).body(result);
         }
         return ResponseEntity.status(500).body(result);

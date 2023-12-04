@@ -1,6 +1,5 @@
 package com.example.FAMS.models;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,9 +26,9 @@ public class ClassInfoDTO {
     private String status;
 
     private String fsu;
-    
+
     private Date startDate;
-    
+
     private Date endDate;
 
     private String createdBy;
@@ -37,11 +36,11 @@ public class ClassInfoDTO {
     private String approve;
 
     private String review;
-    
+
     private Date createdDate;
 
     private String modifiedBy = "";
-    
+
     private Date modifiedDate = null;
 
     private boolean deactivated = false;

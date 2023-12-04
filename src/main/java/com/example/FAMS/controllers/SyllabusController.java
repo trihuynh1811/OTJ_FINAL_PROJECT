@@ -327,7 +327,7 @@ public class SyllabusController {
     @PreAuthorize("hasAuthority('syllabus:create')")
     public ResponseEntity<?> duplicateTopicCode(@PathVariable String topicCode, Authentication authentication) {
         Syllabus duplicatedSyllabus = syllabusService.duplicateSyllabus(topicCode, authentication);
-        if(duplicatedSyllabus == null){
+        if (duplicatedSyllabus == null) {
             return ResponseEntity.status(500).body("server error");
         }
         return ResponseEntity.ok(duplicatedSyllabus);

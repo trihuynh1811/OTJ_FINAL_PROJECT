@@ -1,12 +1,9 @@
 package com.example.FAMS.controllers;
 
 import com.example.FAMS.dto.responses.*;
-import com.example.FAMS.models.TrainingProgram;
 import com.example.FAMS.services.TrainingProgramService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -68,7 +65,7 @@ public class TrainingProgramController {
             @RequestParam String choice,
             @RequestBody TrainingProgramDTO2 trainingProgramDTO) {
 //        return trainingProgram.updateTrainingProgram(trainingProgramCode, trainingProgramDTO);
-        return trainingProgram.updateTrainingProgram(trainingProgramCode,choice, trainingProgramDTO);
+        return trainingProgram.updateTrainingProgram(trainingProgramCode, choice, trainingProgramDTO);
 
     }
 
@@ -98,11 +95,11 @@ public class TrainingProgramController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File empty!");
         }
         try {
-            return trainingProgram.processDataFromCSV(file, choice,separator,scan, authentication);
+            return trainingProgram.processDataFromCSV(file, choice, separator, scan, authentication);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ResponseObject("Failed","couldn't found the list", e.getMessage()));
+                    .body(new ResponseObject("Failed", "couldn't found the list", e.getMessage()));
         }
     }
 

@@ -1,6 +1,5 @@
 package com.example.FAMS.service_implementors;
 
-import com.example.FAMS.controllers.UserController;
 import com.example.FAMS.dto.UserDTO;
 import com.example.FAMS.dto.requests.CreateRequest;
 import com.example.FAMS.dto.requests.LoginRequest;
@@ -20,8 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,11 +40,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final String emailRegex = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
             + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
-    Pattern emailPattern = Pattern.compile(emailRegex);
-    String phoneRegex
+    private final String phoneRegex
             = "^(\\+\\d{1,3}( )?)?((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$"
             + "|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?){2}\\d{3}$"
             + "|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?)(\\d{2}[ ]?){2}\\d{2}$";
+    Pattern emailPattern = Pattern.compile(emailRegex);
     Pattern phonePattern = Pattern.compile(phoneRegex);
 
     private final UserDAO userDAO;
@@ -57,7 +54,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final UserPermissionDAO userPermissionDAO;
-
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
