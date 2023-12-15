@@ -1,7 +1,7 @@
 package com.example.FAMS.models;
 
 
-import com.example.FAMS.enums.Role;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.*;
 
 @Entity
 @Data
@@ -49,13 +50,8 @@ public class User implements UserDetails {
     @Column(name = "gender", nullable = false)
     private String gender;
 
-//    @Column(name = "role", nullable = false)
-//    @Enumerated(EnumType.STRING)
-//    @JsonIgnore
-//    private Role role;
-
-    @Column(name = "status", nullable = false)
-    private String status;
+    @Column(name = "isActive", nullable = false)
+    private boolean status;
 
     @Column(name = "created_by", nullable = false)
     private String createdBy;
@@ -69,29 +65,44 @@ public class User implements UserDetails {
     @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
-    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
     private final Set<ClassUser> classUsers = new HashSet<>();
 
     @ManyToOne
-    @JoinColumn(name = "role", referencedColumnName = "role")
+    @JoinColumn(name = "role")
     @JsonIgnore
-    private UserPermission userPermission;
-
-    @OneToMany(mappedBy = "userID")
     @JsonManagedReference
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private UserPermission role;
+
+    @OneToMany(mappedBy = "userID", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    @JsonIgnore
     private final Set<TrainingProgram> trainingPrograms = new HashSet<>();
 
-    @OneToMany(mappedBy = "userID")
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
-    private final Set<Syllabus> syllabusList = new HashSet<>();
+    @JsonIgnore
+    private final Set<UserClassSyllabus> userSyllabus = new HashSet<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonBackReference
+    @ToString.Exclude
     private final Set<Token> tokens = new HashSet<>();
 
+//    @ManyToOne(cascade = CascadeType.MERGE, optional = true, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "fsu_id", referencedColumnName = "fsu_id")
+//    @EqualsAndHashCode.Exclude
+//    @ToString.Exclude
+//    @JsonBackReference
+//    private Fsu fsu;
+
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return userPermission.getRole().getAuthorities();
+        return role.getAuthorities();
     }
 
     @Override
@@ -123,4 +134,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }
