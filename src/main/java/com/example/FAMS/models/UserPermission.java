@@ -23,7 +23,7 @@ public class UserPermission {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int permissionId;
 
-    @Column(name = "role",nullable = false)
+    @Column(name = "role",nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
     private Role role;
 
