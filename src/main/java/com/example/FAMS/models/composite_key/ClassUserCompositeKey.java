@@ -20,5 +20,5 @@ public class ClassUserCompositeKey implements Serializable {
     int userId;
 
     @Column(name = "class_id")
-    int classId;
+    String classId;
 }

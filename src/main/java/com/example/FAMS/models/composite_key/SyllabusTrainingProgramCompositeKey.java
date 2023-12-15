@@ -20,5 +20,5 @@ public class SyllabusTrainingProgramCompositeKey implements Serializable {
     String topicCode;
 
     @Column(name = "training_program_code")
-    String trainingProgramCode;
+    int trainingProgramCode;
 }

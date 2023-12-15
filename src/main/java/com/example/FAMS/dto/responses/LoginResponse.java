@@ -1,5 +1,6 @@
 package com.example.FAMS.dto.responses;
 
+import com.example.FAMS.dto.UserDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoginResponse {
     private String status;
-
-    private String accessToken;
+    private String role;
+    private String token;
+    private UserDTO userInfo;
 }

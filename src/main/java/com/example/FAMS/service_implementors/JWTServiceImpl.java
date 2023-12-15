@@ -20,11 +20,13 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JWTServiceImpl implements JWTService {
 
+    private final TokenDAO tokenDAO;
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
-
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private long jwtRefreshExpiration;
 
     @Override
     public String extractUserEmail(String token) {
@@ -33,13 +35,20 @@ public class JWTServiceImpl implements JWTService {
 
     @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
+        var validToken = tokenDAO.findByToken(token)
+                .map(t -> !t.isExpired() && !t.isRevoked()).orElse(false);
         String email = userDetails.getUsername();
-        return (email.equals(extractUserEmail(token)) && !isTokenExpired(token));
+        return (email.equals(extractUserEmail(token)) && !isTokenExpired(token) && validToken);
     }
 
     @Override
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
+    }
+
+    @Override
+    public String generateRefreshToken(UserDetails userDetails) {
+        return buildToken(new HashMap<>(), userDetails, jwtRefreshExpiration);
     }
 
     private String generateToken(HashMap<String, Object> extraClaims, UserDetails userDetails) {
@@ -56,7 +65,8 @@ public class JWTServiceImpl implements JWTService {
                 .compact();
     }
 
-    private boolean isTokenExpired(String token) {
+    @Override
+    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
